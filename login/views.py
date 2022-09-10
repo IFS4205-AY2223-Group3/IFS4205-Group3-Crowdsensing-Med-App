@@ -1,8 +1,9 @@
 from django.http import HttpResponse
+from django.shortcuts import render
 
 # Create your views here.
 def index(request):
-    return HttpResponse("everyone login here")
+    return render(request, 'login/index.html')
 
 def patient(request):
     return HttpResponse("view count, generate session, view records, logout")
