@@ -1,4 +1,9 @@
 <form action="{% url 'backend:login' %}" method="post">
+    {% for message in messages %}
+    <div class="alert">
+           {{ message }}
+    </div>
+    {% endfor %}
     {% csrf_token %}
 
     <fieldset>
