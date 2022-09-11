@@ -3,13 +3,18 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
 from django.urls import reverse
 from django.core.exceptions import ObjectDoesNotExist
+from django.utils.datastructures import MultiValueDictKeyError
 from backend.models import Patient, Doctor, Researcher, MedicalStaff
 
 def login_user(request):
 	if request.method == "POST":
 		username = request.POST['username']
 		password = request.POST['password']
-		role = request.POST['role']
+		try:
+			role = request.POST['role']
+		except MultiValueDictKeyError:
+			messages.error(request, ("Please select a role."))
+			return redirect(reverse('login:index'))
 		user = authenticate(request, username=username, password=password)
 		if user is not None:
 			try:
