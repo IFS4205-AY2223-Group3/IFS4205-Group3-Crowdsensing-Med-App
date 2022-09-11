@@ -4,14 +4,13 @@ from django.db import models
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
 
 class CustomAccountManager(BaseUserManager):
-    def create_user(self, email, username, password, **other_fields):
+    def create_user(self, username, email, password, **other_fields):
         if not email:
             raise ValueError(_('You must provide an email address'))
         
-        email = self.normalize_email(email)
-        user = self.model(email=email, username=username, **other_fields)
+        user = self.model(email=self.normalize_email(email), username=username, **other_fields)
         user.set_password(password)
-        user.save()
+        user.save(using=self._db)
         return user
 
     def create_superuser(self, email, username, password, **other_fields):
