@@ -2,6 +2,7 @@ from pyexpat import model
 from statistics import mode
 from django.db import models
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
+from django.utils.crypto import get_random_string
 
 class CustomAccountManager(BaseUserManager):
     def create_user(self, username, email, password, **other_fields):
@@ -24,10 +25,9 @@ class CustomAccountManager(BaseUserManager):
         return self.create_user(email, username, password, **other_fields)
 
 class User(AbstractBaseUser, PermissionsMixin):
-    userid = models.CharField(max_length=50, primary_key=True, unique=True)
+    userid = models.CharField(max_length=16, primary_key=True)
     username = models.CharField(max_length=50, unique=True)
-    hashedpw = models.CharField(max_length=50)
-    salt = models.CharField(max_length=50)
+    password = models.CharField(max_length=128)
     name = models.CharField(max_length=50)
     nric = models.CharField(max_length=9)
     contact = models.CharField(max_length=8)
@@ -35,6 +35,11 @@ class User(AbstractBaseUser, PermissionsMixin):
     emailverified = models.BooleanField(default=False)
     USERNAME_FIELD = 'username'
     REQUIRED_FIELDS = ('email',)
+
+    def save(self, *args, **kwargs):
+        if not self.userid:
+            self.userid = get_random_string(16)
+        super().save(*args, **kwargs)
 
     objects = CustomAccountManager()
         
