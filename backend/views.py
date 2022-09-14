@@ -21,6 +21,8 @@ def login_user(request):
 				user_role = get_role(role)
 				if user_role.objects.get(userid=user.userid):
 					login(request, user)
+					if (role == 'doctor'):
+						return redirect(reverse('login:doctordashboard'))
 					return redirect(reverse('login:success'))
 			except ObjectDoesNotExist:
 				messages.error(request, ("There was an error logging in, try again."))	
@@ -47,3 +49,8 @@ def get_role(user_role):
 		return Researcher
 	if role == 'medicalstaff':
 		return MedicalStaff
+
+def create_session(request):
+	if request.method == "POST":
+		username = request.POST['username']
+		session = PendingSessions.objects.create_session()

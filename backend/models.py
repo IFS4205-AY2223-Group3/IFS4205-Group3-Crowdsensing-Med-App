@@ -75,5 +75,17 @@ class Examinations(models.Model):
     prescription = models.CharField(max_length=50)
     sessiontime = models.DateTimeField(auto_now_add=True)
 
+class SessionManager(models.Manager):
+    def create_session(self, patientid):
+        new_session = PendingSessions.create(patientid=patientid)
+        return new_session
+
+class PendingSessions(models.Model):
+    patientid = models.OneToOneField(Patient, primary_key=True, on_delete=models.CASCADE, db_column='patientid')
+    doctorid = models.OneToOneField(Doctor, on_delete=models.CASCADE, db_column='doctorid')
+    sessionid = models.CharField(max_length=10)
+
+    objects =  SessionManager()
+
 
         
