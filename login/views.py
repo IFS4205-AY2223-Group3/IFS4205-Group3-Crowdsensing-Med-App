@@ -9,7 +9,10 @@ def patient(request):
     return HttpResponse("view count, generate session, view records, logout")
 
 def doctor(request):
-    return HttpResponse("view count, examine, logout")
+    return render(request, 'doctor/dashboard.html')
+
+def doctorexamine(request):
+    return render(request, 'doctor/examine.html')
 
 def medical_helper(request):
     return HttpResponse("view count, logout")
