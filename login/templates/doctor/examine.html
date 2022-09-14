@@ -1,0 +1,10 @@
+<head>
+    <title>Examine patient</title>
+</head>
+<form>
+    <label for="sessionid">Session ID: </label>
+    <input type="text" name="sessionid">
+    <br/>
+    <input type="submit" value="Submit">
+</form>
+<button onclick="location.href='{% url 'login:doctordashboard' %}'" >Back</button>

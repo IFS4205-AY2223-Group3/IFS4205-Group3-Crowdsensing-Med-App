@@ -4,7 +4,7 @@ from django.contrib import messages
 from django.urls import reverse
 from django.core.exceptions import ObjectDoesNotExist
 from django.utils.datastructures import MultiValueDictKeyError
-from backend.models import Patient, Doctor, Researcher, MedicalStaff
+from backend.models import Patient, Doctor, Researcher, MedicalStaff, PendingSessions
 
 def login_user(request):
 	if request.method == "POST":
