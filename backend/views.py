@@ -6,6 +6,9 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.utils.datastructures import MultiValueDictKeyError
 from backend.models import Patient, Doctor, Researcher, MedicalStaff
 
+def index(request):
+    return render(request, 'backend/login.html')
+
 def login_user(request):
 	if request.method == "POST":
 		username = request.POST['username']
@@ -14,20 +17,20 @@ def login_user(request):
 			role = request.POST['role']
 		except MultiValueDictKeyError:
 			messages.error(request, ("Please select a role."))
-			return redirect(reverse('login:index'))
+			return redirect(reverse('index'))
 		user = authenticate(request, username=username, password=password)
 		if user is not None:
 			try:
 				user_role = get_role(role)
 				if user_role.objects.get(userid=user.userid):
 					login(request, user)
-					return redirect(reverse('login:success'))
+					return redirect(reverse('backend:success'))
 			except ObjectDoesNotExist:
 				messages.error(request, ("There was an error logging in, try again."))	
-				return redirect(reverse('login:index'))
+				return redirect(reverse('index'))
 		else:
 			messages.error(request, ("There was an error logging in, try again."))	
-			return redirect(reverse('login:index'))
+			return redirect(reverse('index'))
 
 	else:
 		return render(request, 'authenticate/login.html', {})
@@ -35,7 +38,7 @@ def login_user(request):
 def logout_user(request):
 	logout(request)
 	messages.success(request, ("You Were Logged Out!"))
-	return redirect('login:index')
+	return redirect('index')
 
 def get_role(user_role):
 	role = user_role.lower()
