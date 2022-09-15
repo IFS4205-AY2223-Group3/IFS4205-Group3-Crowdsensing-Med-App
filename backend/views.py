@@ -4,6 +4,7 @@ from django.contrib import messages
 from django.urls import reverse
 from django.core.exceptions import ObjectDoesNotExist
 from django.utils.datastructures import MultiValueDictKeyError
+from django.http import HttpResponse
 from backend.models import Patient, Doctor, Researcher, MedicalStaff, PendingSessions
 
 def login_user(request):
@@ -53,4 +54,21 @@ def get_role(user_role):
 def create_session(request):
 	if request.method == "POST":
 		username = request.POST['username']
-		session = PendingSessions.objects.create_session()
+		session = PendingSessions.objects.create_session(username)
+		return HttpResponse(session.sessionid)
+
+def assign_doctor(request):
+	if request.method == "POST":
+		sessionid = request.POST['sessionid']
+		user = request.user
+		doctor = Doctor.objects.get(userid=user.userid)
+		if doctor is not None:
+			target_session = PendingSessions.objects.get(sessionid=sessionid)
+			target_session.doctorid = doctor
+			target_session.save()
+			request.session['sessionid'] = target_session.sessionid
+			return redirect(reverse('login:doctorhold'))
+		else:
+			return HttpResponse("invalid")
+	else:
+		return HttpResponse("invalid")

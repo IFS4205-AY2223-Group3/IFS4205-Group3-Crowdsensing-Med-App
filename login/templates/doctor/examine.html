@@ -1,7 +1,8 @@
 <head>
     <title>Examine patient</title>
 </head>
-<form>
+<form method="POST" action="{% url 'backend:assigndoctor' %}">
+    {% csrf_token %}
     <label for="sessionid">Session ID: </label>
     <input type="text" name="sessionid">
     <br/>
