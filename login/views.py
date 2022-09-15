@@ -8,16 +8,6 @@ def index(request):
 def patient(request):
     return HttpResponse("view count, generate session, view records, logout")
 
-def doctor(request):
-    return render(request, 'doctor/dashboard.html')
-
-def doctorexamine(request):
-    return render(request, 'doctor/examine.html')
-
-def doctorhold(request):
-    context = {'sessionid': request.session['sessionid']}
-    return render(request, 'doctor/hold.html', context)
-
 def medical_helper(request):
     return HttpResponse("view count, logout")
 
