@@ -23,7 +23,7 @@ def login_user(request):
 				if user_role.objects.get(userid=user.userid):
 					login(request, user)
 					if (role == 'doctor'):
-						return redirect(reverse('login:doctordashboard'))
+						return redirect(reverse('doctor:dashboard'))
 					return redirect(reverse('login:success'))
 			except ObjectDoesNotExist:
 				messages.error(request, ("There was an error logging in, try again."))	
@@ -67,7 +67,7 @@ def assign_doctor(request):
 			target_session.doctorid = doctor
 			target_session.save()
 			request.session['sessionid'] = target_session.sessionid
-			return redirect(reverse('login:doctorhold'))
+			return redirect(reverse('doctor:confirmation'))
 		else:
 			return HttpResponse("invalid")
 	else:
