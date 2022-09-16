@@ -22,9 +22,7 @@ def login_user(request):
 				user_role = get_role(role)
 				if user_role.objects.get(userid=user.userid):
 					login(request, user)
-					if (role == 'doctor'):
-						return redirect(reverse('doctor:dashboard'))
-					return redirect(reverse('login:success'))
+					return redirect_user(role, request, user)
 			except ObjectDoesNotExist:
 				messages.error(request, ("There was an error logging in, try again."))	
 				return redirect(reverse('login:index'))
@@ -39,17 +37,6 @@ def logout_user(request):
 	logout(request)
 	messages.success(request, ("You Were Logged Out!"))
 	return redirect('login:index')
-
-def get_role(user_role):
-	role = user_role.lower()
-	if role == 'patient':
-		return Patient
-	if role == 'doctor':
-		return Doctor
-	if role == 'researcher':
-		return Researcher
-	if role == 'medicalstaff':
-		return MedicalStaff
 
 def create_session(request):
 	if request.method == "POST":
@@ -72,3 +59,24 @@ def assign_doctor(request):
 			return HttpResponse("invalid")
 	else:
 		return HttpResponse("invalid")
+		
+def get_role(user_role):
+	role = user_role.lower()
+	if role == 'patient':
+		return Patient
+	if role == 'doctor':
+		return Doctor
+	if role == 'researcher':
+		return Researcher
+	if role == 'medicalstaff':
+		return MedicalStaff
+
+def redirect_user(role_string, request, user):
+	if (role_string == 'patient'):
+		return redirect(reverse('patient:dashboard'))
+	if (role_string == 'doctor'):
+		return redirect(reverse('doctor:dashboard'))
+	if (role_string == 'researcher'):
+		return redirect(reverse('researcher:dashboard'))
+	if (role_string == 'medicalstaff'):
+		return redirect(reverse('medicalstaff:dashboard'))
