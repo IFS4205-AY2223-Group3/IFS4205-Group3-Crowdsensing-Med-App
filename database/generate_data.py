@@ -1,3 +1,4 @@
+import datetime
 import sys
 import csv
 import string    
@@ -66,6 +67,36 @@ def generate_domain():
     email_domain = '@' + domain_choice + '.com'
     return email_domain
 
+# Function generates random date of birth
+def generate_dob():
+    start_date = datetime.date(1930, 1, 1)
+    end_date = datetime.date(2021, 2, 1)
+    time_between_dates = end_date - start_date
+    days_between_dates = time_between_dates.days
+    random_number_of_days = random.randrange(days_between_dates)
+    random_date = start_date + datetime.timedelta(days=random_number_of_days)
+    return random_date
+
+# Function generates random height
+def generate_height():
+    height = round(random.uniform(130.0,200.0),1)
+    height_str = str(height) + 'cm'
+    return height_str
+
+# Function generates weight
+def generate_weight():
+    weight = round(random.uniform(40.0,110.0),1)
+    weight_str = str(weight) + 'kg'
+    return weight_str
+
+
+# Function generates random blood type
+def generate_bloodtype():
+    bloodtype = ['A+','A-','B+','B-','O+','O-','AB+','AB-']
+    random_bt = random.choice(bloodtype)
+    return random_bt
+
+
 # Generate medicalapp_users
 with open('medicalapp_users.csv', mode='w') as file:
   file_writer = csv.writer(file, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
@@ -131,3 +162,15 @@ with open('medicalapp_staff.csv', mode='w') as file:
   for x in list_staff:
         file_writer.writerow([x])
 
+# Generate medicalapp.healthrecords
+with open('medicalapp_healthrecords.csv', mode='w') as file:
+  file_writer = csv.writer(file, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
+  file_writer.writerow(['patientid','dateofbirth','height','weight','bloodtype','allergies'])
+
+  for id in list_patients:
+        pid = id
+        dob = generate_dob()
+        height = generate_height()
+        weight = generate_weight()
+        bloodtype = generate_bloodtype()
+        file_writer.writerow([pid,dob,height,weight,bloodtype,'NA'])
