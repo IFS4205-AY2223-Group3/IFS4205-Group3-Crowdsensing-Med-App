@@ -1,4 +1,26 @@
 <head>
     <title>Your health records</title>
 </head>
+{% block content %}
+
+<b>Name:</b>
+{{personal_records.email}}
+<br>
+<b>Date of birth:</b>
+{{health_records.dateofbirth}}
+<br>
+<b>Height:</b>
+{{health_records.height}}
+<br>
+<b>Weight:</b>
+{{health_records.weight}}
+<br>
+<b>Bloodtype:</b>
+{{health_records.bloodtype}}
+<br>
+<b>Allergies:</b>
+{{health_records.allergies}}
+<br>
+
+{% endblock content %}
 <button onclick="location.href='{% url 'patient:dashboard' %}'" >Back</button>
