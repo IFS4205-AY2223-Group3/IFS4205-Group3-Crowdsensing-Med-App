@@ -1,8 +1,10 @@
 <head>
     <title>Patient Dashboard</title>
 </head>
-<button onclick="location.href='{% url 'patient:health_records' %}'">View health records</button>
-<br/><br/>
+<form method="GET" action="{% url 'backend:getrecords' %}">
+    {% csrf_token %}
+    <input type="submit" value="View health records">
+</form>
 <button onclick="location.href='{% url 'patient:sessions' %}'">View past sessions</button>
 <br/><br/>
 <button onclick="location.href='{% url 'patient:generate' %}'">Generate Session ID</button>
