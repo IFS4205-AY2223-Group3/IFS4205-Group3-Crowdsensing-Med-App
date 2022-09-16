@@ -33,6 +33,7 @@ ALLOWED_HOSTS = []
 
 INSTALLED_APPS = [
     'login',
+    'doctor',
     'backend.apps.BackendConfig',
     'django.contrib.admin',
     'django.contrib.auth',
