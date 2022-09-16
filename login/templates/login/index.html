@@ -1,4 +1,9 @@
 <form action="{% url 'backend:login' %}" method="post">
+    {% for message in messages %}
+    <div class="alert">
+           {{ message }}
+    </div>
+    {% endfor %}
     {% csrf_token %}
 
     <fieldset>
@@ -16,7 +21,7 @@
             <option disabled selected value="">--select an option--</option>
             <option value="patient">Patient</option>
             <option value="doctor">Doctor</option>
-            <option value="medHelper">Medical Helper</option>
+            <option value="medicalStaff">Medical Helper</option>
             <option value="researcher">Researcher</option>
         </select>
     </fieldset>
