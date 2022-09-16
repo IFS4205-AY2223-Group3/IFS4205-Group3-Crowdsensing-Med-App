@@ -3,10 +3,11 @@
 </head>
 Session ID: {{sessionid}}
 <br/> <br/>
-
+{{error_message}}
+<br/><br/>
 <div>
     Click Next when patient has approved request
 </div>
 
 <br/> <br/>
-<button>Next</button>
+<button onclick="location.href='{% url 'doctor:examine' %}'">Next</button>

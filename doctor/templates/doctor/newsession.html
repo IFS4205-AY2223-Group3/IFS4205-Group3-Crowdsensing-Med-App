@@ -1,0 +1,11 @@
+<head>
+    <title>Examine patient</title>
+</head>
+<form method="POST" action="{% url 'backend:assigndoctor' %}">
+    {% csrf_token %}
+    <label for="sessionid">Session ID: </label>
+    <input type="text" name="sessionid">
+    <br/>
+    <input type="submit" value="Submit">
+</form>
+<button onclick="location.href='{% url 'doctor:dashboard' %}'" >Back</button>
