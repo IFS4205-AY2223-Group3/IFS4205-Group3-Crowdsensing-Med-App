@@ -5,7 +5,7 @@ from django.urls import reverse
 from django.core.exceptions import ObjectDoesNotExist
 from django.utils.datastructures import MultiValueDictKeyError
 from django.http import HttpResponse
-from backend.models import Patient, Doctor, Researcher, MedicalStaff, PendingSessions, HealthRecords
+from backend.models import Patient, Doctor, Researcher, MedicalStaff, PendingSessions, HealthRecords, Examinations, User
 
 def login_user(request):
 	if request.method == "POST":
@@ -53,6 +53,16 @@ def get_records(request):
 			'personal_records': personal_records
 		}
 		return render(request, 'patient/health_records.html', context)
+
+def get_sessions(request):
+	if request.method == "GET":
+		sessions = Examinations.objects.filter(patientid=request.user.userid)
+		users = User.objects.all()
+		context= {
+			'sessions':sessions,
+			'users': users
+		}
+		return render(request, 'patient/sessions.html', context)	
 
 def assign_doctor(request):
 	if request.method == "POST":
