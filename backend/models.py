@@ -68,10 +68,10 @@ class Diagnosis(models.Model):
     description = models.TextField()
 
 class Examinations(models.Model):
-    sessionid = models.CharField(max_length=50, primary_key=True)
-    doctorid = models.OneToOneField(Doctor, on_delete=models.CASCADE, db_column='doctorid')
-    patientid = models.OneToOneField(Patient, on_delete=models.CASCADE, db_column='patientid')
-    code = models.OneToOneField(Diagnosis, on_delete=models.CASCADE, db_column='code')
+    sessionid = models.CharField(max_length=10, primary_key=True)
+    doctorid = models.ForeignKey(Doctor, on_delete=models.CASCADE, db_column='doctorid')
+    patientid = models.ForeignKey(Patient, on_delete=models.CASCADE, db_column='patientid')
+    code = models.ForeignKey(Diagnosis, on_delete=models.CASCADE, db_column='code')
     prescription = models.CharField(max_length=50)
     sessiontime = models.DateTimeField(auto_now_add=True)
 

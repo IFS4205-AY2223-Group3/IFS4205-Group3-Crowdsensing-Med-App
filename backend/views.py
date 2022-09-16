@@ -72,3 +72,6 @@ def assign_doctor(request):
 			return HttpResponse("invalid")
 	else:
 		return HttpResponse("invalid")
+
+def finish_examine(request):
+    return HttpResponse('foo')
