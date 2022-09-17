@@ -4,7 +4,4 @@ from . import views
 app_name = 'login'
 urlpatterns = [
     path('', views.index, name='index'),
-    path('patient/', views.patient, name='patientdashboard'),
-    path('medical-helper/', views.medical_helper, name='medicalhelperdashboard'),
-    path('researcher/', views.researcher, name='researcherdashboard'),
 ]
