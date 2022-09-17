@@ -64,6 +64,15 @@ CREATE TABLE medicalapp.Examinations (
 	FOREIGN KEY (code) REFERENCES medicalapp.Diagnosis
 );
 
+CREATE TABLE medicalapp.AnonymisedRecords (
+	hashid	varchar(50) PRIMARY KEY,
+	agerange varchar(50) NOT NULL,
+	heightrange varchar(50) NOT NULL,
+	weightrange varchar(50) NOT NULL,
+	bloodtype varchar(3) NOT NULL,
+	allergies varchar(50)
+)
+
 CREATE TABLE medicalapp.Crowd (
 	time_recorded	timestamp PRIMARY KEY,
 	total_count 	integer NOT NULL,
