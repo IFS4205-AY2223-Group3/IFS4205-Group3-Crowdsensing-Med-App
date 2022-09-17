@@ -1,0 +1,14 @@
+<head>
+    <title>Patient Dashboard</title>
+</head>
+<form method="GET" action="{% url 'backend:getrecords' %}">
+    {% csrf_token %}
+    <input type="submit" value="View health records">
+</form>
+<form method="GET" action="{% url 'backend:getsessions' %}">
+    {% csrf_token %}
+    <input type="submit" value="View past sessions">
+</form>
+<button onclick="location.href='{% url 'patient:generate' %}'">Generate Session ID</button>
+<br/><br/>
+<button onclick="location.href='{% url 'backend:logout' %}'">Logout</button>
