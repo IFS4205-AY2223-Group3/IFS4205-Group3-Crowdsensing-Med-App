@@ -44,19 +44,19 @@ class User(AbstractBaseUser, PermissionsMixin):
     objects = CustomAccountManager()
         
 class Researcher(models.Model):
-    userid = models.OneToOneField(User, on_delete=models.CASCADE, primary_key=True, db_column='userid')
+    user = models.OneToOneField(User, on_delete=models.CASCADE, primary_key=True, db_column='userid')
 
 class Patient(models.Model):
-    userid = models.OneToOneField(User, on_delete=models.CASCADE, primary_key=True, db_column='userid')
+    user = models.OneToOneField(User, on_delete=models.CASCADE, primary_key=True, db_column='userid')
     
 class Doctor(models.Model):
-    userid = models.OneToOneField(User, on_delete=models.CASCADE, primary_key=True, db_column='userid')
+    user = models.OneToOneField(User, on_delete=models.CASCADE, primary_key=True, db_column='userid')
 
 class MedicalStaff(models.Model):
-    userid = models.OneToOneField(User, on_delete=models.CASCADE, primary_key=True, db_column='userid')
+    user = models.OneToOneField(User, on_delete=models.CASCADE, primary_key=True, db_column='userid')
 
 class HealthRecords(models.Model):
-    userid = models.OneToOneField(Patient, on_delete=models.CASCADE, primary_key=True, db_column='userid')
+    user = models.OneToOneField(Patient, on_delete=models.CASCADE, primary_key=True, db_column='userid')
     dateofbirth = models.DateField()
     height = models.IntegerField()
     weight = models.IntegerField()
@@ -69,8 +69,8 @@ class Diagnosis(models.Model):
 
 class Examinations(models.Model):
     sessionid = models.CharField(max_length=10, primary_key=True)
-    doctorid = models.ForeignKey(Doctor, on_delete=models.CASCADE, db_column='doctorid')
-    patientid = models.ForeignKey(Patient, on_delete=models.CASCADE, db_column='patientid')
+    doctor = models.ForeignKey(Doctor, on_delete=models.CASCADE, db_column='doctorid')
+    patient = models.ForeignKey(Patient, on_delete=models.CASCADE, db_column='patientid')
     code = models.ForeignKey(Diagnosis, on_delete=models.CASCADE, db_column='code')
     prescription = models.CharField(max_length=50)
     sessiontime = models.DateTimeField(auto_now_add=True)
@@ -82,12 +82,16 @@ class SessionManager(models.Manager):
         return new_session
 
 class PendingSessions(models.Model):
-    patientid = models.OneToOneField(Patient, primary_key=True, on_delete=models.CASCADE, db_column='patientid')
-    doctorid = models.OneToOneField(Doctor, on_delete=models.CASCADE, db_column='doctorid', null=True)
+    patient = models.OneToOneField(Patient, primary_key=True, on_delete=models.CASCADE, db_column='patientid')
+    doctor = models.OneToOneField(Doctor, on_delete=models.CASCADE, db_column='doctorid', null=True)
     sessionid = models.CharField(max_length=10)
     approved = models.BooleanField(default=False)
 
     objects =  SessionManager()
+
+class Crowd(models.Model):
+    time_recorded = models.DateTimeField(auto_now_add=True, primary_key=True)
+    count = models.IntegerField()
 
 
         
