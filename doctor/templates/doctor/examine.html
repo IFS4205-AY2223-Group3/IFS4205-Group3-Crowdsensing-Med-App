@@ -4,7 +4,7 @@
 <h2>Current session</h2>
 Session ID: {{session.session_id}}
 <br/><br/>
-<form method="POST" action="{% url 'backend:examine' %}">
+<form method="POST" action="{% url 'backend:submit_examination' %}">
     {% csrf_token %}
     <label for="patientid">Patient ID: </label>
     <input type="text" name="patientid" value="{{session.patient.user_id}}" readonly>
