@@ -1,0 +1,16 @@
+<head>
+    <title>Your past sessions</title>
+</head>
+{% block content %}
+
+{% for x in sessions %}
+<b>Date of visit:</b>
+{{x.sessiontime}}
+<br>
+<b>Prescription:</b>
+{{x.prescription}}
+<br>
+{% endfor %}
+
+{% endblock content %}
+<button onclick="location.href='{% url 'patient:dashboard' %}'" >Back</button>
