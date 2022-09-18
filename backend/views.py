@@ -1,11 +1,11 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
 from django.urls import reverse
 from django.core.exceptions import ObjectDoesNotExist
 from django.utils.datastructures import MultiValueDictKeyError
 from django.http import HttpResponse
-from backend.models import Patient, Doctor, Researcher, MedicalStaff, PendingSessions, HealthRecords, Examinations, User
+from .models import Patient, Doctor, Researcher, MedicalStaff, PendingSessions, HealthRecords, Examinations, User
 
 def login_user(request):
 	if request.method == "POST":
@@ -100,3 +100,9 @@ def redirect_user(role_string, request, user):
 		return redirect(reverse('researcher:dashboard'))
 	if (role_string == 'medicalstaff'):
 		return redirect(reverse('medicalstaff:dashboard'))
+
+# Common
+def get_name(request):
+	if request.method == "GET":
+		loggedin_user = get_object_or_404(User, userid=request.user.userid)
+		return loggedin_user.name
