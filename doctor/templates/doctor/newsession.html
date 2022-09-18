@@ -3,8 +3,8 @@
 </head>
 <form method="POST" action="{% url 'backend:assigndoctor' %}">
     {% csrf_token %}
-    <label for="sessionid">Session ID: </label>
-    <input type="text" name="sessionid">
+    <label for="session_id">Session ID: </label>
+    <input type="text" name="session_id">
     <br/>
     <input type="submit" value="Submit">
 </form>
