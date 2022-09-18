@@ -2,7 +2,7 @@ from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
 from django.urls import reverse
-from django.core.exceptions import ObjectDoesNotExist
+from django.core.exceptions import ObjectDoesNotExist, PermissionDenied
 from django.utils.datastructures import MultiValueDictKeyError
 from django.http import HttpResponse
 from backend.models import *
@@ -47,7 +47,7 @@ def create_session(request):
 def get_records(request):
 	if request.method == "GET":
 		personal_records = request.user
-		health_records = HealthRecords.objects.get(userid=request.user.userid)
+		health_records = HealthRecords.objects.get(user_id=request.user.user_id)
 		context= {
 			'health_records':health_records,
 			'personal_records': personal_records
@@ -66,7 +66,7 @@ def get_sessions(request):
 
 def assign_doctor(request):
 	if request.method == "POST":
-		sessionid = request.POST['sessionid']
+		sessionid = request.POST['session_id']
 		user = request.user
 		try:
 			doctor = Doctor.objects.get(user=user)
@@ -76,9 +76,7 @@ def assign_doctor(request):
 			request.session['session_id'] = target_session.session_id
 			request.session['error_msg'] = ''
 			return redirect(reverse('doctor:confirmation'))
-		except Doctor.DoesNotExist:
-			return HttpResponse("invalid")
-		except PendingSessions.DoesNotExist:
+		except (Doctor.DoesNotExist, PendingSessions.DoesNotExist) as exception:
 			return HttpResponse("invalid")
 	else:
 		return HttpResponse("invalid")
@@ -86,7 +84,7 @@ def assign_doctor(request):
 def finish_examine(request):
 	if request.method == "POST":
 		# definitely need to add sanitization here
-		sessionid = request.session['sessionid']
+		sessionid = request.session['session_id']
 		patient = Patient.objects.get(user_id=request.POST['patientid'])
 		doctor = Doctor.objects.get(user_id=request.POST['doctorid'])
 		diagnosis = Diagnosis.objects.get(code=request.POST['code'])
@@ -95,7 +93,8 @@ def finish_examine(request):
 		new_exam.save()
 		
 		PendingSessions.objects.get(session_id=sessionid).delete()
-		request.session['sessionid'] = None
+		del request.session['session_id']
+		del request.session['error_msg']
 		return redirect(reverse('doctor:newsession'))
 	return HttpResponse("huh")
 		
@@ -119,3 +118,28 @@ def redirect_user(role_string, request, user):
 		return redirect(reverse('researcher:dashboard'))
 	if (role_string == 'medicalstaff'):
 		return redirect(reverse('medicalstaff:dashboard'))
+
+
+def check_user_role(request, role):
+	try:
+		role.objects.get(user_id=request.user)
+	except role.DoesNotExist:
+		raise PermissionDenied
+
+def check_session_approved(request):
+	try:
+		session = PendingSessions.objects.get(doctor=request.user.user_id)
+		if session.approved is False:
+			return False
+		return True
+	except PendingSessions.DoesNotExist:
+		return False
+
+def get_examination_context(request):
+	session = PendingSessions.objects.get(doctor=request.user.user_id)
+	context = { 
+            'session': session, 
+            'record': HealthRecords.objects.get(user=session.patient),
+            'past_visits': Examinations.objects.all().filter(patient=session.patient)
+            }
+	return context
