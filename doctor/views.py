@@ -20,11 +20,16 @@ def new_session(request):
 def examine(request):
     if (request.user.is_authenticated):
         try:
-            doc = Doctor.objects.get(userid=request.user.userid)
-            new_session = PendingSessions.objects.get(doctorid=doc)
-            context = { 'session': new_session, 
-                        'record': HealthRecords.objects.get(userid=new_session.patientid),
-                        'past_visits': Examinations.objects.all().filter(patientid=new_session.patientid)}
+            doc = Doctor.objects.get(user=request.user)
+            new_session = PendingSessions.objects.get(doctor=doc)
+            if new_session.approved == False:
+                request.session['error_msg'] = 'Patient has not approved the request!'
+                return redirect(reverse('doctor:confirmation'))
+            context = { 
+                'session': new_session, 
+                'record': HealthRecords.objects.get(user=new_session.patient),
+                'past_visits': Examinations.objects.all().filter(patient=new_session.patient)
+                }
             return render(request, 'doctor/examine.html', context)
         except Doctor.DoesNotExist:
             return redirect(reverse('login:index'))
@@ -33,7 +38,10 @@ def examine(request):
 
 def confirmation(request):
     if (request.user.is_authenticated):
-        context = {'sessionid': request.session['sessionid']}
+        context = {
+            'sessionid': request.session['session_id'],
+            'error_message': request.session['error_msg']
+            }
         return render(request, 'doctor/confirmation.html', context)
     else:
         return redirect(reverse('login:index'))
