@@ -35,6 +35,7 @@ INSTALLED_APPS = [
     'login',
     'patient',
     'doctor',
+    'medicalstaff',
     'backend.apps.BackendConfig',
     'django.contrib.admin',
     'django.contrib.auth',
