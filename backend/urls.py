@@ -10,4 +10,7 @@ urlpatterns = [
     #path('submit_examination', views.finish_examine, name='submit_examination'),
     #path('get_records', views.get_records, name='getrecords'),
     #path('get_sessions', views.get_sessions, name='getsessions')
+    path('assign_doctor/', views.AssignPendingSession.as_view()),
+    path('submit_examination/', views.AddExamination.as_view()),
+    path('view_records/', views.GetExamination.as_view())
 ]
