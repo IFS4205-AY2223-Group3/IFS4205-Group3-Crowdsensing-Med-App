@@ -1,4 +1,4 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
 from django.urls import reverse
@@ -119,7 +119,6 @@ def redirect_user(role_string, request, user):
 	if (role_string == 'medicalstaff'):
 		return redirect(reverse('medicalstaff:dashboard'))
 
-
 def check_user_role(request, role):
 	try:
 		role.objects.get(user_id=request.user)
@@ -143,3 +142,9 @@ def get_examination_context(request):
             'past_visits': Examinations.objects.all().filter(patient=session.patient)
             }
 	return context
+
+# Common
+def get_name(request):
+	if request.method == "GET":
+		loggedin_user = get_object_or_404(User, userid=request.user.userid)
+		return loggedin_user.name
