@@ -1,0 +1,11 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title>Staff Dashboard</title>
+    </head>
+
+    <body>
+        <h2>Welcome, {{ staffname }}</h2>
+        <button onclick="location.href='{% url 'backend:logout' %}'" type="button">Logout</button>
+    </body>
+</html>

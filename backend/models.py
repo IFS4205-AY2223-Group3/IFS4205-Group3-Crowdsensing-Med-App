@@ -9,12 +9,12 @@ class CustomAccountManager(BaseUserManager):
         if not email:
             raise ValueError(_('You must provide an email address'))
         
-        user = self.model(email=self.normalize_email(email), username=username, **other_fields)
+        user = self.model(username=username, email=self.normalize_email(email), **other_fields)
         user.set_password(password)
         user.save(using=self._db)
         return user
 
-    def create_superuser(self, email, username, password, **other_fields):
+    def create_superuser(self, username, email, password, **other_fields):
         other_fields.setdefault('is_superuser', True)
         other_fields.setdefault('emailverified', True)
 
@@ -22,10 +22,10 @@ class CustomAccountManager(BaseUserManager):
             raise ValueError(
                 'Superuser must be assigned to is_superuser=True.')
 
-        return self.create_user(email, username, password, **other_fields)
+        return self.create_user(username, email, password, **other_fields)
 
 class User(AbstractBaseUser, PermissionsMixin):
-    userid = models.CharField(max_length=16, primary_key=True)
+    user_id = models.CharField(max_length=16, primary_key=True)
     username = models.CharField(max_length=50, unique=True)
     password = models.CharField(max_length=128)
     name = models.CharField(max_length=50)
@@ -34,29 +34,30 @@ class User(AbstractBaseUser, PermissionsMixin):
     email = models.EmailField(max_length=50, unique=True)
     emailverified = models.BooleanField(default=False)
     USERNAME_FIELD = 'username'
+    EMAIL_FIELD = 'email'
     REQUIRED_FIELDS = ('email',)
 
     def save(self, *args, **kwargs):
-        if not self.userid:
-            self.userid = get_random_string(16)
+        if not self.user_id:
+            self.user_id = get_random_string(16)
         super().save(*args, **kwargs)
 
     objects = CustomAccountManager()
         
 class Researcher(models.Model):
-    userid = models.OneToOneField(User, on_delete=models.CASCADE, primary_key=True, db_column='userid')
+    user = models.OneToOneField(User, on_delete=models.CASCADE, primary_key=True)
 
 class Patient(models.Model):
-    userid = models.OneToOneField(User, on_delete=models.CASCADE, primary_key=True, db_column='userid')
+    user = models.OneToOneField(User, on_delete=models.CASCADE, primary_key=True)
     
 class Doctor(models.Model):
-    userid = models.OneToOneField(User, on_delete=models.CASCADE, primary_key=True, db_column='userid')
+    user = models.OneToOneField(User, on_delete=models.CASCADE, primary_key=True)
 
 class MedicalStaff(models.Model):
-    userid = models.OneToOneField(User, on_delete=models.CASCADE, primary_key=True, db_column='userid')
+    user = models.OneToOneField(User, on_delete=models.CASCADE, primary_key=True)
 
 class HealthRecords(models.Model):
-    userid = models.OneToOneField(Patient, on_delete=models.CASCADE, primary_key=True, db_column='userid')
+    user = models.OneToOneField(Patient, on_delete=models.CASCADE, primary_key=True)
     dateofbirth = models.DateField()
     height = models.IntegerField()
     weight = models.IntegerField()
@@ -67,13 +68,20 @@ class Diagnosis(models.Model):
     code = models.CharField(max_length=10, primary_key=True)
     description = models.TextField()
 
+class ExaminationManager(models.Manager):
+    def create_exam(self, sessionid, doctor, patient, code, prescription):
+        exam = self.create(session_id = sessionid, doctor = doctor, patient = patient, diagnosis = code, prescription = prescription)
+        return exam
+
 class Examinations(models.Model):
-    sessionid = models.CharField(max_length=50, primary_key=True)
-    doctorid = models.OneToOneField(Doctor, on_delete=models.CASCADE, db_column='doctorid')
-    patientid = models.OneToOneField(Patient, on_delete=models.CASCADE, db_column='patientid')
-    code = models.OneToOneField(Diagnosis, on_delete=models.CASCADE, db_column='code')
+    session_id = models.CharField(max_length=50, primary_key=True)
+    doctor = models.ForeignKey(Doctor, on_delete=models.CASCADE)
+    patient = models.ForeignKey(Patient, on_delete=models.CASCADE)
+    diagnosis = models.ForeignKey(Diagnosis, on_delete=models.CASCADE)
     prescription = models.CharField(max_length=50)
     sessiontime = models.DateTimeField(auto_now_add=True)
+
+    objects = ExaminationManager()
 
 class SessionManager(models.Manager):
     def create_session(self, patientid):
@@ -82,12 +90,16 @@ class SessionManager(models.Manager):
         return new_session
 
 class PendingSessions(models.Model):
-    patientid = models.OneToOneField(Patient, primary_key=True, on_delete=models.CASCADE, db_column='patientid')
-    doctorid = models.OneToOneField(Doctor, on_delete=models.CASCADE, db_column='doctorid', null=True)
-    sessionid = models.CharField(max_length=10)
+    patient = models.OneToOneField(Patient, primary_key=True, on_delete=models.CASCADE)
+    doctor = models.OneToOneField(Doctor, on_delete=models.CASCADE, null=True)
+    session_id = models.CharField(max_length=10)
     approved = models.BooleanField(default=False)
 
     objects =  SessionManager()
+
+class Crowd(models.Model):
+    time_recorded = models.DateTimeField(auto_now_add=True)
+    count = models.IntegerField()
 
 
         
