@@ -28,6 +28,14 @@ body {
   padding: 1rem 0.5rem;
 }
 
+.container {
+    height:100vh;
+    width:100vw;
+    display:flex;
+    justify-content: center;
+    align-items: center;
+}
+
 section {
     width: 100%;
     max-width: 420px;
