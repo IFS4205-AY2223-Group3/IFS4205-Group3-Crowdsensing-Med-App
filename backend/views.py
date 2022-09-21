@@ -15,11 +15,18 @@ class AssignPendingSession(APIView):
 		try:
 			exam_id = request.data['exam_id']
 			doctor_id = request.data['doctor_id']
-			#do sanitization here
+
 			assigned_session = PendingSessions.objects.get(session_id=exam_id)
+			doctor = Doctor.objects.get(user_id=doctor_id)
+
+			
+			if assigned_session.doctor is not None and assigned_session.doctor != doctor:
+				return Response({'message': 'patient has already been assigned'})
+				
 			if assigned_session.approved == False:
 				return Response({'message': 'patient has yet to give consent!'})
-			assigned_session.doctor = Doctor.objects.get(user_id=doctor_id)
+
+			assigned_session.doctor = doctor
 			assigned_session.save()
 			response = {
 				'patientId': assigned_session.patient.user_id,
@@ -31,9 +38,9 @@ class AssignPendingSession(APIView):
 		except KeyError:
 			return Response({'message':'invalid data'})
 		except PendingSessions.DoesNotExist:
-			return Response({'message':'session does not exist!'})
+			return Response({'message':'invalid data'})
 		except Doctor.DoesNotExist:
-			return Response({'message':'doctor does not exist!'})
+			return Response({'message':'invalid data'})
 
 class GetExamination(APIView):
 	parser_classes = [JSONParser]
@@ -47,7 +54,7 @@ class GetExamination(APIView):
 			serialized_exams = ExaminationSerializer(exams, many=True)
 			return Response(serialized_exams.data)
 		except Patient.DoesNotExist:
-			return Response("toh")
+			return Response("invalid data")
 
 class AddExamination(APIView):
 	parser_classes = [JSONParser]
