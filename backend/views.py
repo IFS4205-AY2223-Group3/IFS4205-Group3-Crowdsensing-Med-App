@@ -9,7 +9,7 @@ from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from backend.models import Patient, Doctor, Researcher, MedicalStaff, PendingSessions, HealthRecords, Examinations, User
-from backend.serializers import UserSerializer 
+from backend.serializers import UserSerializer, PatientSessionSerializer
 
 @api_view(["POST", "GET"])
 def login_user(request):
@@ -20,7 +20,7 @@ def login_user(request):
 		user = authenticate(request, username=username, password=password)
 		if user is not None:
 			try:
-				get_role(role).objects.get(pk=user.user_id)
+				get_role(role).objects.get(user)
 				login(request, user)
 				data = {}
 				data = UserSerializer(user).data
@@ -35,11 +35,16 @@ def login_user(request):
 	else:
 		return Response({'errorMessage': 'Invalid request method.'}, status=status.HTTP_400_BAD_REQUEST)
 
+@api_view(["POST", "GET"])
 def create_session(request):
-	if request.method == "POST":
-		user = request.user
-		session = PendingSessions.objects.create_session(username)
-		return HttpResponse(session.sessionid)
+	#Have to test with frontend
+	if request.method == "GET":
+		session = PendingSessions.objects.create_session(request.user)
+		data = {}
+		data = UserSerializer(session).data
+		return Response(data, status=status.HTTP_200_OK)
+	else:
+		return Response({'errorMessage': 'Invalid request method.'}, status=status.HTTP_400_BAD_REQUEST)
 
 def get_records(request):
 	if request.method == "GET":

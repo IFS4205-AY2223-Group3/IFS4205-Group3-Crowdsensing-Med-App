@@ -85,7 +85,8 @@ class Examinations(models.Model):
 
 class SessionManager(models.Manager):
     def create_session(self, patientid):
-        new_session = PendingSessions.create(patientid=patientid)
+        patient_obj = Patient.objects.get(patientid)
+        new_session = PendingSessions.objects.create(patient=patient_obj)
         new_session.sessionid = get_random_string(10)
         return new_session
 
