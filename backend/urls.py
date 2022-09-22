@@ -6,6 +6,7 @@ urlpatterns = [
     path('login', views.login_user, name='login'),
     path('generate_session', views.create_session, name='generatesession'),
     path('view_records', views.view_records, name='viewrecords'),
+    path('allow_session', views.allow_session, name='allowsession'),
     #path('assign_doctor', views.assign_doctor, name='assigndoctor'),
     #path('submit_examination', views.finish_examine, name='submit_examination'),
     #path('get_sessions', views.get_sessions, name='getsessions')
