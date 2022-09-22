@@ -1,6 +1,6 @@
 import { useRef, useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import "./Login.css";
+import styles from "./Login.module.css";
 import { useAuth } from "../context/AuthProvider";
 
 const Login = () => {
@@ -53,7 +53,7 @@ const Login = () => {
   };
 
   return (
-    <div className="container">
+    <div className={styles.container}>
       <section>
         <p
           ref={errRef}
@@ -62,7 +62,7 @@ const Login = () => {
         >
           {errMsg}
         </p>
-        <h1>IFS4205 Group 3 Medical Application</h1>
+        <h1>Welcome to MediBook</h1>
         <form onSubmit={handleSubmit}>
           <label htmlFor="username">Username:</label>
           <input
