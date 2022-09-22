@@ -1,0 +1,14 @@
+<head>
+    <title>Waiting for confirmation</title>
+</head>
+Session ID: {{sessionid}}
+<br/> <br/>
+<br/>
+<div>
+    Click Next when patient has approved request
+</div>
+<br/> <br/>
+<div style="color:red">
+    {{error_message}}
+</div>
+<button onclick="location.href='{% url 'doctor:examine' %}'">Next</button>
