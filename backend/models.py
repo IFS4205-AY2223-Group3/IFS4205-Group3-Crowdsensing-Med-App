@@ -84,16 +84,17 @@ class Examinations(models.Model):
     objects = ExaminationManager()
 
 class SessionManager(models.Manager):
-    def create_session(self, patientid):
-        patient_obj = Patient.objects.get(patientid)
-        new_session = PendingSessions.objects.create(patient=patient_obj)
-        new_session.sessionid = get_random_string(10)
-        return new_session
+    def create_session(self, patient_obj):
+        random_id = get_random_string(10)
+        session, created = PendingSessions.objects.get_or_create(patient=patient_obj, session_id=random_id)
+        if not created:
+            return PendingSessions.objects.none()
+        return session
 
 class PendingSessions(models.Model):
     patient = models.OneToOneField(Patient, primary_key=True, on_delete=models.CASCADE)
     doctor = models.OneToOneField(Doctor, on_delete=models.CASCADE, null=True)
-    session_id = models.CharField(max_length=10)
+    session_id = models.CharField(max_length=10, unique=True)
     approved = models.BooleanField(default=False)
 
     objects =  SessionManager()
