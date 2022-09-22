@@ -9,7 +9,7 @@ from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from backend.models import Patient, Doctor, Researcher, MedicalStaff, PendingSessions, HealthRecords, Examinations, User
-from backend.serializers import UserSerializer, PatientSessionSerializer, PatientRecordsSerializer
+from backend.serializers import UserSerializer, PatientSessionIdSerializer, PatientRecordsSerializer, PatientPastSessionSerializer
 
 @api_view(["POST", "GET"])
 def login_user(request):
@@ -38,13 +38,12 @@ def login_user(request):
 @api_view(["POST", "GET"])
 def create_session(request):
 	if request.method == "GET":
-		user_obj = request.user
-		patient_obj = Patient.objects.get(pk = user_obj)
-		session = PendingSessions.objects.create_session(patient_obj)
+		# user_obj = request.user
 
 		# For local testing
-		# user_obj = User.objects.get(pk = 2)
-		# patient_obj = Patient.objects.get(pk = user_obj)
+		user_obj = User.objects.get(pk = 3)
+
+		patient_obj = Patient.objects.get(pk = user_obj)
 
 		#Checks if patient has an existing pending session
 		try:
@@ -57,7 +56,7 @@ def create_session(request):
 			else:
 				existing_session = session
 		data = {}
-		data = PatientSessionSerializer(existing_session).data
+		data = PatientSessionIdSerializer(existing_session).data
 		return Response(data, status=status.HTTP_200_OK)
 	else:
 		return Response({'errorMessage': 'Invalid request method.'}, status=status.HTTP_400_BAD_REQUEST)
@@ -65,33 +64,41 @@ def create_session(request):
 @api_view(["POST", "GET"])
 def view_records(request):
 	if request.method == "GET":
+		# user_obj = request.user
+
 		# For local testing
-		user_obj = User.objects.get(pk = 2)
+		user_obj = User.objects.get(pk = 3)
+		
 		patient_obj = get_patient_object(user_obj)
+		data = {}
 		#Checks if user is a patient
 		if not patient_obj:
 			return Response({'errorMessage': 'Action forbidden.'}, status=status.HTTP_403_FORBIDDEN)
 		try:
 			record_obj = HealthRecords.objects.get(pk = patient_obj)
+			data['healthRecords'] = PatientRecordsSerializer(record_obj).data
 		except ObjectDoesNotExist:
-			return Response({'errorMessage': 'You have no health records.'}, status=status.HTTP_400_BAD_REQUEST)
-		data = {}
-		data['healthRecords'] = PatientRecordsSerializer(record_obj).data
+			data['healthRecords'] = {}
+		try:
+			past_sessions = Examinations.objects.filter(patient = patient_obj)
+			data['examRecords'] = PatientPastSessionSerializer(past_sessions, many=True).data
+		except ObjectDoesNotExist:
+			data['examRecords'] = {}
 		return Response(data, status=status.HTTP_200_OK)
 	else:
 		return Response({'errorMessage': 'Invalid request method.'}, status=status.HTTP_400_BAD_REQUEST)
 
 def get_patient_object(user):
 	# user_obj = request.user
+
 	# For local testing
 	user_obj = user
+	
 	try:
 		patient_obj = Patient.objects.get(pk = user_obj)
 	except ObjectDoesNotExist:
 		return Patient.objects.none()
 	return patient_obj
-
-
 
 def get_sessions(request):
 	if request.method == "GET":
