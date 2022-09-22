@@ -12,14 +12,19 @@ const Patient_Dashboard = () => {
     navigate("/login");
   };
 
-  const GenerateSession = async () => {};
+  const GenerateSession = async () => {
+    navigate("/generatesession");
+  };
 
-  const ViewHealthRecords = async () => {};
+  const ViewHealthRecords = async () => {
+    navigate("/viewrecords");
+  };
 
   return (
     <div className={styles.container}>
       <h2 className={styles.header}>Welcome {name}!</h2>
       <div class={styles.buttons_container}>
+        <div class={styles.circle}>50%</div>
         <div class="generate">
           <button class={styles.button} onClick={GenerateSession}>
             Generate Session

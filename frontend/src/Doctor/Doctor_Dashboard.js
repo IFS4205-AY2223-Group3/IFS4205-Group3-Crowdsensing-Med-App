@@ -18,6 +18,7 @@ const Doctor_Dashboard = () => {
     <div className={styles.container}>
       <h2 className={styles.header}>Welcome {name}!</h2>
       <div class={styles.buttons_container}>
+        <div class={styles.circle}>50%</div>
         <div class="examine">
           <button className={styles.button} onClick={Examine}>
             Examine
