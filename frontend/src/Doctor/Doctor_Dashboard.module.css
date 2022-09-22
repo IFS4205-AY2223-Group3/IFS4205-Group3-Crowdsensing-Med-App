@@ -8,6 +8,7 @@
     font-family: 'Nunito', sans-serif;
     font-size: 40px;
     color:rgb(0, 0, 0);
+
 }
 
 .buttons_container{
@@ -27,3 +28,14 @@
     font-size: 32px;
 }
 
+.circle {
+    width: 200px;
+    height: 200px;
+    line-height: 200px;
+    border-radius: 50%;
+    font-size: 50px;
+    font-weight: bold;
+    color: rgb(1, 1, 1);
+    text-align: center;
+    background: rgb(14, 195, 47)
+  }
