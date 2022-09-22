@@ -23,6 +23,16 @@ textarea {
   border-radius: 0.5rem;
 }
 
+.logo {
+    display: block;
+    width: 50%;
+    margin-left: auto;
+    margin-right: auto;
+    justify-content: center;
+    align-items: center;
+    
+}
+
 
 label,
 button {
