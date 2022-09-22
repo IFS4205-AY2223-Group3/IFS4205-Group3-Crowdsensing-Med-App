@@ -41,10 +41,11 @@ def create_session(request):
 		# user_obj = request.user
 
 		# For local testing
-		user_obj = User.objects.get(pk = 3)
+		user_obj = User.objects.get(pk = 2)
 
-		patient_obj = Patient.objects.get(pk = user_obj)
-
+		patient_obj = get_patient_object(user_obj)
+		if not patient_obj:
+			return Response({'errorMessage': 'Action forbidden.'}, status=status.HTTP_403_FORBIDDEN)
 		#Checks if patient has an existing pending session
 		try:
 			existing_session = PendingSessions.objects.get(pk = patient_obj)
@@ -67,7 +68,7 @@ def view_records(request):
 		# user_obj = request.user
 
 		# For local testing
-		user_obj = User.objects.get(pk = 3)
+		user_obj = User.objects.get(pk = 2)
 		
 		patient_obj = get_patient_object(user_obj)
 		data = {}
@@ -95,8 +96,10 @@ def allow_session(request):
 
 		# For local testing
 		user_obj = User.objects.get(pk = 3)
-		
+
 		patient_obj = get_patient_object(user_obj)
+		if not patient_obj:
+			return Response({'errorMessage': 'Action forbidden.'}, status=status.HTTP_403_FORBIDDEN)
 		exam_id = request.POST.get('examId')
 		is_allowed = request.POST.get('isAllowed')
 		allowed = bool(is_allowed)
