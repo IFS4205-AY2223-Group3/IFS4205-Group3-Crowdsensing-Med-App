@@ -64,17 +64,34 @@ def create_session(request):
 
 @api_view(["POST", "GET"])
 def view_records(request):
-	if request.method == "POST":
-		user_id = request.POST.get('userId')
-		record_obj = HealthRecords.objects.get(Patient.objects.get(request.user))
+	if request.method == "GET":
+		# For local testing
+		user_obj = User.objects.get(pk = 2)
+		patient_obj = get_patient_object(user_obj)
+		#Checks if user is a patient
+		if not patient_obj:
+			return Response({'errorMessage': 'Action forbidden.'}, status=status.HTTP_403_FORBIDDEN)
+		try:
+			record_obj = HealthRecords.objects.get(pk = patient_obj)
+		except ObjectDoesNotExist:
+			return Response({'errorMessage': 'You have no health records.'}, status=status.HTTP_400_BAD_REQUEST)
 		data = {}
-		data = PatientRecordsSerializer(user).data
-		health_records = HealthRecords.objects.get(userid=request.user.userid)
-		context= {
-			'health_records':health_records,
-			'personal_records': personal_records
-		}
-		return render(request, 'patient/health_records.html', context)
+		data['healthRecords'] = PatientRecordsSerializer(record_obj).data
+		return Response(data, status=status.HTTP_200_OK)
+	else:
+		return Response({'errorMessage': 'Invalid request method.'}, status=status.HTTP_400_BAD_REQUEST)
+
+def get_patient_object(user):
+	# user_obj = request.user
+	# For local testing
+	user_obj = user
+	try:
+		patient_obj = Patient.objects.get(pk = user_obj)
+	except ObjectDoesNotExist:
+		return Patient.objects.none()
+	return patient_obj
+
+
 
 def get_sessions(request):
 	if request.method == "GET":
