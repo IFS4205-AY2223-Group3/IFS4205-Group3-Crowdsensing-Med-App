@@ -10,3 +10,8 @@ class PatientSessionSerializer(serializers.ModelSerializer):
     class Meta:
         model = PendingSessions
         fields = ['session_id']
+
+class PatientRecordsSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = HealthRecords
+        fields = ['dateofbirth', 'height', 'weight', 'bloodtype', 'allergies']

@@ -9,7 +9,7 @@ from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from backend.models import Patient, Doctor, Researcher, MedicalStaff, PendingSessions, HealthRecords, Examinations, User
-from backend.serializers import UserSerializer, PatientSessionSerializer
+from backend.serializers import UserSerializer, PatientSessionSerializer, PatientRecordsSerializer
 
 @api_view(["POST", "GET"])
 def login_user(request):
@@ -20,7 +20,7 @@ def login_user(request):
 		user = authenticate(request, username=username, password=password)
 		if user is not None:
 			try:
-				get_role(role).objects.get(user)
+				get_role(role).objects.get(pk = user)
 				login(request, user)
 				data = {}
 				data = UserSerializer(user).data
@@ -37,18 +37,38 @@ def login_user(request):
 
 @api_view(["POST", "GET"])
 def create_session(request):
-	#Have to test with frontend
 	if request.method == "GET":
-		session = PendingSessions.objects.create_session(request.user)
+		user_obj = request.user
+		patient_obj = Patient.objects.get(pk = user_obj)
+		session = PendingSessions.objects.create_session(patient_obj)
+
+		# For local testing
+		# user_obj = User.objects.get(pk = 2)
+		# patient_obj = Patient.objects.get(pk = user_obj)
+
+		#Checks if patient has an existing pending session
+		try:
+			existing_session = PendingSessions.objects.get(pk = patient_obj)
+		except ObjectDoesNotExist:
+			session = PendingSessions.objects.create_session(patient_obj)
+			#Returns error if backend produces an existing session_id
+			if not session:
+				return Response({'errorMessage': 'Server encountered an error, please try again.'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+			else:
+				existing_session = session
 		data = {}
-		data = UserSerializer(session).data
+		data = PatientSessionSerializer(existing_session).data
 		return Response(data, status=status.HTTP_200_OK)
 	else:
 		return Response({'errorMessage': 'Invalid request method.'}, status=status.HTTP_400_BAD_REQUEST)
 
-def get_records(request):
-	if request.method == "GET":
-		personal_records = request.user
+@api_view(["POST", "GET"])
+def view_records(request):
+	if request.method == "POST":
+		user_id = request.POST.get('userId')
+		record_obj = HealthRecords.objects.get(Patient.objects.get(request.user))
+		data = {}
+		data = PatientRecordsSerializer(user).data
 		health_records = HealthRecords.objects.get(userid=request.user.userid)
 		context= {
 			'health_records':health_records,
