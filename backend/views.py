@@ -114,7 +114,6 @@ def allow_session(request):
 	else:
 		return Response({'errorMessage': 'Invalid request method.'}, status=status.HTTP_400_BAD_REQUEST)
 
-
 def get_patient_object(user):
 	# user_obj = request.user
 
@@ -126,32 +125,6 @@ def get_patient_object(user):
 	except ObjectDoesNotExist:
 		return Patient.objects.none()
 	return patient_obj
-
-def get_sessions(request):
-	if request.method == "GET":
-		sessions = Examinations.objects.filter(patientid=request.user.userid)
-		users = User.objects.all()
-		context= {
-			'sessions':sessions,
-			'users': users
-		}
-		return render(request, 'patient/sessions.html', context)	
-
-def assign_doctor(request):
-	if request.method == "POST":
-		sessionid = request.POST['sessionid']
-		user = request.user
-		doctor = Doctor.objects.get(userid=user.userid)
-		if doctor is not None:
-			target_session = PendingSessions.objects.get(sessionid=sessionid)
-			target_session.doctorid = doctor
-			target_session.save()
-			request.session['sessionid'] = target_session.sessionid
-			return redirect(reverse('doctor:confirmation'))
-		else:
-			return HttpResponse("invalid")
-	else:
-		return HttpResponse("invalid")
 		
 def get_role(user_role):
 	role = user_role.lower()
