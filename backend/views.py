@@ -88,12 +88,36 @@ def view_records(request):
 	else:
 		return Response({'errorMessage': 'Invalid request method.'}, status=status.HTTP_400_BAD_REQUEST)
 
+@api_view(["POST", "GET"])
+def allow_session(request):
+	if request.method == "POST":
+		# user_obj = request.user
+
+		# For local testing
+		user_obj = User.objects.get(pk = 3)
+		
+		patient_obj = get_patient_object(user_obj)
+		exam_id = request.POST.get('examId')
+		is_allowed = request.POST.get('isAllowed')
+		allowed = bool(is_allowed)
+		data = {}
+		session = PendingSessions.objects.filter(session_id = exam_id,patient = patient_obj)
+		if not session:
+			data['isSuccess'] = "False"
+		else:
+			session.update(approved=allowed)
+			data['isSuccess'] = "True"
+		return Response(data, status=status.HTTP_200_OK)
+	else:
+		return Response({'errorMessage': 'Invalid request method.'}, status=status.HTTP_400_BAD_REQUEST)
+
+
 def get_patient_object(user):
 	# user_obj = request.user
 
 	# For local testing
 	user_obj = user
-	
+
 	try:
 		patient_obj = Patient.objects.get(pk = user_obj)
 	except ObjectDoesNotExist:
