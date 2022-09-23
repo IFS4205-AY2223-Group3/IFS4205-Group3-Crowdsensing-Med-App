@@ -1,10 +1,25 @@
 .container {
-    height:100vh;
+    height: 50px;;
     width:100vw;
   
 }
 
 .header {
+    font-family: 'Nunito', sans-serif;
+    font-size: 40px;
+    color:rgb(0, 0, 0);
+
+}
+
+.error_header {
+    font-family: 'Nunito', sans-serif;
+    font-size: 40px;
+    color:rgb(255, 246, 246);
+    background-color: red;
+
+}
+
+.text {
     font-family: 'Nunito', sans-serif;
     font-size: 40px;
     color:rgb(0, 0, 0);
@@ -21,11 +36,29 @@
 
 }
 
+
 .button {
     padding: 0.5rem;
     background-color: rgb(198, 202, 195);
     padding: 15px 32px;
     font-size: 32px;
+    display:inline-block;
+}
+
+.greenButton {
+    padding: 0.5rem;
+    background-color: rgb(114, 255, 6);
+    padding: 14px 25px;
+    font-size: 32px;
+    display:inline-block;
+
+}
+
+.italic {
+    font-family: 'Nunito', sans-serif;
+    font-size: 32px;
+    font-style: italic;
+    color:rgb(0, 0, 0);
 }
 
 .circle {
