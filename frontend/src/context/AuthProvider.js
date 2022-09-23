@@ -23,6 +23,7 @@ export function useAuth() {
           withCredentials: true,
         }
       );
+
       // Getting response
       const accessToken = response?.data?.accessToken;
       const role = response?.data?.userRole;
@@ -43,8 +44,8 @@ export function useAuth() {
       return responseObject;
     } catch (error) {
       const accessToken = "access_token";
-      const role = "doctor";
-      const name = "John";
+      const role = "patient";
+      const name = "Oscar";
       const userId = "user_id";
 
       const auth = {
