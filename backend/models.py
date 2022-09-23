@@ -74,7 +74,7 @@ class ExaminationManager(models.Manager):
         return exam
 
 class Examinations(models.Model):
-    session_id = models.CharField(max_length=50, primary_key=True)
+    exam_id = models.CharField(max_length=50, primary_key=True)
     doctor = models.ForeignKey(Doctor, on_delete=models.CASCADE)
     patient = models.ForeignKey(Patient, on_delete=models.CASCADE)
     diagnosis = models.ForeignKey(Diagnosis, on_delete=models.CASCADE)
@@ -92,7 +92,7 @@ class SessionManager(models.Manager):
 class PendingSessions(models.Model):
     patient = models.OneToOneField(Patient, primary_key=True, on_delete=models.CASCADE)
     doctor = models.OneToOneField(Doctor, on_delete=models.CASCADE, null=True)
-    session_id = models.CharField(max_length=10)
+    exam_id = models.CharField(max_length=10)
     approved = models.BooleanField(default=False)
 
     objects =  SessionManager()
