@@ -4,6 +4,7 @@ from . import views
 app_name = 'backend'
 urlpatterns = [
     path('login', views.Login.as_view(), name='login'),
+    path('logout', views.Logout.as_view()),
     path('generate_session', views.create_session, name='generatesession'),
     path('view_records', views.view_records, name='viewrecords'),
     path('allow_session', views.allow_session, name='allowsession'),
