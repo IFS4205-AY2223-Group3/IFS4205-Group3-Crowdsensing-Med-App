@@ -16,6 +16,7 @@ from rest_framework.serializers import ValidationError
 
 class AssignPendingExam(APIView):
 	parser_classes = [JSONParser]
+	permission_classes = (IsAuthenticated, )
 	
 	#assign doctor to a session (done by doctors)
 	@csrf_exempt
@@ -27,7 +28,9 @@ class AssignPendingExam(APIView):
 			assigned_session = PendingExamination.objects.get(exam_id=exam_id)
 			doctor = Doctor.objects.get(user_id=doctor_id)
 
-			
+			if (request.auth.user != doctor):
+				return Response({'message': 'Unauthorized'}, status=status.HTTP_403_FORBIDDEN)
+
 			if assigned_session.doctor is not None and assigned_session.doctor != doctor:
 				return Response({'message': 'patient has already been assigned'})
 				
