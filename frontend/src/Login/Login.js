@@ -2,6 +2,7 @@ import { useRef, useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import styles from "./Login.module.css";
 import { useAuth } from "../context/AuthProvider";
+import logo from "../imports/medibook.png";
 
 const Login = () => {
   const { login } = useAuth();
@@ -62,6 +63,7 @@ const Login = () => {
         >
           {errMsg}
         </p>
+        <img src={logo} className={styles.logo} alt="logo" />
         <h1>Welcome to MediBook</h1>
         <form onSubmit={handleSubmit}>
           <label htmlFor="username">Username:</label>
