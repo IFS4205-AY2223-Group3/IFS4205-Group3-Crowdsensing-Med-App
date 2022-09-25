@@ -3,14 +3,15 @@ from . import views
 
 app_name = 'backend'
 urlpatterns = [
-    #path('login_user', views.login_user, name='login'),
-    #path('logout_user', views.logout_user, name='logout'),
-    #path('create_session', views.create_session, name='createsession'),
-    #path('assign_doctor', views.assign_doctor, name='assigndoctor'),
-    #path('submit_examination', views.finish_examine, name='submit_examination'),
-    #path('get_records', views.get_records, name='getrecords'),
-    #path('get_sessions', views.get_sessions, name='getsessions')
-    path('assign_doctor/', views.AssignPendingSession.as_view()),
+    path('login', views.login_user, name='login'),
+    path('generate_session', views.create_session, name='generatesession'),
+    path('view_records', views.view_records, name='viewrecords'),
+    path('allow_session', views.allow_session, name='allowsession'),
+    path('assign_doctor/', views.AssignPendingExam.as_view()),
     path('submit_examination/', views.AddExamination.as_view()),
     path('view_records/', views.GetExamination.as_view())
+    #path('assign_doctor', views.assign_doctor, name='assigndoctor'),
+    #path('submit_examination', views.finish_examine, name='submit_examination'),
+    #path('get_sessions', views.get_sessions, name='getsessions')
+    #path('logout_user', views.logout_user, name='logout'),
 ]
