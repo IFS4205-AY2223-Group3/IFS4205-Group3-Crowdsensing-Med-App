@@ -1,12 +1,12 @@
 from django.contrib.auth import authenticate, login, logout
 from django.views.decorators.csrf import csrf_exempt
 from django.core.exceptions import ObjectDoesNotExist
+
 from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.parsers import JSONParser
 from rest_framework.decorators import api_view
-from rest_framework.authentication import SessionAuthentication, BasicAuthentication
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.authtoken.models import Token
 from rest_framework.authtoken.views import ObtainAuthToken
@@ -102,6 +102,15 @@ class Login(ObtainAuthToken):
 		except ValidationError:
 			return Response({'errorMessage: Invalid credentials'}, status=status.HTTP_400_BAD_REQUEST)
 		
+class Logout(APIView):
+	def post(self, request, *args, **kwargs):
+		try:
+			request.auth.token.delete()
+			return Response({'message: success'}, status=status.HTTP_200_OK)
+		except ValidationError:
+			return Response({'errorMessage: Invalid credentials'}, status=status.HTTP_400_BAD_REQUEST)
+		except Token.DoesNotExist:
+			return Response({'message: success'}, status=status.HTTP_200_OK)
 @api_view(["POST", "GET"])
 def login_user(request):
 	if request.method == "POST":
