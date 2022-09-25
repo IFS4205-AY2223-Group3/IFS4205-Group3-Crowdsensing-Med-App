@@ -1,13 +1,14 @@
 import React from "react";
 import { AuthProvider, RequireAuth } from "./context/AuthProvider";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
+import { createRoot } from "react-dom/client";
+import "./index.css";
 import Login from "./Login/Login";
 import Patient_Dashboard from "./Patient/Patient_Dashboard";
 import Doctor_Dashboard from "./Doctor/Doctor_Dashboard";
-import { createRoot } from "react-dom/client";
 import Generate_Session from "./Patient/Generate_Session";
-import "./index.css";
 import View_Records from "./Patient/View_Records";
+import Allow_Session from "./Patient/Allow_Session";
 
 const rootElement = document.getElementById("root");
 const root = createRoot(rootElement);
@@ -40,6 +41,14 @@ root.render(
             element={
               <RequireAuth role="patient">
                 <View_Records />
+              </RequireAuth>
+            }
+          />
+          <Route
+            path="allowsession"
+            element={
+              <RequireAuth role="patient">
+                <Allow_Session />
               </RequireAuth>
             }
           />
