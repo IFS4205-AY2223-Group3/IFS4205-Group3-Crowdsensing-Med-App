@@ -8,7 +8,6 @@ import loading from "../imports/loading.gif";
 const Allow_Session = () => {
   const navigate = useNavigate();
   const examId = localStorage.getItem("examId");
-  const token = localStorage.getItem("accessToken");
   const name = localStorage.getItem("name");
   const [errMsg, setErrMsg] = useState("");
   const [success, setSuccess] = useState(false);
@@ -22,8 +21,8 @@ const Allow_Session = () => {
   const post = async () => {
     axios
       .post(ALLOWS_SESSION_URL, {
-        token: token,
         examId: examId,
+        isAllowed: true,
       })
       .then(function (response) {
         setSuccess(true);
