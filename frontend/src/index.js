@@ -4,6 +4,8 @@ import { BrowserRouter, Route, Routes } from "react-router-dom";
 import Login from "./Login/Login";
 import Patient_Dashboard from "./Patient/Patient_Dashboard";
 import Doctor_Dashboard from "./Doctor/Doctor_Dashboard";
+import Examine from "./Doctor/Examine";
+import Submit_Examination from "./Doctor/Submit_Examination";
 import { createRoot } from "react-dom/client";
 import Generate_Session from "./Patient/Generate_Session";
 import "./index.css";
@@ -48,6 +50,22 @@ root.render(
             element={
               <RequireAuth role="doctor">
                 <Doctor_Dashboard />
+              </RequireAuth>
+            }
+          />
+          <Route
+            path="examine"
+            element={
+              <RequireAuth role="doctor">
+                <Examine />
+              </RequireAuth>
+            }
+          />
+          <Route
+            path="submitexamination"
+            element={
+              <RequireAuth role="doctor">
+                <Submit_Examination />
               </RequireAuth>
             }
           />
