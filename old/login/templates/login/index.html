@@ -1,0 +1,30 @@
+<form action="{% url 'backend:login' %}" method="post">
+    {% for message in messages %}
+    <div class="alert">
+           {{ message }}
+    </div>
+    {% endfor %}
+    {% csrf_token %}
+
+    <fieldset>
+        {% if error_message %}
+            <p><strong>{{ error_message }}</strong></p>
+        {% endif %}
+        <label for="username">Username: </label>
+        <input type="text" name="username">
+        <br><br>
+        <label for="password">Password: </label>
+        <input type="password" name="password">
+        <br><br>
+        <label for="role">Role: </label>
+        <select name="role">
+            <option disabled selected value="">--select an option--</option>
+            <option value="patient">Patient</option>
+            <option value="doctor">Doctor</option>
+            <option value="medicalstaff">Medical Staff</option>
+            <option value="researcher">Researcher</option>
+        </select>
+    </fieldset>
+
+    <input type="submit" value="Login">
+</form>

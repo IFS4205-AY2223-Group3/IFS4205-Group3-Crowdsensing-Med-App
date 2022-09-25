@@ -1,0 +1,51 @@
+<head>
+    <title>Examine patient</title>
+</head>
+<h2>Current session</h2>
+Session ID: {{session.session_id}}
+<br/><br/>
+<form method="POST" action="{% url 'backend:submit_examination' %}">
+    {% csrf_token %}
+    <label for="patientid">Patient ID: </label>
+    <input type="text" name="patientid" value="{{session.patient.user_id}}" readonly>
+    <br/><br/>
+    <label for="doctorid">Doctor ID: </label>
+    <input type="text" name="doctorid" value="{{session.doctor.user_id}}" readonly>
+    <br/><br/>
+    <label for="code">Code: </label>
+    <input type="text" name="code">
+    <br/><br/>
+    <label for="prescription">Prescription: </label>
+    <input type="text" name="prescription">
+    <br/><br/>
+    <input type="submit" value="Submit">
+</form>
+
+<br/><br/>
+
+<h2>Patient medical history</h2>
+<div>
+    <ul>
+        <li>Date of birth: {{record.dateofbirth}}</li>
+        <li>Height: {{record.height}}</li>
+        <li>Weight: {{record.weight}}</li>
+        <li>Blood type: {{record.bloodtype}}</li>
+        <li>Allergies: {{record.allergies}}</li>
+    </ul>
+</div>
+<br/>
+<h2>Patient past visits</h2>
+<div>
+    <ul>
+    {% for visits in past_visits %}
+        <li>{{visits.sessiontime}}
+            <ul>
+                <li>Attending doctor: {{visits.doctor.user.name}}</li>
+                <li>Diagnosis code: {{visits.diagnosis.code}}</li>
+                <li>Prescription: {{visits.prescription}}</li>
+            </ul>
+        </li>
+        <br/>
+    {% endfor %}
+    </ul>
+</div>
