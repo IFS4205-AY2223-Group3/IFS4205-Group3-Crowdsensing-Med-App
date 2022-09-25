@@ -26,7 +26,7 @@ SECRET_KEY = 'django-insecure-r+3v8i9-p=^&17m&lec0@6$1z(pm+zawd3z)n4cc)29c$m37jy
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['ifs4205-group3-backend-i.comp.nus.edu.sg']
 
 
 # Application definition
@@ -81,10 +81,10 @@ WSGI_APPLICATION = 'ifs4205project.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'HOST': '',
+        'HOST': 'ifs4205-group3-db-i.comp.nus.edu.sg',
         'NAME': 'ifs4205',
-        'USER': 'test_user',
-        'PASSWORD': 'test_user',
+        'USER': 'postgres',
+        'PASSWORD': 'group3fall2022',
     }
 }
 
