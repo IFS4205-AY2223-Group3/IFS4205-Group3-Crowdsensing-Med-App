@@ -4,7 +4,7 @@ from backend.models import *
 class ExaminationSerializer(serializers.ModelSerializer):
     class Meta:
         model = Examination
-        fields = ['exam_id', 'doctor', 'patient', 'diagnosis', 'prescription', 'sessiontime']
+        fields = ['exam_id', 'doctor', 'patient', 'diagnosis', 'prescription']
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
@@ -27,4 +27,4 @@ class PatientPastSessionSerializer(serializers.ModelSerializer):
     diagnosis = serializers.CharField(source='diagnosis.description')
     class Meta:
         model = Examination
-        fields = ['session_id', 'doctor', 'diagnosis', 'prescription', 'sessiontime']
+        fields = ['exam_id', 'doctor', 'diagnosis', 'prescription', 'examtime']
