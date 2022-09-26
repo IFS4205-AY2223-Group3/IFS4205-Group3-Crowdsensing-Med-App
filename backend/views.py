@@ -45,15 +45,9 @@ class Login(ObtainAuthToken):
 
 class Logout(APIView):
 	permission_classes = (IsAuthenticated, )
-	def post(self, request, *args, **kwargs):
-		try:
-			request.auth.token.delete()
-			return Response({'message': SUCCESS_MESSAGE}, status=status.HTTP_200_OK)
-		except ValidationError:
-			return Response({'message': LOGOUT_ERROR_MESSAGE}, status=status.HTTP_400_BAD_REQUEST)
-		except AttributeError:
-			return Response({'message': LOGOUT_ERROR_MESSAGE}, status=status.HTTP_400_BAD_REQUEST)
-
+	def get(self, request, *args, **kwargs):
+		request.auth.delete()
+		return Response({'message': SUCCESS_MESSAGE}, status=status.HTTP_200_OK)
 
 #######################################################################################################################
 #DOCTOR API
