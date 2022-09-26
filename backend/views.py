@@ -115,7 +115,7 @@ def create_session(request):
 		user_obj = request.auth.user
 		patient_obj = get_patient_object(user_obj)
 		if not patient_obj:
-			return Response({'errorMessage': 'Action forbidden.'}, status=status.HTTP_403_FORBIDDEN)
+			return Response({'message': 'Action forbidden.'}, status=status.HTTP_403_FORBIDDEN)
 		#Checks if patient has an existing pending session
 		try:
 			existing_session = PendingExamination.objects.get(pk = patient_obj)
@@ -123,14 +123,14 @@ def create_session(request):
 			session = PendingExamination.objects.create_exam(patient_obj)
 			#Returns error if backend produces an existing session_id
 			if not session:
-				return Response({'errorMessage': 'Server encountered an error, please try again.'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+				return Response({'message': 'Server encountered an error, please try again.'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 			else:
 				existing_session = session
 		data = {}
-		data = {PatientSessionIdSerializer(existing_session).data}
+		data = PatientSessionIdSerializer(existing_session).data
 		return Response(data, status=status.HTTP_200_OK)
 	else:
-		return Response({'errorMessage': 'Invalid request method.'}, status=status.HTTP_400_BAD_REQUEST)
+		return Response({'message': 'There was an error, please try again.'}, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(["POST", "GET"])
 def view_records(request):
@@ -140,7 +140,7 @@ def view_records(request):
 		data = {}
 		#Checks if user is a patient
 		if not patient_obj:
-			return Response({'errorMessage': 'Action forbidden.'}, status=status.HTTP_403_FORBIDDEN)
+			return Response({'message': 'Action forbidden.'}, status=status.HTTP_403_FORBIDDEN)
 		try:
 			record_obj = HealthRecord.objects.get(pk = patient_obj)
 			data['healthRecords'] = PatientRecordsSerializer(record_obj).data
@@ -153,7 +153,7 @@ def view_records(request):
 			data['examRecords'] = {}
 		return Response(data, status=status.HTTP_200_OK)
 	else:
-		return Response({'errorMessage': 'Invalid request method.'}, status=status.HTTP_400_BAD_REQUEST)
+		return Response({'message': 'There was an error, please try again.'}, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(["POST", "GET"])
 def allow_session(request):
@@ -161,20 +161,18 @@ def allow_session(request):
 		user_obj = request.auth.user
 		patient_obj = get_patient_object(user_obj)
 		if not patient_obj:
-			return Response({'errorMessage': 'Action forbidden.'}, status=status.HTTP_403_FORBIDDEN)
+			return Response({'message': 'Action forbidden.'}, status=status.HTTP_403_FORBIDDEN)
 		exam_id = request.POST.get('examId')
-		is_allowed = request.POST.get('isAllowed')
-		allowed = bool(is_allowed)
 		data = {}
 		session = PendingExamination.objects.filter(exam_id = exam_id,patient = patient_obj)
 		if not session:
-			data['isSuccess'] = "False"
+			return Response({'message': 'There was an error. No session exists.'}, status=status.HTTP_400_BAD_REQUEST)
 		else:
-			session.update(approved=allowed)
-			data['isSuccess'] = "True"
+			session.update(approved=True)
+			data['message'] = "success"
 		return Response(data, status=status.HTTP_200_OK)
 	else:
-		return Response({'errorMessage': 'Invalid request method.'}, status=status.HTTP_400_BAD_REQUEST)
+		return Response({'message': 'There was an error, please try again.'}, status=status.HTTP_400_BAD_REQUEST)
 
 def get_patient_object(user):
 	user_obj = user
