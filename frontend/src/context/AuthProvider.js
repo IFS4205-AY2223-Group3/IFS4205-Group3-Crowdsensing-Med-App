@@ -1,6 +1,6 @@
 import { Navigate } from "react-router-dom";
 import axios from "axios";
-import { LOGIN_URL } from "../api/constants";
+import { LOGIN_URL, LOGOUT_URL } from "../api/constants";
 import React, { useState, useEffect } from "react";
 
 const Context = React.createContext();
@@ -15,18 +15,15 @@ export function useAuth() {
 
   const login = async ({ user, pwd, userRole }) => {
     try {
-      const response = await axios.post(
-        LOGIN_URL,
-        JSON.stringify({ user, pwd, userRole }),
-        {
-          headers: { "Content-Type": "application/json" },
-          withCredentials: true,
-        }
-      );
+      const response = await axios.post(LOGIN_URL, {
+        username: user,
+        password: pwd,
+        role: userRole,
+      });
 
       // Getting response
-      const accessToken = response?.data?.accessToken;
-      const role = response?.data?.userRole;
+      const accessToken = response?.data?.token;
+      const role = response?.data?.role;
       const name = response?.data?.name;
       const userId = response?.data?.userId;
 
@@ -43,31 +40,30 @@ export function useAuth() {
       };
       return responseObject;
     } catch (error) {
-      const accessToken = "access_token"; //comment out
-      const role = "patient";
-      const name = "Oscar";
-      const userId = "user_id";
+      // const accessToken = "access_token"; //comment out
+      // const role = "patient";
+      // const name = "Oscar";
+      // const userId = "user_id";
 
-      const auth = {
-        accessToken: accessToken,
-        userRole: role,
-        name: name,
-        userId: userId,
-      };
-      var errorCode = 200; //comment out
+      // const auth = {
+      //   accessToken: accessToken,
+      //   userRole: role,
+      //   name: name,
+      //   userId: userId,
+      // };
+      // var errorCode = 200;
+      // setData(auth); //comment out
 
-      setData(auth);
-      //   var errorCode;
-
-      //   if (!error?.response) {
-      //     errorCode = 400;
-      //   } else if (error.response?.status === 400) {
-      //     errorCode = 400;
-      //   } else if (error.response?.status === 401) {
-      //     errorCode = 401;
-      //   } else {
-      //     errorCode = 500;
-      //   }
+      var errorCode;
+      if (!error?.response) {
+        errorCode = 400;
+      } else if (error.response?.status === 400) {
+        errorCode = 400;
+      } else if (error.response?.status === 401) {
+        errorCode = 401;
+      } else {
+        errorCode = 500;
+      }
 
       const errorObject = {
         statusCode: errorCode,
@@ -77,10 +73,29 @@ export function useAuth() {
   };
 
   const logout = async () => {
-    localStorage.removeItem("accessToken");
-    localStorage.removeItem("userRole");
-    localStorage.removeItem("name");
-    localStorage.removeItem("userId");
+    const tokenString = " Token " + localStorage.getItem("accessToken");
+    var error;
+    console.log(tokenString);
+
+    axios
+      .get(LOGOUT_URL, {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: tokenString,
+        },
+      })
+      .then(function (response) {
+        localStorage.removeItem("accessToken");
+        localStorage.removeItem("userRole");
+        localStorage.removeItem("name");
+        localStorage.removeItem("userId");
+        error = true;
+      })
+      .catch(function (err) {
+        error = false;
+      });
+
+    return error;
   };
 
   return {
