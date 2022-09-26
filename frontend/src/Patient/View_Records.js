@@ -8,8 +8,8 @@ import loading from "../imports/loading.gif";
 const View_Records = () => {
   const navigate = useNavigate();
   const name = localStorage.getItem("name");
-  const userId = localStorage.getItem("userId");
   const token = localStorage.getItem("accessToken");
+  const tokenString = " Token " + token;
   const [errMsg, setErrMsg] = useState("");
   const [success, setSuccess] = useState(false);
   const [failure, setFailure] = useState(false);
@@ -18,17 +18,12 @@ const View_Records = () => {
   const [examRecords, setExamRecords] = useState();
 
   axios
-    .post(
-      VIEW_RECORDS_URL,
-      {
-        token: token,
-        userId: userId,
+    .get(VIEW_RECORDS_URL, {
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: tokenString,
       },
-      {
-        headers: { "Content-Type": "application/json" },
-        withCredentials: true,
-      }
-    )
+    })
     .then(function (response) {
       setHealthRecords(response.healthRecords);
       setExamRecords(response.examRecords);
@@ -138,7 +133,7 @@ const View_Records = () => {
                 </tr>
                 <tr>
                   <th>Prescription</th>
-                  <th>{examRecords.sessiontime}</th>
+                  <th>{examRecords.prescription}</th>
                 </tr>
               </table>
             );
