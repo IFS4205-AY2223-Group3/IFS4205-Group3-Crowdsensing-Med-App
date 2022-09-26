@@ -11,7 +11,7 @@ const Examine = () => {
 
 	const [examId, setExamId] = useState("");
 	const [errMsg, setErrMsg] = useState("");
-	const [errPopUp, setErrPopUp] = useState(false);
+	const [isErrPopUp, setIsErrPopUp] = useState(false);
 
 	const handleSubmit = async (e) => {
     e.preventDefault();
@@ -26,12 +26,12 @@ const Examine = () => {
 			navigate("/submitexamination");
     } else {
       setErrMsg(response.errorMessage);
-			setErrPopUp(true);
+			setIsErrPopUp(true);
 		}
 	};
 
 	const togglePopUp = () => {
-		setErrPopUp(!errPopUp);
+		setIsErrPopUp(!isErrPopUp);
 	};
 
 	const Back = async () => {
@@ -40,7 +40,7 @@ const Examine = () => {
 
   return (		
     <div className={styles.container}>
-			{errPopUp ? <PopUp toggle={togglePopUp} msg={errMsg}/> : null}
+			{isErrPopUp ? <PopUp toggle={togglePopUp} msg={errMsg}/> : null}
 
 			<section>
 				<h1>Enter Session ID to examine</h1>
