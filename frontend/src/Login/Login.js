@@ -64,7 +64,6 @@ const Login = () => {
           {errMsg}
         </p>
         <img src={logo} className={styles.logo} alt="logo" />
-
         <h1>Welcome to MediBook</h1>
         <form onSubmit={handleSubmit}>
           <label htmlFor="username">Username:</label>
