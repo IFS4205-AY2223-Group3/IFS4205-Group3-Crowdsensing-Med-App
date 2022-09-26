@@ -56,11 +56,7 @@ const Login = () => {
   return (
     <div className={styles.container}>
       <section>
-        <p
-          ref={errRef}
-          className={errMsg ? "errmsg" : "offscreen"}
-          aria-live="assertive"
-        >
+        <p ref={errRef} className={styles.errMsg} aria-live="assertive">
           {errMsg}
         </p>
         <img src={logo} className={styles.logo} alt="logo" />
