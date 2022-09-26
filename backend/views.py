@@ -1,28 +1,32 @@
 from django.contrib.auth import authenticate, login, logout
 from django.views.decorators.csrf import csrf_exempt
 from django.core.exceptions import ObjectDoesNotExist
+
 from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.parsers import JSONParser
 from rest_framework.decorators import api_view
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.authtoken.models import Token
+from rest_framework.authtoken.views import ObtainAuthToken
+
 from backend.models import User, Researcher, MedicalStaff, Doctor, Patient, PendingExamination, HealthRecord, Examination
 from backend.serializers import *
+from rest_framework.serializers import ValidationError
 
 class AssignPendingExam(APIView):
 	parser_classes = [JSONParser]
+	permission_classes = (IsAuthenticated, )
 	
 	#assign doctor to a session (done by doctors)
 	@csrf_exempt
 	def post(self, request):
 		try:
 			exam_id = request.data['exam_id']
-			doctor_id = request.data['doctor_id']
-
 			assigned_session = PendingExamination.objects.get(exam_id=exam_id)
-			doctor = Doctor.objects.get(user_id=doctor_id)
+			doctor = Doctor.objects.get(user=request.auth.user)
 
-			
 			if assigned_session.doctor is not None and assigned_session.doctor != doctor:
 				return Response({'message': 'patient has already been assigned'})
 				
@@ -48,7 +52,7 @@ class AssignPendingExam(APIView):
 class GetExamination(APIView):
 	parser_classes = [JSONParser]
 
-	#get examinations (done by patients + doctors)
+	#get examinations (done by doctors)
 	@csrf_exempt
 	def post(self, request):
 		try:
@@ -57,7 +61,7 @@ class GetExamination(APIView):
 			serialized_exams = ExaminationSerializer(exams, many=True)
 			return Response(serialized_exams.data)
 		except Patient.DoesNotExist:
-			return Response("invalid data")
+			return Response({'message':'invalid data'})
 
 class AddExamination(APIView):
 	parser_classes = [JSONParser]
@@ -71,30 +75,39 @@ class AddExamination(APIView):
 			PendingExamination.objects.get(exam_id=exam.validated_data['exam_id']).delete()
 			return Response({'message':'success'})
 		return Response({'message':'invalid data'})
-		
-@api_view(["POST", "GET"])
-def login_user(request):
-	if request.method == "POST":
-		username = request.POST.get('user')
-		password = request.POST.get('password')
-		role = request.POST.get('role')
-		user = authenticate(request, username=username, password=password)
-		if user is not None:
-			try:
-				get_role(role).objects.get(pk = user)
-				login(request, user)
-				data = {}
-				data = UserSerializer(user).data
-				data["role"] = role
-				return Response(data, status=status.HTTP_200_OK)
-			except ObjectDoesNotExist:
-				return Response({'errorMessage': 'Login credentials are incorrect. Please check and try again.'}
-				, status=status.HTTP_403_FORBIDDEN)
-		else:	
-			return Response({'errorMessage': 'Login credentials are incorrect. Please check and try again.'}
-			, status=status.HTTP_403_FORBIDDEN)
-	else:
-		return Response({'errorMessage': 'Invalid request method.'}, status=status.HTTP_400_BAD_REQUEST)
+
+# Might need modification to generate new token, even when there is an existing token for the user
+class Login(ObtainAuthToken):
+	def post(self, request, *args, **kwargs):
+		try:
+			role = get_role(request.data['role'])
+			serializer = self.serializer_class(data=request.data, context={'request':request})
+			serializer.is_valid(raise_exception=True)
+			user = serializer.validated_data['user']
+			role.objects.get(user=user)
+			token, created = Token.objects.get_or_create(user=user)
+			return Response({
+				'token': token.key,
+				'userId': user.user_id,
+				'name': user.name,
+				'role': request.data['role']
+			})
+		except KeyError:
+			return Response({'message: Invalid credentials'}, status=status.HTTP_400_BAD_REQUEST)
+		except role.DoesNotExist:
+			return Response({'message: Invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED)
+		except ValidationError:
+			return Response({'message: Invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED)
+
+class Logout(APIView):
+	def post(self, request, *args, **kwargs):
+		try:
+			request.auth.token.delete()
+			return Response({'message: success'}, status=status.HTTP_200_OK)
+		except ValidationError:
+			return Response({'message: Invalid credentials'}, status=status.HTTP_400_BAD_REQUEST)
+		except AttributeError:
+			return Response({'message: Invalid credentials'}, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(["POST", "GET"])
 def create_session(request):
@@ -111,14 +124,15 @@ def create_session(request):
 		try:
 			existing_session = PendingExamination.objects.get(pk = patient_obj)
 		except ObjectDoesNotExist:
-			session = PendingExamination.objects.create_session(patient_obj)
+			session = PendingExamination.objects.create_exam(patient_obj)
 			#Returns error if backend produces an existing session_id
 			if not session:
 				return Response({'errorMessage': 'Server encountered an error, please try again.'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 			else:
 				existing_session = session
 		data = {}
-		data = PatientSessionIdSerializer(existing_session).data
+		#data = {PatientSessionIdSerializer(existing_session).data}
+		data = {'examId': existing_session.exam_id}
 		return Response(data, status=status.HTTP_200_OK)
 	else:
 		return Response({'errorMessage': 'Invalid request method.'}, status=status.HTTP_400_BAD_REQUEST)
