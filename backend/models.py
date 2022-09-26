@@ -56,7 +56,7 @@ class Doctor(models.Model):
 class MedicalStaff(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, primary_key=True)
 
-class HealthRecords(models.Model):
+class HealthRecord(models.Model):
     user = models.OneToOneField(Patient, on_delete=models.CASCADE, primary_key=True)
     dateofbirth = models.DateField()
     height = models.IntegerField()
@@ -73,31 +73,31 @@ class ExaminationManager(models.Manager):
         exam = self.create(session_id = sessionid, doctor = doctor, patient = patient, diagnosis = code, prescription = prescription)
         return exam
 
-class Examinations(models.Model):
-    session_id = models.CharField(max_length=50, primary_key=True)
+class Examination(models.Model):
+    exam_id = models.CharField(max_length=50, primary_key=True)
     doctor = models.ForeignKey(Doctor, on_delete=models.CASCADE)
     patient = models.ForeignKey(Patient, on_delete=models.CASCADE)
     diagnosis = models.ForeignKey(Diagnosis, on_delete=models.CASCADE)
     prescription = models.CharField(max_length=50)
-    sessiontime = models.DateTimeField(auto_now_add=True)
+    examtime = models.DateTimeField(auto_now_add=True)
 
     objects = ExaminationManager()
 
-class SessionManager(models.Manager):
-    def create_session(self, patient_obj):
+class PendingExamManager(models.Manager):
+    def create_exam(self, patient_obj):
         random_id = get_random_string(10)
-        session, created = PendingSessions.objects.get_or_create(patient=patient_obj, session_id=random_id)
+        exam, created = PendingExamination.objects.get_or_create(patient=patient_obj, exam_id=random_id)
         if not created:
-            return PendingSessions.objects.none()
-        return session
+            return PendingExamination.objects.none()
+        return exam
 
-class PendingSessions(models.Model):
+class PendingExamination(models.Model):
     patient = models.OneToOneField(Patient, primary_key=True, on_delete=models.CASCADE)
     doctor = models.OneToOneField(Doctor, on_delete=models.CASCADE, null=True)
-    session_id = models.CharField(max_length=10, unique=True)
+    exam_id = models.CharField(max_length=10, unique=True)
     approved = models.BooleanField(default=False)
 
-    objects =  SessionManager()
+    objects =  PendingExamManager()
 
 class Crowd(models.Model):
     time_recorded = models.DateTimeField(auto_now_add=True)
