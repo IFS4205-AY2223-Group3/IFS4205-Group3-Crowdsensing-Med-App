@@ -14,7 +14,7 @@ class UserSerializer(serializers.ModelSerializer):
 class PatientSessionIdSerializer(serializers.ModelSerializer):
     class Meta:
         model = PendingExamination
-        fields = ['session_id']
+        fields = ['exam_id']
 
 class PatientRecordsSerializer(serializers.ModelSerializer):
     name = serializers.CharField(source='user.user.name')
