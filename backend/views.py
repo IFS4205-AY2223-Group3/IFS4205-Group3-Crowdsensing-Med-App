@@ -127,8 +127,7 @@ def create_session(request):
 			else:
 				existing_session = session
 		data = {}
-		#data = {PatientSessionIdSerializer(existing_session).data}
-		data = {'examId': existing_session.exam_id}
+		data = {PatientSessionIdSerializer(existing_session).data}
 		return Response(data, status=status.HTTP_200_OK)
 	else:
 		return Response({'errorMessage': 'Invalid request method.'}, status=status.HTTP_400_BAD_REQUEST)
