@@ -23,13 +23,8 @@ class AssignPendingExam(APIView):
 	def post(self, request):
 		try:
 			exam_id = request.data['exam_id']
-			doctor_id = request.data['doctor_id']
-
 			assigned_session = PendingExamination.objects.get(exam_id=exam_id)
-			doctor = Doctor.objects.get(user_id=doctor_id)
-
-			if (request.auth.user != doctor):
-				return Response({'message': 'Unauthorized'}, status=status.HTTP_403_FORBIDDEN)
+			doctor = Doctor.objects.get(user=request.auth.user)
 
 			if assigned_session.doctor is not None and assigned_session.doctor != doctor:
 				return Response({'message': 'patient has already been assigned'})
@@ -56,7 +51,7 @@ class AssignPendingExam(APIView):
 class GetExamination(APIView):
 	parser_classes = [JSONParser]
 
-	#get examinations (done by patients + doctors)
+	#get examinations (done by doctors)
 	@csrf_exempt
 	def post(self, request):
 		try:
@@ -65,7 +60,7 @@ class GetExamination(APIView):
 			serialized_exams = ExaminationSerializer(exams, many=True)
 			return Response(serialized_exams.data)
 		except Patient.DoesNotExist:
-			return Response("invalid data")
+			return Response({'message':'invalid data'})
 
 class AddExamination(APIView):
 	parser_classes = [JSONParser]
@@ -80,6 +75,7 @@ class AddExamination(APIView):
 			return Response({'message':'success'})
 		return Response({'message':'invalid data'})
 
+# Might need modification to generate new token, even when there is an existing token for the user
 class Login(ObtainAuthToken):
 	def post(self, request, *args, **kwargs):
 		try:
@@ -96,44 +92,21 @@ class Login(ObtainAuthToken):
 				'role': request.data['role']
 			})
 		except KeyError:
-			return Response({'errorMessage: Invalid credentials'}, status=status.HTTP_400_BAD_REQUEST)
+			return Response({'message: Invalid credentials'}, status=status.HTTP_400_BAD_REQUEST)
 		except role.DoesNotExist:
-			return Response({'errorMessage: Invalid credentials'}, status=status.HTTP_400_BAD_REQUEST)
+			return Response({'message: Invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED)
 		except ValidationError:
-			return Response({'errorMessage: Invalid credentials'}, status=status.HTTP_400_BAD_REQUEST)
-		
+			return Response({'message: Invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED)
+
 class Logout(APIView):
 	def post(self, request, *args, **kwargs):
 		try:
 			request.auth.token.delete()
 			return Response({'message: success'}, status=status.HTTP_200_OK)
 		except ValidationError:
-			return Response({'errorMessage: Invalid credentials'}, status=status.HTTP_400_BAD_REQUEST)
-		except Token.DoesNotExist:
-			return Response({'message: success'}, status=status.HTTP_200_OK)
-@api_view(["POST", "GET"])
-def login_user(request):
-	if request.method == "POST":
-		username = request.POST.get('user')
-		password = request.POST.get('password')
-		role = request.POST.get('role')
-		user = authenticate(request, username=username, password=password)
-		if user is not None:
-			try:
-				get_role(role).objects.get(pk = user)
-				login(request, user)
-				data = {}
-				data = UserSerializer(user).data
-				data["role"] = role
-				return Response(data, status=status.HTTP_200_OK)
-			except ObjectDoesNotExist:
-				return Response({'errorMessage': 'Login credentials are incorrect. Please check and try again.'}
-				, status=status.HTTP_403_FORBIDDEN)
-		else:	
-			return Response({'errorMessage': 'Login credentials are incorrect123. Please check and try again.'}
-			, status=status.HTTP_403_FORBIDDEN)
-	else:
-		return Response({'errorMessage': 'Invalid request method.'}, status=status.HTTP_400_BAD_REQUEST)
+			return Response({'message: Invalid credentials'}, status=status.HTTP_400_BAD_REQUEST)
+		except AttributeError:
+			return Response({'message: Invalid credentials'}, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(["POST", "GET"])
 def create_session(request):
