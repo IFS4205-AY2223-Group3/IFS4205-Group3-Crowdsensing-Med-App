@@ -112,11 +112,7 @@ class Logout(APIView):
 @api_view(["POST", "GET"])
 def create_session(request):
 	if request.method == "GET":
-		# user_obj = request.user
-
-		# For local testing
-		user_obj = User.objects.get(pk = 2)
-
+		user_obj = request.auth.user
 		patient_obj = get_patient_object(user_obj)
 		if not patient_obj:
 			return Response({'errorMessage': 'Action forbidden.'}, status=status.HTTP_403_FORBIDDEN)
@@ -140,11 +136,7 @@ def create_session(request):
 @api_view(["POST", "GET"])
 def view_records(request):
 	if request.method == "GET":
-		# user_obj = request.user
-
-		# For local testing
-		user_obj = User.objects.get(pk = 2)
-		
+		user_obj = request.auth.user	
 		patient_obj = get_patient_object(user_obj)
 		data = {}
 		#Checks if user is a patient
@@ -167,11 +159,7 @@ def view_records(request):
 @api_view(["POST", "GET"])
 def allow_session(request):
 	if request.method == "POST":
-		# user_obj = request.user
-
-		# For local testing
-		user_obj = User.objects.get(pk = 3)
-
+		user_obj = request.auth.user
 		patient_obj = get_patient_object(user_obj)
 		if not patient_obj:
 			return Response({'errorMessage': 'Action forbidden.'}, status=status.HTTP_403_FORBIDDEN)
@@ -190,11 +178,7 @@ def allow_session(request):
 		return Response({'errorMessage': 'Invalid request method.'}, status=status.HTTP_400_BAD_REQUEST)
 
 def get_patient_object(user):
-	# user_obj = request.user
-
-	# For local testing
 	user_obj = user
-
 	try:
 		patient_obj = Patient.objects.get(pk = user_obj)
 	except ObjectDoesNotExist:
