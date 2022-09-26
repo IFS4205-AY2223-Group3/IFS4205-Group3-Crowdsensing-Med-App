@@ -12,6 +12,7 @@ from rest_framework.authtoken.models import Token
 from rest_framework.authtoken.views import ObtainAuthToken
 
 from backend.models import User, Researcher, MedicalStaff, Doctor, Patient, PendingExamination, HealthRecord, Examination
+from backend.serializers import *
 from rest_framework.serializers import ValidationError
 
 class AssignPendingExam(APIView):
@@ -123,14 +124,15 @@ def create_session(request):
 		try:
 			existing_session = PendingExamination.objects.get(pk = patient_obj)
 		except ObjectDoesNotExist:
-			session = PendingExamination.objects.create_session(patient_obj)
+			session = PendingExamination.objects.create_exam(patient_obj)
 			#Returns error if backend produces an existing session_id
 			if not session:
 				return Response({'errorMessage': 'Server encountered an error, please try again.'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 			else:
 				existing_session = session
 		data = {}
-		data = PatientSessionIdSerializer(existing_session).data
+		#data = {PatientSessionIdSerializer(existing_session).data}
+		data = {'examId': existing_session.exam_id}
 		return Response(data, status=status.HTTP_200_OK)
 	else:
 		return Response({'errorMessage': 'Invalid request method.'}, status=status.HTTP_400_BAD_REQUEST)
