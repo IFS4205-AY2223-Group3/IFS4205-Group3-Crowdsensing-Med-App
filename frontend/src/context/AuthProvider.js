@@ -23,6 +23,7 @@ export function useAuth() {
           withCredentials: true,
         }
       );
+
       // Getting response
       const accessToken = response?.data?.accessToken;
       const role = response?.data?.userRole;
@@ -42,9 +43,9 @@ export function useAuth() {
       };
       return responseObject;
     } catch (error) {
-      const accessToken = "access_token";
-      const role = "doctor";
-      const name = "John";
+      const accessToken = "access_token"; //comment out
+      const role = "patient";
+      const name = "Oscar";
       const userId = "user_id";
 
       const auth = {
@@ -53,10 +54,9 @@ export function useAuth() {
         name: name,
         userId: userId,
       };
-      var errorCode = 200;
-      setData(auth);
+      var errorCode = 200; //comment out
 
-      // COMMENT OUT
+      setData(auth);
       //   var errorCode;
 
       //   if (!error?.response) {
