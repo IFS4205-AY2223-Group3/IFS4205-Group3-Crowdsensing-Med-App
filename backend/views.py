@@ -1,3 +1,4 @@
+from django.db.utils import IntegrityError
 from django.views.decorators.csrf import csrf_exempt
 from django.core.exceptions import ObjectDoesNotExist
 
@@ -19,6 +20,8 @@ LOGIN_ERROR_MESSAGE = 'Login credentials are incorrect. Please check and try aga
 LOGOUT_ERROR_MESSAGE = 'Invalid credentials'
 SUCCESS_MESSAGE = 'success'
 GENERIC_ERROR_MESSAGE = 'There was an error, please try again.'
+ALREADY_ASSIGNED_ERROR_MESSAGE = 'You have already been assigned a patient!'
+SELF_ASSIGN_ERROR_MESSAGE = 'You cannot assign yourself as a doctor!'
 
 # Might need modification to generate new token, even when there is an existing token for the user
 class Login(ObtainAuthToken):
@@ -68,6 +71,9 @@ class AssignPendingExam(APIView):
 				
 			if assigned_session.approved == False:
 				return Response({'message': GENERIC_ERROR_MESSAGE}, status=status.HTTP_400_BAD_REQUEST)
+			
+			if assigned_session.patient.user == request.auth.user:
+				return Response({'message': SELF_ASSIGN_ERROR_MESSAGE}, status=status.HTTP_400_BAD_REQUEST)
 
 			assigned_session.doctor = doctor
 			assigned_session.save()
@@ -82,6 +88,8 @@ class AssignPendingExam(APIView):
 			return Response({'message': GENERIC_ERROR_MESSAGE}, status=status.HTTP_400_BAD_REQUEST)
 		except PendingExamination.DoesNotExist:
 			return Response({'message': GENERIC_ERROR_MESSAGE}, status=status.HTTP_400_BAD_REQUEST)
+		except IntegrityError:
+			return Response({'message': ALREADY_ASSIGNED_ERROR_MESSAGE}, status=status.HTTP_400_BAD_REQUEST)
 
 class DoctorGetRecords(APIView):
 	parser_classes = [JSONParser]
