@@ -12,7 +12,9 @@ const Doctor_Dashboard = () => {
     navigate("/login");
   };
 
-  const Examine = async () => {};
+  const Examine = async () => {
+    navigate("/examine");
+  };
 
   return (
     <div className={styles.container}>
