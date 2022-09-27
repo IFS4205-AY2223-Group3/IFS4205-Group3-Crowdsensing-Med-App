@@ -43,10 +43,10 @@ const Submit_Examination = () => {
 
       const response = await send_exam_record(data);
 
-      if (response.statusCode === 200) {
+      if (response.status === 200) {
         navigate("/doctor");
       } else {
-        setErrMsg(response.errorMessage);
+        setErrMsg(response.message);
       }
     }
 

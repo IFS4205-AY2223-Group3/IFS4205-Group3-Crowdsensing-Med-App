@@ -63,7 +63,7 @@ root.render(
             }
           />
           <Route
-            path="examine"
+            path="assigndoctor"
             element={
               <RequireAuth role="doctor">
                 <Examine />

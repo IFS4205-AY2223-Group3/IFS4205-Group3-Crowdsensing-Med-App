@@ -22,10 +22,10 @@ const Examine = () => {
 
 		const response = await send_examId(data);
 
-		if (response.statusCode === 200) {
+		if (response.status === 200) {
 			navigate("/submitexamination");
     } else {
-      setErrMsg(response.errorMessage);
+      setErrMsg(response.message);
 			setIsErrPopUp(true);
 		}
 	};
