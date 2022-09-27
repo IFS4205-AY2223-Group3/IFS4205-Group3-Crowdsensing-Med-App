@@ -10,6 +10,8 @@ const Submit_Examination = () => {
   const examId = localStorage.getItem("examId");
   const patientId = localStorage.getItem("patientId");
   const patientName = localStorage.getItem("patientName");
+  const token = localStorage.getItem("accessToken");
+  const tokenString = " Token " + token;
 
   const navigate = useNavigate();
 
@@ -39,6 +41,7 @@ const Submit_Examination = () => {
         patientId: patientId,
         prescription: prescription,
         code: code,
+        tokenString: tokenString,
       };
 
       const response = await send_exam_record(data);
@@ -55,8 +58,8 @@ const Submit_Examination = () => {
     }
   }, [isSubmitted, isConfirmed, examId, patientId, prescription, code, send_exam_record, navigate]);
 
-  const handleViewRecords = () => {
-    //todo
+  const handleViewRecords = async () => {
+    navigate("/doctorviewrecords");
   };
 
   return (
