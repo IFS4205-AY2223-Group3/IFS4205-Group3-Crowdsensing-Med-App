@@ -9,15 +9,17 @@ export function DoctorApi() {
 		localStorage.setItem("patientName", patientName);
 	};
 
-	const send_examId = async({examId}) => {
+	const send_examId = async({ examId, tokenString }) => {
 		try{
 			const response = await axios.post(
 				EXAMINE_URL,
-				JSON.stringify({ examId }),
+				{
+					examId: examId,
+				},
 				{
 					headers: {
 						"Content-Type": "application/json",
-						// "Authorization": " Token 9bbekjsfjksdbkfbdsjfskj"  //note the spaces
+						"Authorization": tokenString,
 					},
 				}
 			);
@@ -73,17 +75,20 @@ export function DoctorApi() {
 		}
 	};
 
-	const send_exam_record = async({ examId, patientId, prescription, code }) => {
-		console.log(prescription);
-
+	const send_exam_record = async({ examId, patientId, prescription, code, tokenString }) => {
 		try {
 			const response = await axios.post(
 				DOCTOR_SUBMIT_URL,
-				JSON.stringify({ examId, patientId, prescription, code }),
+				{
+					examId: examId,
+					patientId: patientId,
+					prescription: prescription,
+					code: code,
+				},
 				{
 					headers: {
 						"Content-Type": "application/json",
-						// "Authorization": " Token 9bbekjsfjksdbkfbdsjfskj"  //note the spaces
+						"Authorization": tokenString,
 					},
 				}
 			);
