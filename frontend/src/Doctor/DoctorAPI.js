@@ -1,12 +1,10 @@
-import { Navigate } from "react-router-dom";
 import axios from "axios";
 import { EXAMINE_URL } from "../api/constants";
 import { DOCTOR_SUBMIT_URL } from "../api/constants";
-import React, { useState, useEffect } from "react";
 
 export function DoctorApi() {
 	const setData = ({examId, patientId, patientName}) => {
-		localStorage.setItem("examId", examId); //not working, will check again
+		localStorage.setItem("examId", examId);
 		localStorage.setItem("patientId", patientId);
 		localStorage.setItem("patientName", patientName);
 	};
@@ -34,7 +32,7 @@ export function DoctorApi() {
 			setData(examDetails);
 
 			const responseObject = {
-				statusCode: 200,
+				status: 200,
 			};
 			return responseObject;
 
@@ -50,14 +48,12 @@ export function DoctorApi() {
 
 			const errorCode = 200;
 			const responseObject = {
-				statusCode: errorCode,
-				// errorMessage: "There was an error, please try again.",
+				status: errorCode,
 			};
 			return responseObject;
 
 			//COMMENT OUT
 			// var errorCode;
-			// var errorMessage = "There was an error, please try again.";
 
 			// if (!error?.response) {
 			//   errorCode = 400;
@@ -70,8 +66,7 @@ export function DoctorApi() {
 			// }
 
 			// const responseObject = {
-			// 	statusCode: errorCode,
-			// 	errorMessage: errorMessage,
+			// 	status: errorCode,
 			// };
 			// return responseObject;
 
@@ -94,15 +89,14 @@ export function DoctorApi() {
 			);
 
 			const responseObject = {
-				statusCode: 200,
+				status: 200,
 			};
 			return responseObject;
 
 		} catch(err) {
 			const errorCode = 200;
 			const responseObject = {
-				statusCode: errorCode,
-				// errorMessage: "There was an error, please try again.",
+				status: errorCode,
 			};
 			return responseObject;
 		}
