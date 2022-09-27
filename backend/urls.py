@@ -8,8 +8,8 @@ urlpatterns = [
     path('generate_session', views.create_session, name='generatesession'),
     path('view_records', views.view_records, name='viewrecords'),
     path('allow_session', views.allow_session, name='allowsession'),
-    path('assign_doctor', views.AssignPendingExam.as_view()),
-    path('submit_examination', views.AddExamination.as_view()),
+    path('assigndoctor', views.AssignPendingExam.as_view()),
+    path('submitexamination', views.AddExamination.as_view()),
     path('doctorviewrecords', views.DoctorGetRecords.as_view())
     #path('assign_doctor', views.assign_doctor, name='assigndoctor'),
     #path('submit_examination', views.finish_examine, name='submit_examination'),
