@@ -37,12 +37,18 @@ textarea {
 label,
 button {
   margin-top: 1rem;
+  color: black;
 }
 
 button {
   padding: 0.5rem;
-  background-color: chartreuse;
+  background-color: rgb(46, 102, 148);
     
+}
+
+button:hover{
+    background-color: rgb(110, 170, 219);
+
 }
 
 .instructions {
