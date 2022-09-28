@@ -44,7 +44,7 @@ const Doctor_View_Records = () => {
     }
 
     getData();
-  }, [patientId, tokenString, get_records]);
+  }, [patientId, tokenString]);
 
   const Back = async () => {
     navigate("/doctor");
