@@ -7,6 +7,9 @@ import PopUp from "../PopUp";
 const Examine = () => {
 	const { send_examId } = DoctorApi();
 
+	const token = localStorage.getItem("accessToken");
+	const tokenString = " Token " + token;
+
   const navigate = useNavigate();
 
 	const [examId, setExamId] = useState("");
@@ -18,14 +21,15 @@ const Examine = () => {
 
 		const data = {
 			examId: examId,
+			tokenString: tokenString,
 		};
 
 		const response = await send_examId(data);
 
-		if (response.statusCode === 200) {
+		if (response.status === 200) {
 			navigate("/submitexamination");
     } else {
-      setErrMsg(response.errorMessage);
+      setErrMsg(response.message);
 			setIsErrPopUp(true);
 		}
 	};
