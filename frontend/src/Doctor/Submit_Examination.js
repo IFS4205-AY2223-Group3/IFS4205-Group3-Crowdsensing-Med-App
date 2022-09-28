@@ -56,7 +56,7 @@ const Submit_Examination = () => {
     if (isSubmitted && isConfirmed) {
       postData();
     }
-  }, [isSubmitted, isConfirmed, examId, patientId, prescription, code, send_exam_record, navigate]);
+  }, [isSubmitted, isConfirmed, examId, patientId, prescription, code, tokenString, send_exam_record, navigate]);
 
   const handleViewRecords = async () => {
     navigate("/doctorviewrecords");
