@@ -13,7 +13,7 @@ const Doctor_Dashboard = () => {
   };
 
   const Examine = async () => {
-    navigate("/examine");
+    navigate("/assigndoctor");
   };
 
   return (

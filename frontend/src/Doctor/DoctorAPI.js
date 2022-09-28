@@ -1,25 +1,25 @@
-import { Navigate } from "react-router-dom";
 import axios from "axios";
 import { EXAMINE_URL } from "../api/constants";
 import { DOCTOR_SUBMIT_URL } from "../api/constants";
-import React, { useState, useEffect } from "react";
 
 export function DoctorApi() {
 	const setData = ({examId, patientId, patientName}) => {
-		localStorage.setItem("examId", examId); //not working, will check again
+		localStorage.setItem("examId", examId);
 		localStorage.setItem("patientId", patientId);
 		localStorage.setItem("patientName", patientName);
 	};
 
-	const send_examId = async({examId}) => {
+	const send_examId = async({ examId, tokenString }) => {
 		try{
 			const response = await axios.post(
 				EXAMINE_URL,
-				JSON.stringify({ examId }),
+				{
+					examId: examId,
+				},
 				{
 					headers: {
 						"Content-Type": "application/json",
-						// "Authorization": " Token 9bbekjsfjksdbkfbdsjfskj"  //note the spaces
+						"Authorization": tokenString,
 					},
 				}
 			);
@@ -34,7 +34,7 @@ export function DoctorApi() {
 			setData(examDetails);
 
 			const responseObject = {
-				statusCode: 200,
+				status: 200,
 			};
 			return responseObject;
 
@@ -50,14 +50,12 @@ export function DoctorApi() {
 
 			const errorCode = 200;
 			const responseObject = {
-				statusCode: errorCode,
-				// errorMessage: "There was an error, please try again.",
+				status: errorCode,
 			};
 			return responseObject;
 
 			//COMMENT OUT
 			// var errorCode;
-			// var errorMessage = "There was an error, please try again.";
 
 			// if (!error?.response) {
 			//   errorCode = 400;
@@ -70,39 +68,40 @@ export function DoctorApi() {
 			// }
 
 			// const responseObject = {
-			// 	statusCode: errorCode,
-			// 	errorMessage: errorMessage,
+			// 	status: errorCode,
 			// };
 			// return responseObject;
 
 		}
 	};
 
-	const send_exam_record = async({ examId, patientId, prescription, code }) => {
-		console.log(prescription);
-
+	const send_exam_record = async({ examId, patientId, prescription, code, tokenString }) => {
 		try {
 			const response = await axios.post(
 				DOCTOR_SUBMIT_URL,
-				JSON.stringify({ examId, patientId, prescription, code }),
+				{
+					examId: examId,
+					patientId: patientId,
+					prescription: prescription,
+					code: code,
+				},
 				{
 					headers: {
 						"Content-Type": "application/json",
-						// "Authorization": " Token 9bbekjsfjksdbkfbdsjfskj"  //note the spaces
+						"Authorization": tokenString,
 					},
 				}
 			);
 
 			const responseObject = {
-				statusCode: 200,
+				status: 200,
 			};
 			return responseObject;
 
 		} catch(err) {
 			const errorCode = 200;
 			const responseObject = {
-				statusCode: errorCode,
-				// errorMessage: "There was an error, please try again.",
+				status: errorCode,
 			};
 			return responseObject;
 		}

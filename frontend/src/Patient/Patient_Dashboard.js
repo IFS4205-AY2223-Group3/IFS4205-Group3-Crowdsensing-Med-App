@@ -20,7 +20,7 @@ const Patient_Dashboard = () => {
   };
 
   const ViewHealthRecords = async () => {
-    navigate("/viewrecords");
+    navigate("/patientviewrecords");
   };
 
   return (
