@@ -24,7 +24,6 @@ GENERIC_ERROR_MESSAGE = 'There was an error, please try again.'
 ALREADY_ASSIGNED_ERROR_MESSAGE = 'You have already been assigned a patient!'
 SELF_ASSIGN_ERROR_MESSAGE = 'You cannot assign yourself as a doctor!'
 
-# Might need modification to generate new token, even when there is an existing token for the user
 class Login(ObtainAuthToken):
 	def post(self, request, *args, **kwargs):
 		try:
@@ -33,13 +32,17 @@ class Login(ObtainAuthToken):
 			serializer.is_valid(raise_exception=True)
 			user = serializer.validated_data['user']
 			role.objects.get(user=user)
-			token, created = Token.objects.get_or_create(user=user)
+			token = Token.objects.get(user=user)
+			if token is not None:
+				 token.delete()			
+			token = Token.objects.create(user=user)
+			data = {}
+			data['token'] = token.key
+			data['name'] = user.name
+			data['role'] = request.data['role']
 			update_last_login(None, user)
-			return Response({
-				'token': token.key,
-				'name': user.name,
-				'role': request.data['role']
-			})
+
+			return Response(data, status=status.HTTP_200_OK)
 		except KeyError:
 			return Response({'message': LOGIN_ERROR_MESSAGE}, status=status.HTTP_403_FORBIDDEN)
 		except role.DoesNotExist:
