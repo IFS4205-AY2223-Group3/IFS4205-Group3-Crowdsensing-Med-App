@@ -97,16 +97,12 @@ class DoctorGetRecords(APIView):
 
 	#get examinations (done by doctors)
 	@csrf_exempt
-	def post(self, request):
+	def get(self, request):
 		try:
-			patient = Patient.objects.get(user=request.data['userId'])
-
 			#check if doctor is assigned to patient
-			pendingexam = PendingExamination.objects.get(patient=patient)
 			doctor = Doctor.objects.get(user=request.auth.user)
-			if pendingexam.doctor != doctor:
-				return Response({'message':GENERIC_ERROR_MESSAGE}, status=status.HTTP_400_BAD_REQUEST)
-			
+			pendingexam = PendingExamination.objects.get(doctor=doctor)
+			patient = pendingexam.patient
 			records = HealthRecord.objects.get(user=patient)
 			exams = Examination.objects.all().filter(patient=patient)
 			serialized_record = PatientRecordsSerializer(records)
@@ -135,9 +131,11 @@ class AddExamination(APIView):
 	def post(self, request):
 		try:
 			data = {}
-			data['exam_id'] = request.data['examId']
-			data['doctor'] = request.auth.user.user_id
-			data['patient'] = request.data['patientId']
+			doctor = Doctor.objects.get(user=request.auth.user)
+			pendingexam = PendingExamination.objects.get(doctor=doctor)
+			data['exam_id'] = pendingexam.exam_id
+			data['doctor'] = pendingexam.doctor
+			data['patient'] = pendingexam.patient
 			data['diagnosis'] = request.data['code']
 			data['prescription'] = request.data['prescription']
 			exam = ExaminationSerializer(data=data)
