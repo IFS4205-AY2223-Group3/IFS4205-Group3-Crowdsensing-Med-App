@@ -1,6 +1,7 @@
 from django.db.utils import IntegrityError
 from django.views.decorators.csrf import csrf_exempt
 from django.core.exceptions import ObjectDoesNotExist
+from django.contrib.auth.models import update_last_login
 
 from rest_framework import status
 from rest_framework.views import APIView
@@ -33,6 +34,7 @@ class Login(ObtainAuthToken):
 			user = serializer.validated_data['user']
 			role.objects.get(user=user)
 			token, created = Token.objects.get_or_create(user=user)
+			update_last_login(None, user)
 			return Response({
 				'token': token.key,
 				'name': user.name,
