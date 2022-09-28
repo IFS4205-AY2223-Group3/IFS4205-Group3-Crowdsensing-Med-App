@@ -3,6 +3,8 @@ import { AuthProvider, RequireAuth } from "./context/AuthProvider";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { createRoot } from "react-dom/client";
 import "./index.css";
+import Homepage from "./Home/Homepage";
+import CustomBootstrapStyle from "./Home/CustomBootstrapStyle";
 import Login from "./Login/Login";
 import Patient_Dashboard from "./Patient/Patient_Dashboard";
 import Doctor_Dashboard from "./Doctor/Doctor_Dashboard";
@@ -20,8 +22,9 @@ root.render(
   <React.StrictMode>
     <AuthProvider>
       <BrowserRouter>
+        <CustomBootstrapStyle />
         <Routes>
-          <Route index element={<Login />} />
+          <Route index element={<Homepage />} />
           <Route path="login" element={<Login />} />
           <Route
             path="patient"
