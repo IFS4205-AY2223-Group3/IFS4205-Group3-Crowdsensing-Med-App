@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import styles from "./Patient_Dashboard.module.css";
 import axios from "axios";
 import { VIEW_RECORDS_URL } from "../api/constants";
@@ -17,7 +17,8 @@ const View_Records = () => {
   const [healthRecords, setHealthRecords] = useState();
   const [examRecords, setExamRecords] = useState();
 
-  axios
+  useEffect(() => {
+    axios
     .get(VIEW_RECORDS_URL, {
       headers: {
         "Content-Type": "application/json",
@@ -76,6 +77,7 @@ const View_Records = () => {
         setErrMsg("Server encountered an error, please try again.");
       }
     });
+  }, [tokenString]);
 
   const Back = async () => {
     navigate("/patient");

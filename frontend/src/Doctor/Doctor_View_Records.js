@@ -8,7 +8,6 @@ const Doctor_View_Records = () => {
   const navigate = useNavigate();
 
   const patientName = localStorage.getItem("patientName");
-  const patientId = localStorage.getItem("patientId");
   const token = localStorage.getItem("accessToken");
   const tokenString = " Token " + token;
 
@@ -25,7 +24,6 @@ const Doctor_View_Records = () => {
   useEffect(() => {
     async function getData() {
       const data = {
-        patientId: patientId,
         tokenString: tokenString,
       };
 
@@ -44,7 +42,7 @@ const Doctor_View_Records = () => {
     }
 
     getData();
-  }, [patientId, tokenString]);
+  }, [tokenString]);
 
   const Back = async () => {
     navigate("/doctor");
