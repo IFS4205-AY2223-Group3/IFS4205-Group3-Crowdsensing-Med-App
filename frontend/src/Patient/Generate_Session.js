@@ -8,13 +8,13 @@ import loading from "../imports/loading.gif";
 const Generate_Session = () => {
   const navigate = useNavigate();
   const name = localStorage.getItem("name");
-  const userId = localStorage.getItem("userId");
   const token = localStorage.getItem("accessToken");
   const [examId, setExamId] = useState("");
   const [errMsg, setErrMsg] = useState("");
   const [success, setSuccess] = useState(false);
   const [failure, setFailure] = useState(false);
   const [buffer, setBuffer] = useState(true);
+  const tokenString = " Token " + token;
 
   useEffect(() => {
     post();
@@ -22,9 +22,11 @@ const Generate_Session = () => {
 
   const post = async () => {
     axios
-      .post(GENERATE_SESSION_URL, {
-        token: token,
-        userId: userId,
+      .get(GENERATE_SESSION_URL, {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: tokenString,
+        },
       })
       .then(function (response) {
         setExamId(response?.data?.examId);
@@ -43,11 +45,11 @@ const Generate_Session = () => {
         if (!err?.response) {
           setErrMsg("No Server Response");
         } else if (err.response?.status === 400) {
-          setErrMsg("There was an error, please try again.");
+          setErrMsg(err.response.message);
         } else if (err.response?.status === 403) {
-          setErrMsg("Action Forbidden");
+          setErrMsg(err.response.message);
         } else if (err.response?.status === 500) {
-          setErrMsg("Server encountered an error, please try again.");
+          setErrMsg(err.response.message);
         } else {
           setErrMsg("Server encountered an error, please try again.");
         }
@@ -77,7 +79,7 @@ const Generate_Session = () => {
             {" "}
             Back{" "}
           </button>
-          <button className={styles.greenButton} onClick={Allow}>
+          <button className={styles.allowButton} onClick={Allow}>
             {" "}
             Allow
           </button>
