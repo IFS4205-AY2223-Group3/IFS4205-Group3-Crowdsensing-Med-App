@@ -4,7 +4,7 @@ from backend.models import *
 class ExaminationSerializer(serializers.ModelSerializer):
     class Meta:
         model = Examination
-        fields = ['exam_id', 'doctor', 'patient', 'diagnosis', 'prescription', 'sessiontime']
+        fields = ['exam_id', 'doctor', 'patient', 'diagnosis', 'prescription']
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
@@ -12,9 +12,10 @@ class UserSerializer(serializers.ModelSerializer):
         fields = ['user_id', 'name']
 
 class PatientSessionIdSerializer(serializers.ModelSerializer):
+    examId = serializers.CharField(source='exam_id')
     class Meta:
         model = PendingExamination
-        fields = ['exam_id']
+        fields = ['examId']
 
 class PatientRecordsSerializer(serializers.ModelSerializer):
     name = serializers.CharField(source='user.user.name')
@@ -27,4 +28,9 @@ class PatientPastSessionSerializer(serializers.ModelSerializer):
     diagnosis = serializers.CharField(source='diagnosis.description')
     class Meta:
         model = Examination
-        fields = ['session_id', 'doctor', 'diagnosis', 'prescription', 'sessiontime']
+        fields = ['exam_id', 'doctor', 'diagnosis', 'prescription', 'examtime']
+
+class CrowdSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Crowd
+        fields = ['time_recorded', 'count']

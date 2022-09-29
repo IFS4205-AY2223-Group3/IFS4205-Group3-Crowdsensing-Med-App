@@ -2,6 +2,9 @@ import cv2
 
 import numpy as np
 import time
+import json
+import datetime
+import requests 
 
 np.random.seed(20)
 
@@ -35,9 +38,12 @@ class Detector: #object detection class
         if (cap.isOpened() == False):
             print("Error opening file...")
             return
-        (success, image) = cap.read()
+            
+        isLoop = True
 
-        while success: #frames successfully captured
+        while isLoop: #frames successfully captured
+            (success, image) = cap.read()
+            
             classLabelIDs, confidences, bboxs = self.net.detect(image, confThreshold = 0.5)
 
             bboxs = list(bboxs)
@@ -45,10 +51,11 @@ class Detector: #object detection class
             confidences = list(map(float,confidences))
 
             bboxIDx = cv2.dnn.NMSBoxes(bboxs, confidences, score_threshold = 0.5, nms_threshold = 0.2) #remove overlapping boxes
-
+            count = 0
             if len(bboxIDx) != 0:
+                count = 0
                 for i in range (0, len(bboxIDx)):
-                    
+                        
                     bbox = bboxs[np.squeeze(bboxIDx[i])]
                     classConfidence = confidences[np.squeeze(bboxIDx[i])]
                     classLabelID = np.squeeze(classLabelIDs[np.squeeze(bboxIDx[i])])
@@ -61,15 +68,43 @@ class Detector: #object detection class
 
                     if classLabel == 'person' :
                         cv2.rectangle(image, (x,y), (x+w, y+h), color = classColor, thickness = 1)
-                        cv2.putText(image, displayText, (x, y-10), cv2.FONT_HERSHEY_PLAIN, 1, classConfidence, 2)\
-
-
+                        cv2.putText(image, displayText, (x, y-10), cv2.FONT_HERSHEY_PLAIN, 1, classConfidence, 2)
+                        count += 1
+                                
+                
             cv2.imshow("Result", image)
+            curr_time = datetime.datetime.now()
+            formatted_time = curr_time.strftime("%Y-%m-%d %H:%M:%S") + "+8"
+            print(count)
+            print(formatted_time)
+            data = { 
+                "time_recorded": formatted_time,
+                "count" : count
+            }
+            data_json = json.dumps(data)
+            print(data_json)
+            header = {
+                "Accept": "application/json",
+                "Content-Type": "application/json"}
+            header_json = json.dumps(header)
+            post_request = requests.post(url = "http://ifs4205-group3-backend-i.comp.nus.edu.sg:8000/iot", data=data_json, headers={
+                "Accept": "application/json",
+                "Content-Type": "application/json"})
+            total_seconds = 10 #timer
+            while total_seconds > 0:
+                time.sleep(1)
+                print("1 second passed")
+                total_seconds -= 1
+                key = cv2.waitKey(1) & 0xFF
+                if key == ord("q"):
+                    isLoop = False
+                    break
+            print("10 second passed")
 
             key = cv2.waitKey(1) & 0xFF
             if key == ord("q"):
+                isLoop = False
                 break
 
-            (success, image) = cap.read()
         cv2.destroyAllWindows()
 
