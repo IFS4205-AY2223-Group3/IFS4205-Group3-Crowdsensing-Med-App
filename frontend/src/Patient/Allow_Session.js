@@ -9,10 +9,12 @@ const Allow_Session = () => {
   const navigate = useNavigate();
   const examId = localStorage.getItem("examId");
   const name = localStorage.getItem("name");
+  const token = localStorage.getItem("accessToken");
   const [errMsg, setErrMsg] = useState("");
   const [success, setSuccess] = useState(false);
   const [failure, setFailure] = useState(false);
   const [buffer, setBuffer] = useState(true);
+  const tokenString = " Token " + token;
 
   useEffect(() => {
     post();
@@ -20,30 +22,36 @@ const Allow_Session = () => {
 
   const post = async () => {
     axios
-      .post(ALLOWS_SESSION_URL, {
-        examId: examId,
-        isAllowed: true,
-      })
+      .post(
+        ALLOWS_SESSION_URL,
+        {
+          examId: examId,
+        },
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: tokenString,
+          },
+        }
+      )
       .then(function (response) {
         setSuccess(true);
         setBuffer(false);
-        localStorage.removeItem("examId");
       })
       .catch(function (err) {
         // setSuccess(true); //comment out
         // setBuffer(false); //comment out
-        // localStorage.removeItem("examId"); //comment out
 
         setFailure(true);
         setBuffer(false);
         if (!err?.response) {
           setErrMsg("No Server Response");
         } else if (err.response?.status === 400) {
-          setErrMsg("There was an error, please try again.");
+          setErrMsg(err.response.message);
         } else if (err.response?.status === 403) {
-          setErrMsg("Action Forbidden");
+          setErrMsg(err.response.message);
         } else if (err.response?.status === 500) {
-          setErrMsg("Server encountered an error, please try again.");
+          setErrMsg(err.response.message);
         } else {
           setErrMsg("Server encountered an error, please try again.");
         }
@@ -52,6 +60,7 @@ const Allow_Session = () => {
 
   const Home = async () => {
     navigate("/patient");
+    localStorage.removeItem("examId"); //comment out
   };
 
   if (success) {

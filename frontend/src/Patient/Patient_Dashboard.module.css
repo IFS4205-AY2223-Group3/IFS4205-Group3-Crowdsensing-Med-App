@@ -14,11 +14,11 @@
 
 table {
     font-family: arial, sans-serif;
-    /* border-collapse: collapse; */
     width: 80%;
+    margin: 25px 20px 10px 30px;
+
   }
 
-  
   
   td, th {
     border: 2px solid #616060;
@@ -65,9 +65,14 @@ table {
     display:inline-block;
 }
 
-.greenButton {
+.button:hover{
+    background-color: rgb(110, 170, 219);
+
+}
+
+.allowButton {
     padding: 0.5rem;
-    background-color: rgb(114, 255, 6);
+    background-color:  rgb(198, 202, 195);
     padding: 14px 25px;
     font-size: 32px;
     display:inline-block;
