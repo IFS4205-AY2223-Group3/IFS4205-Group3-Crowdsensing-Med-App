@@ -19,64 +19,64 @@ const View_Records = () => {
 
   useEffect(() => {
     axios
-    .get(VIEW_RECORDS_URL, {
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: tokenString,
-      },
-    })
-    .then(function (response) {
-      setHealthRecords(response.healthRecords);
-      setExamRecords(response.examRecords);
-      setSuccess(true);
-      setBuffer(false);
-    })
-    .catch(function (err) {
-      // const response = {
-      //   healthRecords: {
-      //     name: "Patient Kelly",
-      //     dateofbirth: "1999-01-08",
-      //     height: 155,
-      //     weight: 53,
-      //     bloodtype: "B+",
-      //     allergies: "None",
-      //   },
-      //   examRecords: [
-      //     {
-      //       session_id: "123",
-      //       doctor: "Dr Jim",
-      //       diagnosis: "High Fever",
-      //       prescription: "150mg panadol",
-      //       sessiontime: "2022-09-22T16:56:36.636524+08:00",
-      //     },
-      //     {
-      //       session_id: "321",
-      //       doctor: "Dr Jim",
-      //       diagnosis: "Stomachache",
-      //       prescription: "150mg paracetamol",
-      //       sessiontime: "2022-09-22T16:57:08.848481+08:00",
-      //     },
-      //   ],
-      // };
-      // setHealthRecords(response.healthRecords);
-      // setExamRecords(response.examRecords);
-      // setSuccess(true); //comment out
-      // setBuffer(false); //comment out
+      .get(VIEW_RECORDS_URL, {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: tokenString,
+        },
+      })
+      .then(function (response) {
+        setHealthRecords(response.data.healthRecords);
+        setExamRecords(response.data.examRecords);
+        setSuccess(true);
+        setBuffer(false);
+      })
+      .catch(function (err) {
+        // const response = {
+        //   healthRecords: {
+        //     name: "Patient Kelly",
+        //     dateofbirth: "1999-01-08",
+        //     height: 155,
+        //     weight: 53,
+        //     bloodtype: "B+",
+        //     allergies: "None",
+        //   },
+        //   examRecords: [
+        //     {
+        //       session_id: "123",
+        //       doctor: "Dr Jim",
+        //       diagnosis: "High Fever",
+        //       prescription: "150mg panadol",
+        //       sessiontime: "2022-09-22T16:56:36.636524+08:00",
+        //     },
+        //     {
+        //       session_id: "321",
+        //       doctor: "Dr Jim",
+        //       diagnosis: "Stomachache",
+        //       prescription: "150mg paracetamol",
+        //       sessiontime: "2022-09-22T16:57:08.848481+08:00",
+        //     },
+        //   ],
+        // };
+        // setHealthRecords(response.healthRecords);
+        // setExamRecords(response.examRecords);
+        // setSuccess(true); //comment out
+        // setBuffer(false); //comment out
 
-      setFailure(true);
-      setBuffer(false);
-      if (!err?.response) {
-        setErrMsg("No Server Response");
-      } else if (err.response?.status === 400) {
-        setErrMsg("There was an error, please try again.");
-      } else if (err.response?.status === 403) {
-        setErrMsg("Action Forbidden");
-      } else if (err.response?.status === 500) {
-        setErrMsg("Server encountered an error, please try again.");
-      } else {
-        setErrMsg("Server encountered an error, please try again.");
-      }
-    });
+        setFailure(true);
+        setBuffer(false);
+        if (!err?.response) {
+          setErrMsg("No Server Response");
+        } else if (err.response?.status === 400) {
+          setErrMsg("There was an error, please try again.");
+        } else if (err.response?.status === 403) {
+          setErrMsg("Action Forbidden");
+        } else if (err.response?.status === 500) {
+          setErrMsg("Server encountered an error, please try again.");
+        } else {
+          setErrMsg("Server encountered an error, please try again.");
+        }
+      });
   }, [tokenString]);
 
   const Back = async () => {
