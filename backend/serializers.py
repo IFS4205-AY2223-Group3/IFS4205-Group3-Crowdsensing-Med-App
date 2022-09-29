@@ -12,9 +12,10 @@ class UserSerializer(serializers.ModelSerializer):
         fields = ['user_id', 'name']
 
 class PatientSessionIdSerializer(serializers.ModelSerializer):
+    examId = serializers.CharField(source='exam_id')
     class Meta:
         model = PendingExamination
-        fields = ['exam_id']
+        fields = ['examId']
 
 class PatientRecordsSerializer(serializers.ModelSerializer):
     name = serializers.CharField(source='user.user.name')
@@ -27,4 +28,4 @@ class PatientPastSessionSerializer(serializers.ModelSerializer):
     diagnosis = serializers.CharField(source='diagnosis.description')
     class Meta:
         model = Examination
-        fields = ['session_id', 'doctor', 'diagnosis', 'prescription', 'sessiontime']
+        fields = ['exam_id', 'doctor', 'diagnosis', 'prescription', 'examtime']
