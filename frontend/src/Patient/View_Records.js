@@ -123,7 +123,7 @@ const View_Records = () => {
                 <br></br>
                 <tr>
                   <th>Session Time</th>
-                  <th>{examRecords.sessiontime}</th>
+                  <th>{examRecords.examtime}</th>
                 </tr>
                 <tr>
                   <th>Doctor</th>

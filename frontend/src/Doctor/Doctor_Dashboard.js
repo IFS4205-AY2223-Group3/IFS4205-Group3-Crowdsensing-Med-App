@@ -8,7 +8,7 @@ import axios from "axios";
 const Doctor_Dashboard = () => {
   const navigate = useNavigate();
   const name = localStorage.getItem("name");
-  const [crowdCounter, setCrowdCounter] = useState("");
+  const [count, setCrowdCounter] = useState("");
   const [success, setSuccess] = useState(false);
   const [failure, setFailure] = useState(false);
   const [buffer, setBuffer] = useState(true);
@@ -17,7 +17,7 @@ const Doctor_Dashboard = () => {
     axios
       .get(VIEW_COUNT_URL)
       .then(function (response) {
-        setCrowdCounter(response.data.count + "%");
+        setCrowdCounter(response.data.count);
         setSuccess(true);
         setBuffer(false);
       })
@@ -30,7 +30,6 @@ const Doctor_Dashboard = () => {
   const Signout = async () => {
     const { logout } = useAuth();
     logout();
-    navigate("/login");
   };
 
   const Examine = async () => {
@@ -42,7 +41,8 @@ const Doctor_Dashboard = () => {
       <div className={styles.container}>
         <h2 className={styles.header}>Welcome {name}!</h2>
         <div class={styles.buttons_container}>
-          <div class={styles.circle}>{crowdCounter}</div>
+          <div class={styles.circle}>{count.count}%</div>
+          <p>Last Updated: {count.time_recorded} </p>
           <div class="examine">
             <button className={styles.button} onClick={Examine}>
               Examine
