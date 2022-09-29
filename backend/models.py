@@ -100,7 +100,7 @@ class PendingExamination(models.Model):
     objects =  PendingExamManager()
 
 class Crowd(models.Model):
-    time_recorded = models.DateTimeField(auto_now_add=True)
+    time_recorded = models.DateTimeField(auto_now_add=True, primary_key=True)
     count = models.IntegerField()
 
 
