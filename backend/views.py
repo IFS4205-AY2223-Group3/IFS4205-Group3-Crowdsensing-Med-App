@@ -149,6 +149,8 @@ class AddExamination(APIView):
 				PendingExamination.objects.get(exam_id=exam.validated_data['exam_id']).delete()
 				return Response({'message':'success'}, status=status.HTTP_200_OK)
 			return Response({'message': GENERIC_ERROR_MESSAGE}, status=status.HTTP_400_BAD_REQUEST)
+		except PendingExamination.DoesNotExist:
+			return Response({'message': GENERIC_ERROR_MESSAGE}, status=status.HTTP_400_BAD_REQUEST)
 		except KeyError:
 			return Response({'message': GENERIC_ERROR_MESSAGE}, status=status.HTTP_400_BAD_REQUEST)
 
