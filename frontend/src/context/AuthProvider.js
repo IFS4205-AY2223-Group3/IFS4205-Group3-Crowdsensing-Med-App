@@ -6,11 +6,10 @@ import React, { useState, useEffect } from "react";
 const Context = React.createContext();
 
 export function useAuth() {
-  const setData = ({ accessToken, userRole, name, userId }) => {
+  const setData = ({ accessToken, userRole, name }) => {
     localStorage.setItem("accessToken", accessToken);
     localStorage.setItem("userRole", userRole);
     localStorage.setItem("name", name);
-    localStorage.setItem("userId", userId);
   };
 
   const login = async ({ user, pwd, userRole }) => {
@@ -25,13 +24,11 @@ export function useAuth() {
       const accessToken = response?.data?.token;
       const role = response?.data?.role;
       const name = response?.data?.name;
-      const userId = response?.data?.userId;
 
       const auth = {
         accessToken: accessToken,
         userRole: role,
         name: name,
-        userId: userId,
       };
       setData(auth);
 
@@ -43,13 +40,11 @@ export function useAuth() {
       // const accessToken = "access_token"; //comment out
       // const role = "patient";
       // const name = "Oscar";
-      // const userId = "user_id";
 
       // const auth = {
       //   accessToken: accessToken,
       //   userRole: role,
       //   name: name,
-      //   userId: userId,
       // };
       // var errorCode = 200;
       // setData(auth); //comment out
@@ -88,7 +83,6 @@ export function useAuth() {
         localStorage.removeItem("accessToken");
         localStorage.removeItem("userRole");
         localStorage.removeItem("name");
-        localStorage.removeItem("userId");
         error = true;
       })
       .catch(function (err) {
@@ -111,14 +105,12 @@ export function AuthProvider({ children }) {
     const accessToken = localStorage.getItem("accessToken");
     const userRole = localStorage.getItem("userRole");
     const name = localStorage.getItem("name");
-    const userId = localStorage.getItem("userId");
 
-    if (accessToken && userRole && name && userId) {
+    if (accessToken && userRole && name) {
       const temp = {
         accessToken: accessToken,
         userRole: userRole,
         name: name,
-        userId: userId,
       };
       setAuth(temp);
     }
