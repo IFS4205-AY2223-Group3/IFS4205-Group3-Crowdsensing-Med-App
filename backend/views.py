@@ -6,7 +6,7 @@ from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.parsers import JSONParser
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.authtoken.models import Token
 from rest_framework.authtoken.views import ObtainAuthToken
@@ -110,7 +110,9 @@ class Logout(APIView):
 			return Response({'message: Invalid credentials'}, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(["POST", "GET"])
+@permission_classes([IsAuthenticated])
 def create_session(request):
+	permission_classes = (IsAuthenticated, )
 	if request.method == "GET":
 		user_obj = request.auth.user
 		patient_obj = get_patient_object(user_obj)
@@ -133,6 +135,7 @@ def create_session(request):
 		return Response({'message': 'There was an error, please try again.'}, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(["POST", "GET"])
+@permission_classes([IsAuthenticated])
 def view_records(request):
 	if request.method == "GET":
 		user_obj = request.auth.user	
@@ -156,7 +159,9 @@ def view_records(request):
 		return Response({'message': 'There was an error, please try again.'}, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(["POST", "GET"])
+@permission_classes([IsAuthenticated])
 def allow_session(request):
+	permission_classes = (IsAuthenticated, )
 	if request.method == "POST":
 		user_obj = request.auth.user
 		patient_obj = get_patient_object(user_obj)
