@@ -31,9 +31,11 @@ class Login(ObtainAuthToken):
 			serializer.is_valid(raise_exception=True)
 			user = serializer.validated_data['user']
 			role.objects.get(user=user)
-			token = Token.objects.get(user=user)
-			if token is not None:
-				 token.delete()			
+			try:
+				token = Token.objects.get(user=user)
+				token.delete()
+			except Token.DoesNotExist:
+				pass		
 			token = Token.objects.create(user=user)
 			data = {}
 			data['token'] = token.key
