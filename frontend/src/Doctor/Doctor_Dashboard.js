@@ -11,7 +11,7 @@ const Doctor_Dashboard = () => {
   const navigate = useNavigate();
   const name = localStorage.getItem("name");
   const [errMsg, setErrMsg] = useState("");
-  const [crowdCounter, setCrowdCounter] = useState("");
+  const [count, setCrowdCounter] = useState("");
   const [success, setSuccess] = useState(false);
   const [failure, setFailure] = useState(false);
   const [buffer, setBuffer] = useState(true);
@@ -20,7 +20,7 @@ const Doctor_Dashboard = () => {
     axios
       .get(VIEW_COUNT_URL)
       .then(function (response) {
-        setCrowdCounter(response.data.count + "%");
+        setCrowdCounter(response.data.count);
         setSuccess(true);
         setBuffer(false);
       })
@@ -52,7 +52,8 @@ const Doctor_Dashboard = () => {
           <p className={styles.errMsg} aria-live="assertive">
             {errMsg}
           </p>
-          <div class={styles.circle}>{crowdCounter}</div>
+          <div class={styles.circle}>{count.count}%</div>
+          <p>Last Updated: {count.time_recorded} </p>
           <div class="examine">
             <button className={styles.button} onClick={Examine}>
               Examine
