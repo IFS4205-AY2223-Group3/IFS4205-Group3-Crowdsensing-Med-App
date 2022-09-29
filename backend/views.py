@@ -264,9 +264,10 @@ class CrowdView(APIView):
 	def get(self, request):
 		try:
 			crowd = Crowd.objects.latest('time_recorded')
+			serialized_data = CrowdSerializer(crowd)
 		except Crowd.DoesNotExist:
 			return Response({'message': GENERIC_ERROR_MESSAGE}, status=status.HTTP_400_BAD_REQUEST)
-		return Response({'count': crowd.count}, status=status.HTTP_200_OK)
+		return Response({'count': serialized_data.data}, status=status.HTTP_200_OK)
 
 
 	
