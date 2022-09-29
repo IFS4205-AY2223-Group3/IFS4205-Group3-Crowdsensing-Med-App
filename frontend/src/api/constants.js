@@ -14,6 +14,5 @@ export const DOCTOR_SUBMIT_URL =
   "http://ifs4205-group3-backend-i.comp.nus.edu.sg:8000/submitexamination";
 export const DOCTOR_VIEW_HEALTH_RECORDS_URL =
   "http://ifs4205-group3-backend-i.comp.nus.edu.sg:8000/doctorviewrecords";
-// export const VIEW_COUNT_URL =
-//   "http://ifs4205-group3-backend-i.comp.nus.edu.sg:8000/iot";
-export const VIEW_COUNT_URL = "http://google.com";
+export const VIEW_COUNT_URL =
+  "http://ifs4205-group3-backend-i.comp.nus.edu.sg:8000/iot";
