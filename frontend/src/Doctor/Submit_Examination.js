@@ -7,8 +7,6 @@ import ConfirmationPopUp from "./ConfirmationPopUp";
 const Submit_Examination = () => {
   const { send_exam_record } = DoctorApi();
 
-  const examId = localStorage.getItem("examId");
-  const patientId = localStorage.getItem("patientId");
   const patientName = localStorage.getItem("patientName");
   const token = localStorage.getItem("accessToken");
   const tokenString = " Token " + token;
@@ -37,8 +35,6 @@ const Submit_Examination = () => {
   useEffect(() => {
     async function postData() {
       const data = {
-        examId: examId,
-        patientId: patientId,
         prescription: prescription,
         code: code,
         tokenString: tokenString,
@@ -56,7 +52,7 @@ const Submit_Examination = () => {
     if (isSubmitted && isConfirmed) {
       postData();
     }
-  }, [isSubmitted, isConfirmed, examId, patientId, prescription, code, tokenString, send_exam_record, navigate]);
+  }, [isSubmitted, isConfirmed, prescription, code, tokenString, send_exam_record, navigate]);
 
   const handleViewRecords = async () => {
     navigate("/doctorviewrecords");

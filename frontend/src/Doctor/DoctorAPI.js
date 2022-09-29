@@ -52,12 +52,10 @@ export function DoctorApi() {
 		return examDetailsResponse;
 	};
 
-	const send_exam_record = async({ examId, patientId, prescription, code, tokenString }) => {
+	const send_exam_record = async({ prescription, code, tokenString }) => {
 		const successResponse = await axios.post(
 			DOCTOR_SUBMIT_URL,
 			{
-				examId: examId,
-				patientId: patientId,
 				prescription: prescription,
 				code: code,
 			},
@@ -83,12 +81,9 @@ export function DoctorApi() {
 		return successResponse;
 	};
 
-	const get_records = async({ patientId, tokenString }) => {
+	const get_records = async({ tokenString }) => {
 		const recordsResponse = await axios.get(
 			DOCTOR_VIEW_HEALTH_RECORDS_URL,
-      {
-        userId: patientId,
-      },
       {
         headers: {
           "Content-Type": "application/json",
