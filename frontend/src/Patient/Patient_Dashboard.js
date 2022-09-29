@@ -6,6 +6,8 @@ import { VIEW_COUNT_URL } from "../api/constants";
 import axios from "axios";
 
 const Patient_Dashboard = () => {
+  const { logout } = useAuth();
+
   const navigate = useNavigate();
   const name = localStorage.getItem("name");
   const [errMsg, setErrMsg] = useState("");
@@ -28,11 +30,14 @@ const Patient_Dashboard = () => {
       });
   });
 
-  const Signout = async () => {
-    const { logout } = useAuth();
+  const handleSignOut = async () => {
     const response = await logout();
-    if (response == false) navigate("/login");
-    setErrMsg("Cannot Logout. Please try again later ");
+
+    if (response.status === 200) {
+      navigate("/login");
+    } else {
+      setErrMsg("Cannot Logout. Please try again later ");
+    }
   };
 
   const GenerateSession = async () => {
@@ -64,7 +69,7 @@ const Patient_Dashboard = () => {
             </button>
           </div>
           <div class="signout">
-            <button class={styles.button} onClick={Signout}>
+            <button class={styles.button} onClick={handleSignOut}>
               Sign out
             </button>
           </div>{" "}
@@ -92,7 +97,7 @@ const Patient_Dashboard = () => {
             </button>
           </div>
           <div class="signout">
-            <button class={styles.button} onClick={Signout}>
+            <button class={styles.button} onClick={handleSignOut}>
               Sign out
             </button>
           </div>{" "}
@@ -120,7 +125,7 @@ const Patient_Dashboard = () => {
             </button>
           </div>
           <div class="signout">
-            <button class={styles.button} onClick={Signout}>
+            <button class={styles.button} onClick={handleSignOut}>
               Sign out
             </button>
           </div>{" "}

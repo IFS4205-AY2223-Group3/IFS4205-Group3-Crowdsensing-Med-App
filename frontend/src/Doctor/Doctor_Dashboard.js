@@ -6,8 +6,11 @@ import { VIEW_COUNT_URL } from "../api/constants";
 import axios from "axios";
 
 const Doctor_Dashboard = () => {
+  const { logout } = useAuth();
+
   const navigate = useNavigate();
   const name = localStorage.getItem("name");
+  const [errMsg, setErrMsg] = useState("");
   const [crowdCounter, setCrowdCounter] = useState("");
   const [success, setSuccess] = useState(false);
   const [failure, setFailure] = useState(false);
@@ -27,10 +30,14 @@ const Doctor_Dashboard = () => {
       });
   });
 
-  const Signout = async () => {
-    const { logout } = useAuth();
-    logout();
-    navigate("/login");
+  const handleSignOut = async () => {
+    const response = await logout();
+
+    if (response.status === 200) {
+      navigate("/login");
+    } else {
+      setErrMsg("Cannot Logout. Please try again later ");
+    }
   };
 
   const Examine = async () => {
@@ -42,6 +49,9 @@ const Doctor_Dashboard = () => {
       <div className={styles.container}>
         <h2 className={styles.header}>Welcome {name}!</h2>
         <div class={styles.buttons_container}>
+          <p className={styles.errMsg} aria-live="assertive">
+            {errMsg}
+          </p>
           <div class={styles.circle}>{crowdCounter}</div>
           <div class="examine">
             <button className={styles.button} onClick={Examine}>
@@ -49,7 +59,7 @@ const Doctor_Dashboard = () => {
             </button>
           </div>
           <div class="signout">
-            <button className={styles.button} onClick={Signout}>
+            <button className={styles.button} onClick={handleSignOut}>
               Sign out
             </button>
           </div>{" "}
@@ -61,6 +71,9 @@ const Doctor_Dashboard = () => {
       <div className={styles.container}>
         <h2 className={styles.header}>Welcome {name}!</h2>
         <div class={styles.buttons_container}>
+          <p className={styles.errMsg} aria-live="assertive">
+            {errMsg}
+          </p>
           <div class={styles.circle}></div>
           <p>Generating...</p>
           <div class="examine">
@@ -69,7 +82,7 @@ const Doctor_Dashboard = () => {
             </button>
           </div>
           <div class="signout">
-            <button className={styles.button} onClick={Signout}>
+            <button className={styles.button} onClick={handleSignOut}>
               Sign out
             </button>
           </div>{" "}
@@ -81,6 +94,9 @@ const Doctor_Dashboard = () => {
       <div className={styles.container}>
         <h2 className={styles.header}>Welcome {name}!</h2>
         <div class={styles.buttons_container}>
+          <p className={styles.errMsg} aria-live="assertive">
+            {errMsg}
+          </p>
           <div class={styles.circle}>Error</div>
           <p>There is an error</p>
           <div class="examine">
@@ -89,7 +105,7 @@ const Doctor_Dashboard = () => {
             </button>
           </div>
           <div class="signout">
-            <button className={styles.button} onClick={Signout}>
+            <button className={styles.button} onClick={handleSignOut}>
               Sign out
             </button>
           </div>{" "}
