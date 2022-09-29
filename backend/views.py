@@ -1,82 +1,28 @@
-from django.contrib.auth import authenticate, login, logout
+from django.db.utils import IntegrityError
 from django.views.decorators.csrf import csrf_exempt
 from django.core.exceptions import ObjectDoesNotExist
+from django.contrib.auth.models import update_last_login
 
 from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.parsers import JSONParser
-from rest_framework.decorators import api_view
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.authtoken.models import Token
 from rest_framework.authtoken.views import ObtainAuthToken
 
-from backend.models import User, Researcher, MedicalStaff, Doctor, Patient, PendingExamination, HealthRecord, Examination
+from backend.models import *
 from backend.serializers import *
+from backend.permissions import *
 from rest_framework.serializers import ValidationError
 
-class AssignPendingExam(APIView):
-	parser_classes = [JSONParser]
-	permission_classes = (IsAuthenticated, )
-	
-	#assign doctor to a session (done by doctors)
-	@csrf_exempt
-	def post(self, request):
-		try:
-			exam_id = request.data['exam_id']
-			assigned_session = PendingExamination.objects.get(exam_id=exam_id)
-			doctor = Doctor.objects.get(user=request.auth.user)
+LOGIN_ERROR_MESSAGE = 'Login credentials are incorrect. Please check and try again.'
+LOGOUT_ERROR_MESSAGE = 'Invalid credentials'
+SUCCESS_MESSAGE = 'success'
+GENERIC_ERROR_MESSAGE = 'There was an error, please try again.'
+ALREADY_ASSIGNED_ERROR_MESSAGE = 'You have already been assigned a patient!'
+SELF_ASSIGN_ERROR_MESSAGE = 'You cannot assign yourself as a doctor!'
 
-			if assigned_session.doctor is not None and assigned_session.doctor != doctor:
-				return Response({'message': 'patient has already been assigned'})
-				
-			if assigned_session.approved == False:
-				return Response({'message': 'patient has yet to give consent!'})
-
-			assigned_session.doctor = doctor
-			assigned_session.save()
-			response = {
-				'patientId': assigned_session.patient.user_id,
-				'patientName': assigned_session.patient.user.name,
-				'examId': assigned_session.exam_id
-			}
-			return Response(response)
-
-		except KeyError:
-			return Response({'message':'invalid data'})
-		except PendingExamination.DoesNotExist:
-			return Response({'message':'invalid data'})
-		except Doctor.DoesNotExist:
-			return Response({'message':'invalid data'})
-
-class GetExamination(APIView):
-	parser_classes = [JSONParser]
-
-	#get examinations (done by doctors)
-	@csrf_exempt
-	def post(self, request):
-		try:
-			patient = Patient.objects.get(user=request.data['user_id'])
-			exams = Examination.objects.all().filter(patient=patient)
-			serialized_exams = ExaminationSerializer(exams, many=True)
-			return Response(serialized_exams.data)
-		except Patient.DoesNotExist:
-			return Response({'message':'invalid data'})
-
-class AddExamination(APIView):
-	parser_classes = [JSONParser]
-
-	#store new examination result (done by doctors)
-	@csrf_exempt
-	def post(self, request):
-		exam = ExaminationSerializer(data=request.data)
-		if exam.is_valid():
-			exam.save()
-			PendingExamination.objects.get(exam_id=exam.validated_data['exam_id']).delete()
-			return Response({'message':'success'})
-		return Response({'message':'invalid data'})
-
-# Might need modification to generate new token, even when there is an existing token for the user
 class Login(ObtainAuthToken):
 	def post(self, request, *args, **kwargs):
 		try:
@@ -85,41 +31,143 @@ class Login(ObtainAuthToken):
 			serializer.is_valid(raise_exception=True)
 			user = serializer.validated_data['user']
 			role.objects.get(user=user)
-			token, created = Token.objects.get_or_create(user=user)
-			return Response({
-				'token': token.key,
-				'userId': user.user_id,
-				'name': user.name,
-				'role': request.data['role']
-			})
+			try:
+				token = Token.objects.get(user=user)
+				token.delete()
+			except Token.DoesNotExist:
+				pass		
+			token = Token.objects.create(user=user)
+			data = {}
+			data['token'] = token.key
+			data['name'] = user.name
+			data['role'] = request.data['role']
+			update_last_login(None, user)
+
+			return Response(data, status=status.HTTP_200_OK)
 		except KeyError:
-			return Response({'message: Invalid credentials'}, status=status.HTTP_400_BAD_REQUEST)
+			return Response({'message': LOGIN_ERROR_MESSAGE}, status=status.HTTP_403_FORBIDDEN)
 		except role.DoesNotExist:
-			return Response({'message: Invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED)
+			return Response({'message': LOGIN_ERROR_MESSAGE}, status=status.HTTP_403_FORBIDDEN)
 		except ValidationError:
-			return Response({'message: Invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED)
+			return Response({'message': LOGIN_ERROR_MESSAGE}, status=status.HTTP_403_FORBIDDEN)
 
 class Logout(APIView):
-	def post(self, request, *args, **kwargs):
+	permission_classes = (IsAuthenticated, )
+	def get(self, request, *args, **kwargs):
+		request.auth.delete()
+		return Response({'message': SUCCESS_MESSAGE}, status=status.HTTP_200_OK)
+
+#######################################################################################################################
+#DOCTOR API
+
+class AssignPendingExam(APIView):
+	parser_classes = [JSONParser]
+	permission_classes = (IsAuthenticated, isDoctor)
+	
+	#assign doctor to a session (done by doctors)
+	@csrf_exempt
+	def post(self, request):
 		try:
-			request.auth.token.delete()
-			return Response({'message: success'}, status=status.HTTP_200_OK)
-		except ValidationError:
-			return Response({'message: Invalid credentials'}, status=status.HTTP_400_BAD_REQUEST)
-		except AttributeError:
-			return Response({'message: Invalid credentials'}, status=status.HTTP_400_BAD_REQUEST)
+			exam_id = request.data['examId']
+			assigned_session = PendingExamination.objects.get(exam_id=exam_id)
+			doctor = Doctor.objects.get(user=request.auth.user)
 
-@api_view(["POST", "GET"])
-def create_session(request):
-	if request.method == "GET":
-		# user_obj = request.user
+			if assigned_session.doctor is not None and assigned_session.doctor != doctor:
+				return Response({'message': GENERIC_ERROR_MESSAGE}, status=status.HTTP_400_BAD_REQUEST)
+				
+			if assigned_session.approved == False:
+				return Response({'message': GENERIC_ERROR_MESSAGE}, status=status.HTTP_400_BAD_REQUEST)
+			
+			if assigned_session.patient.user == request.auth.user:
+				return Response({'message': SELF_ASSIGN_ERROR_MESSAGE}, status=status.HTTP_400_BAD_REQUEST)
 
-		# For local testing
-		user_obj = User.objects.get(pk = 2)
+			assigned_session.doctor = doctor
+			assigned_session.save()
+			response = {
+				'patientId': assigned_session.patient.user_id,
+				'patientName': assigned_session.patient.user.name,
+				'examId': assigned_session.exam_id
+			}
+			return Response(response, status=status.HTTP_200_OK)
 
+		except KeyError:
+			return Response({'message': GENERIC_ERROR_MESSAGE}, status=status.HTTP_400_BAD_REQUEST)
+		except PendingExamination.DoesNotExist:
+			return Response({'message': GENERIC_ERROR_MESSAGE}, status=status.HTTP_400_BAD_REQUEST)
+		except IntegrityError:
+			return Response({'message': ALREADY_ASSIGNED_ERROR_MESSAGE}, status=status.HTTP_400_BAD_REQUEST)
+
+class DoctorGetRecords(APIView):
+	parser_classes = [JSONParser]
+	permission_classes = (IsAuthenticated, isDoctor)
+
+	#get examinations (done by doctors)
+	@csrf_exempt
+	def get(self, request):
+		try:
+			#check if doctor is assigned to patient
+			doctor = Doctor.objects.get(user=request.auth.user)
+			pendingexam = PendingExamination.objects.get(doctor=doctor)
+			patient = pendingexam.patient
+			records = HealthRecord.objects.get(user=patient)
+			exams = Examination.objects.all().filter(patient=patient)
+			serialized_record = PatientRecordsSerializer(records)
+			data = {}
+			data['healthRecords'] = serialized_record.data
+			try:
+				serialized_exams = PatientPastSessionSerializer(exams, many=True)
+				data['examRecords'] = serialized_exams.data
+			except PendingExamination.DoesNotExist:
+				data['examRecords'] = {}
+			return Response(data, status=status.HTTP_200_OK)
+		except Patient.DoesNotExist:
+			return Response({'message': GENERIC_ERROR_MESSAGE}, status=status.HTTP_400_BAD_REQUEST)
+		except PendingExamination.DoesNotExist:
+			return Response({'message': GENERIC_ERROR_MESSAGE}, status=status.HTTP_400_BAD_REQUEST)
+		except HealthRecord.DoesNotExist:
+			return Response({'message': GENERIC_ERROR_MESSAGE}, status=status.HTTP_400_BAD_REQUEST)
+		
+
+class AddExamination(APIView):
+	parser_classes = [JSONParser]
+	permission_classes = (IsAuthenticated, isDoctor)
+	
+	#store new examination result (done by doctors)
+	@csrf_exempt
+	def post(self, request):
+		try:
+			data = {}
+			doctor = Doctor.objects.get(user=request.auth.user)
+			pendingexam = PendingExamination.objects.get(doctor=doctor)
+			data['exam_id'] = pendingexam.exam_id
+			data['doctor'] = pendingexam.doctor
+			data['patient'] = pendingexam.patient
+			data['diagnosis'] = request.data['code']
+			data['prescription'] = request.data['prescription']
+			exam = ExaminationSerializer(data=data)
+			if exam.is_valid():
+				exam.save()
+				PendingExamination.objects.get(exam_id=exam.validated_data['exam_id']).delete()
+				return Response({'message':'success'}, status=status.HTTP_200_OK)
+			return Response({'message': GENERIC_ERROR_MESSAGE}, status=status.HTTP_400_BAD_REQUEST)
+		except PendingExamination.DoesNotExist:
+			return Response({'message': GENERIC_ERROR_MESSAGE}, status=status.HTTP_400_BAD_REQUEST)
+		except KeyError:
+			return Response({'message': GENERIC_ERROR_MESSAGE}, status=status.HTTP_400_BAD_REQUEST)
+
+#######################################################################################################################
+#PATIENT API
+
+class CreateSession(APIView):
+	parser_classes = [JSONParser]
+	permission_classes = (IsAuthenticated, )
+
+	@csrf_exempt
+	def get(self, request):
+		user_obj = request.auth.user
 		patient_obj = get_patient_object(user_obj)
 		if not patient_obj:
-			return Response({'errorMessage': 'Action forbidden.'}, status=status.HTTP_403_FORBIDDEN)
+			return Response({'message': 'Action forbidden.'}, status=status.HTTP_403_FORBIDDEN)
 		#Checks if patient has an existing pending session
 		try:
 			existing_session = PendingExamination.objects.get(pk = patient_obj)
@@ -127,29 +175,26 @@ def create_session(request):
 			session = PendingExamination.objects.create_exam(patient_obj)
 			#Returns error if backend produces an existing session_id
 			if not session:
-				return Response({'errorMessage': 'Server encountered an error, please try again.'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+				return Response({'message': 'Server encountered an error, please try again.'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 			else:
 				existing_session = session
 		data = {}
-		#data = {PatientSessionIdSerializer(existing_session).data}
-		data = {'examId': existing_session.exam_id}
+		data = PatientSessionIdSerializer(existing_session).data
 		return Response(data, status=status.HTTP_200_OK)
-	else:
-		return Response({'errorMessage': 'Invalid request method.'}, status=status.HTTP_400_BAD_REQUEST)
 
-@api_view(["POST", "GET"])
-def view_records(request):
-	if request.method == "GET":
-		# user_obj = request.user
 
-		# For local testing
-		user_obj = User.objects.get(pk = 2)
-		
+class PatientViewRecords(APIView):
+	parser_classes = [JSONParser]
+	permission_classes = (IsAuthenticated, )
+
+	@csrf_exempt
+	def get(self, request):
+		user_obj = request.auth.user	
 		patient_obj = get_patient_object(user_obj)
 		data = {}
 		#Checks if user is a patient
 		if not patient_obj:
-			return Response({'errorMessage': 'Action forbidden.'}, status=status.HTTP_403_FORBIDDEN)
+			return Response({'message': 'Action forbidden.'}, status=status.HTTP_403_FORBIDDEN)
 		try:
 			record_obj = HealthRecord.objects.get(pk = patient_obj)
 			data['healthRecords'] = PatientRecordsSerializer(record_obj).data
@@ -161,40 +206,29 @@ def view_records(request):
 		except Examination.DoesNotExist:
 			data['examRecords'] = {}
 		return Response(data, status=status.HTTP_200_OK)
-	else:
-		return Response({'errorMessage': 'Invalid request method.'}, status=status.HTTP_400_BAD_REQUEST)
 
-@api_view(["POST", "GET"])
-def allow_session(request):
-	if request.method == "POST":
-		# user_obj = request.user
+class AllowSession(APIView):
+	parser_classes = [JSONParser]
+	permission_classes = (IsAuthenticated, )
 
-		# For local testing
-		user_obj = User.objects.get(pk = 3)
-
+	@csrf_exempt
+	def post(self, request):
+		user_obj = request.auth.user
 		patient_obj = get_patient_object(user_obj)
 		if not patient_obj:
-			return Response({'errorMessage': 'Action forbidden.'}, status=status.HTTP_403_FORBIDDEN)
-		exam_id = request.POST.get('examId')
-		is_allowed = request.POST.get('isAllowed')
-		allowed = bool(is_allowed)
+			return Response({'message': 'Action forbidden.'}, status=status.HTTP_403_FORBIDDEN)
+		exam_id = request.data['examId']
 		data = {}
 		session = PendingExamination.objects.filter(exam_id = exam_id,patient = patient_obj)
 		if not session:
-			data['isSuccess'] = "False"
+			return Response({'message': 'There was an error. No session exists.'}, status=status.HTTP_400_BAD_REQUEST)
 		else:
-			session.update(approved=allowed)
-			data['isSuccess'] = "True"
+			session.update(approved=True)
+			data['message'] = "success"
 		return Response(data, status=status.HTTP_200_OK)
-	else:
-		return Response({'errorMessage': 'Invalid request method.'}, status=status.HTTP_400_BAD_REQUEST)
 
 def get_patient_object(user):
-	# user_obj = request.user
-
-	# For local testing
 	user_obj = user
-
 	try:
 		patient_obj = Patient.objects.get(pk = user_obj)
 	except ObjectDoesNotExist:
@@ -211,3 +245,31 @@ def get_role(user_role):
 		return Researcher
 	if role == 'medicalstaff':
 		return MedicalStaff
+
+#######################################################################################################################
+#IOT API
+
+
+class CrowdView(APIView):
+	parser_classes = [JSONParser]
+
+	@csrf_exempt
+	def post(self, request):
+		serialized_data = CrowdSerializer(data=request.data)
+		if serialized_data.is_valid():
+			serialized_data.save()
+		return Response({'message': SUCCESS_MESSAGE}, status=status.HTTP_200_OK)
+
+	@csrf_exempt
+	def get(self, request):
+		try:
+			crowd = Crowd.objects.latest('time_recorded')
+			serialized_data = CrowdSerializer(crowd)
+		except Crowd.DoesNotExist:
+			return Response({'message': GENERIC_ERROR_MESSAGE}, status=status.HTTP_400_BAD_REQUEST)
+		return Response({'count': serialized_data.data}, status=status.HTTP_200_OK)
+
+
+	
+		
+		

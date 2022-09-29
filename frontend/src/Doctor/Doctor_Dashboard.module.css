@@ -4,12 +4,12 @@
   
 }
 
-/* .header {
+.header {
     font-family: 'Nunito', sans-serif;
     font-size: 40px;
     color:rgb(0, 0, 0);
 
-} */
+}
 
 .buttons_container{
 
@@ -26,7 +26,12 @@
     background-color: rgb(198, 202, 195);
     padding: 15px 32px;
     font-size: 32px;
+    cursor: pointer;
 }
+
+.button:hover {
+    background-color: rgb(186, 192, 182);
+  }
 
 .circle {
     width: 200px;
