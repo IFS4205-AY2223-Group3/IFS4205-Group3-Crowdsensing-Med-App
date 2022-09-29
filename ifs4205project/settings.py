@@ -1,3 +1,5 @@
+from corsheaders.defaults import default_headers
+
 """
 Django settings for ifs4205project project.
 <<<<<<< HEAD
@@ -15,7 +17,6 @@ https://docs.djangoproject.com/en/4.1/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.1/ref/settings/
 """
-
 from pathlib import Path
 import os
 
@@ -34,6 +35,12 @@ DEBUG = True
 
 ALLOWED_HOSTS = ['ifs4205-group3-backend-i.comp.nus.edu.sg']
 
+CORS_ORIGIN_ALLOW_ALL = True
+CORS_ALLOW_CREDENTIALS = True
+CORS_ALLOW_HEADERS = default_headers + ('access-control-allow-origin','access-control-allow-headers','access-control-allow-methods',)
+CORS_ORIGIN_WHITELIST = [
+        'http://172.25.97.106:3000',
+]
 
 # Application definition
 
@@ -41,6 +48,7 @@ INSTALLED_APPS = [
     'login',
     'patient',
     'doctor',
+    'corsheaders',
     'backend.apps.BackendConfig',
     'django.contrib.admin',
     'django.contrib.auth',
@@ -53,13 +61,14 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
-    'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'django.middleware.clickjacking.XFrameOptionsMiddleware'
 ]
 
 ROOT_URLCONF = 'ifs4205project.urls'
