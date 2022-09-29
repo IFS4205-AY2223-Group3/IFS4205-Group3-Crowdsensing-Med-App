@@ -7,7 +7,6 @@ from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.parsers import JSONParser
-from rest_framework.decorators import api_view
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.authtoken.models import Token
 from rest_framework.authtoken.views import ObtainAuthToken
@@ -157,17 +156,16 @@ class AddExamination(APIView):
 #######################################################################################################################
 #PATIENT API
 
-@api_view(["POST", "GET"])
-def create_session(request):
-	if request.method == "GET":
-		# user_obj = request.user
+class CreateSession(APIView):
+	parser_classes = [JSONParser]
+	permission_classes = (IsAuthenticated, )
 
-		# For local testing
-		user_obj = User.objects.get(pk = 2)
-
+	@csrf_exempt
+	def get(self, request):
+		user_obj = request.auth.user
 		patient_obj = get_patient_object(user_obj)
 		if not patient_obj:
-			return Response({'errorMessage': 'Action forbidden.'}, status=status.HTTP_403_FORBIDDEN)
+			return Response({'message': 'Action forbidden.'}, status=status.HTTP_403_FORBIDDEN)
 		#Checks if patient has an existing pending session
 		try:
 			existing_session = PendingExamination.objects.get(pk = patient_obj)
@@ -175,29 +173,26 @@ def create_session(request):
 			session = PendingExamination.objects.create_exam(patient_obj)
 			#Returns error if backend produces an existing session_id
 			if not session:
-				return Response({'errorMessage': 'Server encountered an error, please try again.'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+				return Response({'message': 'Server encountered an error, please try again.'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 			else:
 				existing_session = session
 		data = {}
-		#data = {PatientSessionIdSerializer(existing_session).data}
-		data = {'examId': existing_session.exam_id}
+		data = PatientSessionIdSerializer(existing_session).data
 		return Response(data, status=status.HTTP_200_OK)
-	else:
-		return Response({'errorMessage': 'Invalid request method.'}, status=status.HTTP_400_BAD_REQUEST)
 
-@api_view(["POST", "GET"])
-def view_records(request):
-	if request.method == "GET":
-		# user_obj = request.user
 
-		# For local testing
-		user_obj = User.objects.get(pk = 2)
-		
+class PatientViewRecords(APIView):
+	parser_classes = [JSONParser]
+	permission_classes = (IsAuthenticated, )
+
+	@csrf_exempt
+	def get(self, request):
+		user_obj = request.auth.user	
 		patient_obj = get_patient_object(user_obj)
 		data = {}
 		#Checks if user is a patient
 		if not patient_obj:
-			return Response({'errorMessage': 'Action forbidden.'}, status=status.HTTP_403_FORBIDDEN)
+			return Response({'message': 'Action forbidden.'}, status=status.HTTP_403_FORBIDDEN)
 		try:
 			record_obj = HealthRecord.objects.get(pk = patient_obj)
 			data['healthRecords'] = PatientRecordsSerializer(record_obj).data
@@ -209,40 +204,29 @@ def view_records(request):
 		except Examination.DoesNotExist:
 			data['examRecords'] = {}
 		return Response(data, status=status.HTTP_200_OK)
-	else:
-		return Response({'errorMessage': 'Invalid request method.'}, status=status.HTTP_400_BAD_REQUEST)
 
-@api_view(["POST", "GET"])
-def allow_session(request):
-	if request.method == "POST":
-		# user_obj = request.user
+class AllowSession(APIView):
+	parser_classes = [JSONParser]
+	permission_classes = (IsAuthenticated, )
 
-		# For local testing
-		user_obj = User.objects.get(pk = 3)
-
+	@csrf_exempt
+	def post(self, request):
+		user_obj = request.auth.user
 		patient_obj = get_patient_object(user_obj)
 		if not patient_obj:
-			return Response({'errorMessage': 'Action forbidden.'}, status=status.HTTP_403_FORBIDDEN)
-		exam_id = request.POST.get('examId')
-		is_allowed = request.POST.get('isAllowed')
-		allowed = bool(is_allowed)
+			return Response({'message': 'Action forbidden.'}, status=status.HTTP_403_FORBIDDEN)
+		exam_id = request.data['examId']
 		data = {}
 		session = PendingExamination.objects.filter(exam_id = exam_id,patient = patient_obj)
 		if not session:
-			data['isSuccess'] = "False"
+			return Response({'message': 'There was an error. No session exists.'}, status=status.HTTP_400_BAD_REQUEST)
 		else:
-			session.update(approved=allowed)
-			data['isSuccess'] = "True"
+			session.update(approved=True)
+			data['message'] = "success"
 		return Response(data, status=status.HTTP_200_OK)
-	else:
-		return Response({'errorMessage': 'Invalid request method.'}, status=status.HTTP_400_BAD_REQUEST)
 
 def get_patient_object(user):
-	# user_obj = request.user
-
-	# For local testing
 	user_obj = user
-
 	try:
 		patient_obj = Patient.objects.get(pk = user_obj)
 	except ObjectDoesNotExist:

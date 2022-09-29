@@ -1,92 +1,57 @@
 import { useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
-import styles from "./Patient_Dashboard.module.css";
-import axios from "axios";
-import { VIEW_RECORDS_URL } from "../api/constants";
+import { DoctorApi } from "./DoctorAPI";
+import styles from "./Doctor_Dashboard.module.css";
 import loading from "../imports/loading.gif";
 
-const View_Records = () => {
+const Doctor_View_Records = () => {
   const navigate = useNavigate();
-  const name = localStorage.getItem("name");
+
+  const patientName = localStorage.getItem("patientName");
   const token = localStorage.getItem("accessToken");
   const tokenString = " Token " + token;
+
   const [errMsg, setErrMsg] = useState("");
   const [success, setSuccess] = useState(false);
   const [failure, setFailure] = useState(false);
   const [buffer, setBuffer] = useState(true);
+
   const [healthRecords, setHealthRecords] = useState();
   const [examRecords, setExamRecords] = useState();
 
+  const { get_records } = DoctorApi();
+
   useEffect(() => {
-    axios
-      .get(VIEW_RECORDS_URL, {
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: tokenString,
-        },
-      })
-      .then(function (response) {
-        setHealthRecords(response.data.healthRecords);
-        setExamRecords(response.data.examRecords);
+    async function getData() {
+      const data = {
+        tokenString: tokenString,
+      };
+
+      const response = await get_records(data);
+
+      if (response.status === 200) {
+        setHealthRecords(response?.healthRecords);
+        setExamRecords(response?.examRecords);
         setSuccess(true);
         setBuffer(false);
-      })
-      .catch(function (err) {
-        // const response = {
-        //   healthRecords: {
-        //     name: "Patient Kelly",
-        //     dateofbirth: "1999-01-08",
-        //     height: 155,
-        //     weight: 53,
-        //     bloodtype: "B+",
-        //     allergies: "None",
-        //   },
-        //   examRecords: [
-        //     {
-        //       session_id: "123",
-        //       doctor: "Dr Jim",
-        //       diagnosis: "High Fever",
-        //       prescription: "150mg panadol",
-        //       sessiontime: "2022-09-22T16:56:36.636524+08:00",
-        //     },
-        //     {
-        //       session_id: "321",
-        //       doctor: "Dr Jim",
-        //       diagnosis: "Stomachache",
-        //       prescription: "150mg paracetamol",
-        //       sessiontime: "2022-09-22T16:57:08.848481+08:00",
-        //     },
-        //   ],
-        // };
-        // setHealthRecords(response.healthRecords);
-        // setExamRecords(response.examRecords);
-        // setSuccess(true); //comment out
-        // setBuffer(false); //comment out
-
+      } else {
         setFailure(true);
         setBuffer(false);
-        if (!err?.response) {
-          setErrMsg("No Server Response");
-        } else if (err.response?.status === 400) {
-          setErrMsg("There was an error, please try again.");
-        } else if (err.response?.status === 403) {
-          setErrMsg("Action Forbidden");
-        } else if (err.response?.status === 500) {
-          setErrMsg("Server encountered an error, please try again.");
-        } else {
-          setErrMsg("Server encountered an error, please try again.");
-        }
-      });
+        setErrMsg(response.message);
+      }
+    }
+
+    getData();
   }, [tokenString]);
 
   const Back = async () => {
-    navigate("/patient");
+    navigate("/doctor");
   };
 
   if (success) {
     return (
       <div className={styles.container}>
-        <h2 className={styles.header}>Health Records for {name}</h2>
+        <h2 className={styles.header}>Health Records for {patientName}</h2>
         <br></br>
         <table>
           <tr>
@@ -115,7 +80,7 @@ const View_Records = () => {
           </tr>
         </table>
         <br></br>
-        <h2 className={styles.header}>Session Records for {name}</h2>
+        <h2 className={styles.header}>Session Records for {patientName}</h2>
         <div>
           {examRecords.map((examRecords) => {
             return (
@@ -165,4 +130,4 @@ const View_Records = () => {
     );
   }
 };
-export default View_Records;
+export default Doctor_View_Records;
