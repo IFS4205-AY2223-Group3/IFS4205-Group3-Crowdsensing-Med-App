@@ -30,8 +30,8 @@ const Doctor_View_Records = () => {
       const response = await get_records(data);
 
       if (response.status === 200) {
-        setHealthRecords(response?.healthRecords);
-        setExamRecords(response?.examRecords);
+        setHealthRecords(response?.data?.healthRecords);
+        setExamRecords(response?.data?.examRecords);
         setSuccess(true);
         setBuffer(false);
       } else {
@@ -45,7 +45,7 @@ const Doctor_View_Records = () => {
   }, [tokenString]);
 
   const Back = async () => {
-    navigate("/doctor");
+    navigate("/submitexamination");
   };
 
   if (success) {
@@ -88,7 +88,7 @@ const Doctor_View_Records = () => {
                 <br></br>
                 <tr>
                   <th>Session Time</th>
-                  <th>{examRecords.sessiontime}</th>
+                  <th>{examRecords.examtime}</th>
                 </tr>
                 <tr>
                   <th>Doctor</th>

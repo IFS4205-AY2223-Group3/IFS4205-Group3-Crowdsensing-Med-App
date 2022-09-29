@@ -1,4 +1,4 @@
-import { Navigate } from "react-router-dom";
+import { Navigate, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { LOGIN_URL, LOGOUT_URL } from "../api/constants";
 import React, { useState, useEffect } from "react";
@@ -6,6 +6,8 @@ import React, { useState, useEffect } from "react";
 const Context = React.createContext();
 
 export function useAuth() {
+  const navigate = useNavigate();
+
   const setData = ({ accessToken, userRole, name }) => {
     localStorage.setItem("accessToken", accessToken);
     localStorage.setItem("userRole", userRole);
@@ -70,6 +72,7 @@ export function useAuth() {
   const logout = async () => {
     const tokenString = " Token " + localStorage.getItem("accessToken");
     var error;
+    console.log("here");
     console.log(tokenString);
 
     axios

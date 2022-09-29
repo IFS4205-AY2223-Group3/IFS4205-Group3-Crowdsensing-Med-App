@@ -7,9 +7,11 @@ import axios from "axios";
 
 const Patient_Dashboard = () => {
   const navigate = useNavigate();
+  const { logout } = useAuth();
+
   const name = localStorage.getItem("name");
   const [errMsg, setErrMsg] = useState("");
-  const [crowdCounter, setCrowdCounter] = useState("");
+  const [count, setCrowdCounter] = useState("");
   const [success, setSuccess] = useState(false);
   const [failure, setFailure] = useState(false);
   const [buffer, setBuffer] = useState(true);
@@ -18,7 +20,7 @@ const Patient_Dashboard = () => {
     axios
       .get(VIEW_COUNT_URL)
       .then(function (response) {
-        setCrowdCounter(response.data.count + "%");
+        setCrowdCounter(response.data.count);
         setSuccess(true);
         setBuffer(false);
       })
@@ -29,10 +31,13 @@ const Patient_Dashboard = () => {
   });
 
   const Signout = async () => {
-    const { logout } = useAuth();
     const response = await logout();
-    if (response == false) navigate("/login");
-    setErrMsg("Cannot Logout. Please try again later ");
+    console.log(response);
+    if (response === true) {
+      navigate("/login");
+    } else {
+      setErrMsg("Cannot Logout. Please try again later ");
+    }
   };
 
   const GenerateSession = async () => {
@@ -51,8 +56,8 @@ const Patient_Dashboard = () => {
           <p className={styles.errMsg} aria-live="assertive">
             {errMsg}
           </p>
-          <div class={styles.circle}>{crowdCounter}</div>
-          <p>Wait Time: 30 Minutes</p>
+          <div class={styles.circle}>{count.count}%</div>
+          <p>Last Updated: {count.time_recorded} </p>
           <div class="generate">
             <button class={styles.button} onClick={GenerateSession}>
               Generate Session
