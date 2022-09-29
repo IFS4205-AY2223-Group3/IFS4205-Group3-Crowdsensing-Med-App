@@ -109,11 +109,12 @@ class Logout(APIView):
 		except AttributeError:
 			return Response({'message: Invalid credentials'}, status=status.HTTP_400_BAD_REQUEST)
 
-@api_view(["POST", "GET"])
-@permission_classes([IsAuthenticated])
-def create_session(request):
+class CreateSession(APIView):
+	parser_classes = [JSONParser]
 	permission_classes = (IsAuthenticated, )
-	if request.method == "GET":
+
+	@csrf_exempt
+	def get(self, request):
 		user_obj = request.auth.user
 		patient_obj = get_patient_object(user_obj)
 		if not patient_obj:
@@ -131,13 +132,14 @@ def create_session(request):
 		data = {}
 		data = PatientSessionIdSerializer(existing_session).data
 		return Response(data, status=status.HTTP_200_OK)
-	else:
-		return Response({'message': 'There was an error, please try again.'}, status=status.HTTP_400_BAD_REQUEST)
 
-@api_view(["POST", "GET"])
-@permission_classes([IsAuthenticated])
-def view_records(request):
-	if request.method == "GET":
+
+class PatientViewRecords(APIView):
+	parser_classes = [JSONParser]
+	permission_classes = (IsAuthenticated, )
+
+	@csrf_exempt
+	def get(self, request):
 		user_obj = request.auth.user	
 		patient_obj = get_patient_object(user_obj)
 		data = {}
@@ -155,19 +157,18 @@ def view_records(request):
 		except Examination.DoesNotExist:
 			data['examRecords'] = {}
 		return Response(data, status=status.HTTP_200_OK)
-	else:
-		return Response({'message': 'There was an error, please try again.'}, status=status.HTTP_400_BAD_REQUEST)
 
-@api_view(["POST", "GET"])
-@permission_classes([IsAuthenticated])
-def allow_session(request):
+class AllowSession(APIView):
+	parser_classes = [JSONParser]
 	permission_classes = (IsAuthenticated, )
-	if request.method == "POST":
+
+	@csrf_exempt
+	def post(self, request):
 		user_obj = request.auth.user
 		patient_obj = get_patient_object(user_obj)
 		if not patient_obj:
 			return Response({'message': 'Action forbidden.'}, status=status.HTTP_403_FORBIDDEN)
-		exam_id = request.POST.get('examId')
+		exam_id = request.data['examId']
 		data = {}
 		session = PendingExamination.objects.filter(exam_id = exam_id,patient = patient_obj)
 		if not session:
@@ -176,8 +177,6 @@ def allow_session(request):
 			session.update(approved=True)
 			data['message'] = "success"
 		return Response(data, status=status.HTTP_200_OK)
-	else:
-		return Response({'message': 'There was an error, please try again.'}, status=status.HTTP_400_BAD_REQUEST)
 
 def get_patient_object(user):
 	user_obj = user
