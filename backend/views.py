@@ -11,7 +11,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.authtoken.models import Token
 from rest_framework.authtoken.views import ObtainAuthToken
 
-from backend.models import User, Researcher, MedicalStaff, Doctor, Patient, PendingExamination, HealthRecord, Examination
+from backend.models import *
 from backend.serializers import *
 from backend.permissions import *
 from rest_framework.serializers import ValidationError
@@ -245,3 +245,30 @@ def get_role(user_role):
 		return Researcher
 	if role == 'medicalstaff':
 		return MedicalStaff
+
+#######################################################################################################################
+#IOT API
+
+
+class CrowdView(APIView):
+	parser_classes = [JSONParser]
+
+	@csrf_exempt
+	def post(self, request):
+		serialized_data = CrowdSerializer(data=request.data)
+		if serialized_data.is_valid():
+			serialized_data.save()
+		return Response({'message': SUCCESS_MESSAGE}, status=status.HTTP_200_OK)
+
+	@csrf_exempt
+	def get(self, request):
+		try:
+			crowd = Crowd.objects.latest('time_recorded')
+		except Crowd.DoesNotExist:
+			return Response({'message': GENERIC_ERROR_MESSAGE}, status=status.HTTP_400_BAD_REQUEST)
+		return Response({'count': crowd.count}, status=status.HTTP_200_OK)
+
+
+	
+		
+		

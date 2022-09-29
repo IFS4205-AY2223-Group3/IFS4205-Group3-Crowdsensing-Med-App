@@ -29,3 +29,8 @@ class PatientPastSessionSerializer(serializers.ModelSerializer):
     class Meta:
         model = Examination
         fields = ['exam_id', 'doctor', 'diagnosis', 'prescription', 'examtime']
+
+class CrowdSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Crowd
+        fields = ['time_recorded', 'count']
