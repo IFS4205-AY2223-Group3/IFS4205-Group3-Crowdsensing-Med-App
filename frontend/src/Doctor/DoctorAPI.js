@@ -1,29 +1,23 @@
 import axios from "axios";
 import { EXAMINE_URL } from "../api/constants";
 import { DOCTOR_SUBMIT_URL } from "../api/constants";
+import { DOCTOR_VIEW_HEALTH_RECORDS_URL } from "../api/constants";
 
 export function DoctorApi() {
-	const setData = ({examId, patientId, patientName}) => {
-		localStorage.setItem("examId", examId);
-		localStorage.setItem("patientId", patientId);
-		localStorage.setItem("patientName", patientName);
-	};
-
 	const send_examId = async({ examId, tokenString }) => {
-		try{
-			const response = await axios.post(
-				EXAMINE_URL,
-				{
-					examId: examId,
+		const examDetailsResponse = await axios.post(
+			EXAMINE_URL,
+			{
+				examId: examId,
+			},
+			{
+				headers: {
+					"Content-Type": "application/json",
+					"Authorization": tokenString,
 				},
-				{
-					headers: {
-						"Content-Type": "application/json",
-						"Authorization": tokenString,
-					},
-				}
-			);
-
+			}
+		)
+		.then((response) => {
 			const patientId = response?.data?.patientId;
 			const patientName = response?.data?.patientName;
 			const examDetails = {
@@ -33,82 +27,148 @@ export function DoctorApi() {
 			};
 			setData(examDetails);
 
-			const responseObject = {
-				status: 200,
-			};
-			return responseObject;
-
-		} catch(err) {
-			const patientId = "12345";
-			const patientName = "Karl";
-			const examDetails = {
-				examId: examId,
-				patientId: patientId,
-				patientName: patientName,
-			};
-			setData(examDetails);
-
-			const errorCode = 200;
-			const responseObject = {
-				status: errorCode,
-			};
-			return responseObject;
-
-			//COMMENT OUT
-			// var errorCode;
-
-			// if (!error?.response) {
-			//   errorCode = 400;
-			// } else if (error.response?.status === 400) {
-			//   errorCode = 400;
-			// } else if (error.response?.status === 401) {
-			//   errorCode = 401;
-			// } else {
-			//   errorCode = 500;
-			// }
-
-			// const responseObject = {
-			// 	status: errorCode,
+			return response;
+		})
+		.catch((err) => {
+			// //local testing
+			// const patientId = "patient_id";
+			// const patientName = "Karl";
+			// const examDetails = {
+			// 	examId: examId,
+			// 	patientId: patientId,
+			// 	patientName: patientName,
 			// };
+			// setData(examDetails);
+			
+			// const responseObject = {
+			// 	status: 200,
+			// };
+
 			// return responseObject;
 
-		}
+			return createResponseObjectFromError(err);
+		});
+
+		return examDetailsResponse;
 	};
 
 	const send_exam_record = async({ examId, patientId, prescription, code, tokenString }) => {
-		try {
-			const response = await axios.post(
-				DOCTOR_SUBMIT_URL,
-				{
-					examId: examId,
-					patientId: patientId,
-					prescription: prescription,
-					code: code,
+		const successResponse = await axios.post(
+			DOCTOR_SUBMIT_URL,
+			{
+				examId: examId,
+				patientId: patientId,
+				prescription: prescription,
+				code: code,
+			},
+			{
+				headers: {
+					"Content-Type": "application/json",
+					"Authorization": tokenString,
 				},
-				{
-					headers: {
-						"Content-Type": "application/json",
-						"Authorization": tokenString,
-					},
-				}
-			);
+			}
+		)
+		.then(response => response)
+		.catch((err) => {
+			// //local testing			
+			// const responseObject = {
+			// 	status: 200,
+			// };
 
-			const responseObject = {
-				status: 200,
-			};
-			return responseObject;
+			// return responseObject;
 
-		} catch(err) {
-			const errorCode = 200;
-			const responseObject = {
-				status: errorCode,
-			};
-			return responseObject;
-		}
+			return createResponseObjectFromError(err);
+		});
+
+		return successResponse;
+	};
+
+	const get_records = async({ patientId, tokenString }) => {
+		const recordsResponse = await axios.get(
+			DOCTOR_VIEW_HEALTH_RECORDS_URL,
+      {
+        userId: patientId,
+      },
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: tokenString,
+        },
+      }
+		)
+		.then((response) => {
+			return response;
+		})
+		.catch((err) => {
+			// //local testing
+      // const response = {
+			// 	status: 200,
+      //   healthRecords: {
+      //     name: "Karl",
+      //     dateofbirth: "1999-01-08",
+      //     height: 155,
+      //     weight: 53,
+      //     bloodtype: "B+",
+      //     allergies: "None",
+      //   },
+      //   examRecords: [
+      //     {
+      //       session_id: "123",
+      //       doctor: "Dr Jim",
+      //       diagnosis: "High Fever",
+      //       prescription: "150mg panadol",
+      //       sessiontime: "2022-09-22T16:56:36.636524+08:00",
+      //     },
+      //     {
+      //       session_id: "321",
+      //       doctor: "Dr Jim",
+      //       diagnosis: "Stomachache",
+      //       prescription: "150mg paracetamol",
+      //       sessiontime: "2022-09-22T16:57:08.848481+08:00",
+      //     },
+      //   ],
+      // };
+			// return response;
+			
+			return createResponseObjectFromError(err);
+		});
+
+		return recordsResponse;
 	};
 
 	return {
 		send_examId,
 		send_exam_record,
+		get_records,
 	};
 }
+
+const setData = ({examId, patientId, patientName}) => {
+	localStorage.setItem("examId", examId);
+	localStorage.setItem("patientId", patientId);
+	localStorage.setItem("patientName", patientName);
+};
+
+const createResponseObjectFromError = (err) => {
+	const responseObject = {
+		status: 0,
+		messsage: "",
+	};
+
+	if (!err?.response) {
+		responseObject.message = "No Server Response";
+	} else if (err.response?.status === 400) {
+		responseObject.status = 400;
+		responseObject.message = err.response.message;
+	} else if (err.response?.status === 403) {
+		responseObject.status = 403;
+		responseObject.message = err.response.message;
+	} else if (err.response?.status === 500) {
+		responseObject.status = 500;
+		responseObject.message = err.response.message;
+	} else {
+		responseObject.message = "Server encountered an error, please try again.";
+	}
+
+	return responseObject;
+};
