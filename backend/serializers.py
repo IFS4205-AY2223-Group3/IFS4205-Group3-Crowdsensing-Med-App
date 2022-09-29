@@ -28,4 +28,4 @@ class PatientPastSessionSerializer(serializers.ModelSerializer):
     diagnosis = serializers.CharField(source='diagnosis.description')
     class Meta:
         model = Examination
-        fields = ['session_id', 'doctor', 'diagnosis', 'prescription', 'sessiontime']
+        fields = ['exam_id', 'doctor', 'diagnosis', 'prescription', 'examtime']
