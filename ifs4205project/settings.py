@@ -8,9 +8,11 @@ https://docs.djangoproject.com/en/4.1/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.1/ref/settings/
 """
+from django.core.exceptions import ImproperlyConfigured
 from pathlib import Path
 from corsheaders.defaults import default_headers
 import os
+import json
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -19,8 +21,17 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.1/howto/deployment/checklist/
 
+with open(os.path.join(BASE_DIR, 'secrets.json')) as secrets_file:
+	secrets = json.loads(secrets_file.read())
+
+def get_secret(setting, secrets=secrets):
+    """Get secret setting or fail with ImproperlyConfigured"""
+    try:
+        return secrets[setting]
+    except KeyError:
+        raise ImproperlyConfigured("Set the {} setting".format(setting))
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-r+3v8i9-p=^&17m&lec0@6$1z(pm+zawd3z)n4cc)29c$m37jy'
+SECRET_KEY = get_secret('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -88,13 +99,13 @@ WSGI_APPLICATION = 'ifs4205project.wsgi.application'
 # https://docs.djangoproject.com/en/4.1/ref/settings/#databases
 
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'HOST': 'ifs4205-group3-db-i.comp.nus.edu.sg',
-        'NAME': 'ifs4205',
-        'USER': 'postgres',
-        'PASSWORD': 'group3fall2022',
-    }
+	'default': {
+		'ENGINE': 'django.db.backends.postgresql',
+		'HOST': get_secret('HOST'),
+		'NAME': get_secret('NAME'),
+		'USER': get_secret('USER'),
+		'PASSWORD': get_secret('PASSWORD'),
+	}
 }
 
 REST_FRAMEWORK = {
