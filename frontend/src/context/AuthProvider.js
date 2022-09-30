@@ -71,11 +71,8 @@ export function useAuth() {
 
   const logout = async () => {
     const tokenString = " Token " + localStorage.getItem("accessToken");
-    var error;
-    console.log("here");
-    console.log(tokenString);
 
-    axios
+    const logoutResponse = await axios
       .get(LOGOUT_URL, {
         headers: {
           "Content-Type": "application/json",
@@ -83,16 +80,32 @@ export function useAuth() {
         },
       })
       .then(function (response) {
-        localStorage.removeItem("accessToken");
-        localStorage.removeItem("userRole");
-        localStorage.removeItem("name");
-        error = true;
+        localStorage.clear();
+        return response;
       })
-      .catch(function (err) {
-        error = false;
+      .catch(function (error) {
+        // //local testing
+        // var errorCode = 200;
+        // localStorage.clear(); 
+  
+        var errorCode;
+        if (!error?.response) {
+          errorCode = 400;
+        } else if (error.response?.status === 400) {
+          errorCode = 400;
+        } else if (error.response?.status === 401) {
+          errorCode = 401;
+        } else {
+          errorCode = 500;
+        }
+  
+        const errorObject = {
+          status: errorCode,
+        };
+        return errorObject;
       });
 
-    return error;
+    return logoutResponse;
   };
 
   return {
