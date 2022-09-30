@@ -1,4 +1,4 @@
-import { Navigate } from "react-router-dom";
+import { Navigate, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { LOGIN_URL, LOGOUT_URL } from "../api/constants";
 import React, { useState, useEffect } from "react";
@@ -6,6 +6,8 @@ import React, { useState, useEffect } from "react";
 const Context = React.createContext();
 
 export function useAuth() {
+  const navigate = useNavigate();
+
   const setData = ({ accessToken, userRole, name }) => {
     localStorage.setItem("accessToken", accessToken);
     localStorage.setItem("userRole", userRole);
@@ -69,10 +71,8 @@ export function useAuth() {
 
   const logout = async () => {
     const tokenString = " Token " + localStorage.getItem("accessToken");
-    var error;
-    console.log(tokenString);
 
-    axios
+    const logoutResponse = await axios
       .get(LOGOUT_URL, {
         headers: {
           "Content-Type": "application/json",
@@ -80,16 +80,32 @@ export function useAuth() {
         },
       })
       .then(function (response) {
-        localStorage.removeItem("accessToken");
-        localStorage.removeItem("userRole");
-        localStorage.removeItem("name");
-        error = true;
+        localStorage.clear();
+        return response;
       })
-      .catch(function (err) {
-        error = false;
+      .catch(function (error) {
+        // //local testing
+        // var errorCode = 200;
+        // localStorage.clear(); 
+  
+        var errorCode;
+        if (!error?.response) {
+          errorCode = 400;
+        } else if (error.response?.status === 400) {
+          errorCode = 400;
+        } else if (error.response?.status === 401) {
+          errorCode = 401;
+        } else {
+          errorCode = 500;
+        }
+  
+        const errorObject = {
+          status: errorCode,
+        };
+        return errorObject;
       });
 
-    return error;
+    return logoutResponse;
   };
 
   return {
