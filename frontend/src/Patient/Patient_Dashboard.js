@@ -12,13 +12,14 @@ const Patient_Dashboard = () => {
 
   const name = localStorage.getItem("name");
   const [errMsg, setErrMsg] = useState("");
-  const [count, setCrowdCounter] = useState("");
+  const [count, setCrowdCounter] = useState(0);
   const [success, setSuccess] = useState(false);
   const [failure, setFailure] = useState(false);
   const [buffer, setBuffer] = useState(true);
 
   useEffect(() => {
-    axios
+    const interval = setInterval(() => {
+      axios
       .get(VIEW_COUNT_URL)
       .then(function (response) {
         setCrowdCounter(response.data.count);
@@ -28,8 +29,12 @@ const Patient_Dashboard = () => {
       .catch(function (err) {
         setFailure(true);
         setBuffer(false);
+        setErrMsg(err.response.data.message);
       });
-  });
+    }, 1000);
+
+    return () => {clearInterval(interval)};
+  }, []);
 
   const handleSignOut = async () => {
     const response = await logout();
