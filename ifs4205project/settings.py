@@ -55,9 +55,6 @@ CORS_ALLOW_HEADERS = default_headers + (
 # Application definition
 
 INSTALLED_APPS = [
-    "login",
-    "patient",
-    "doctor",
     "corsheaders",
     "backend.apps.BackendConfig",
     "django.contrib.admin",
