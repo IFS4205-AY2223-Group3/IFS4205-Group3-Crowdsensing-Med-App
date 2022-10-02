@@ -1,4 +1,4 @@
-name: Lint
+name: Black Code Reformatter
 
 on: [push, pull_request]
 
