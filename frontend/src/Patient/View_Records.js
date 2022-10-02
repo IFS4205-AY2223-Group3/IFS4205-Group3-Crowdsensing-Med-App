@@ -68,11 +68,15 @@ const View_Records = () => {
         if (!err?.response) {
           setErrMsg("No Server Response");
         } else if (err.response?.status === 400) {
-          setErrMsg("There was an error, please try again.");
+          setErrMsg(err.response.data.message);
+        } else if (err.response?.status === 401) {
+          setErrMsg(err.response.data.message);
         } else if (err.response?.status === 403) {
-          setErrMsg("Action Forbidden");
+          setErrMsg(err.response.data.message);
+        } else if (err.response?.status === 405) {
+          setErrMsg(err.response.data.message);
         } else if (err.response?.status === 500) {
-          setErrMsg("Server encountered an error, please try again.");
+          setErrMsg(err.response.data.message);
         } else {
           setErrMsg("Server encountered an error, please try again.");
         }
