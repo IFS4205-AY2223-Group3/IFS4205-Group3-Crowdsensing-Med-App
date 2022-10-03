@@ -45,11 +45,15 @@ const Generate_Session = () => {
         if (!err?.response) {
           setErrMsg("No Server Response");
         } else if (err.response?.status === 400) {
-          setErrMsg(err.response.message);
+          setErrMsg(err.response.data.message);
+        } else if (err.response?.status === 401) {
+          setErrMsg(err.response.data.message);
         } else if (err.response?.status === 403) {
-          setErrMsg(err.response.message);
+          setErrMsg(err.response.data.message);
+        } else if (err.response?.status === 405) {
+          setErrMsg(err.response.data.message);
         } else if (err.response?.status === 500) {
-          setErrMsg(err.response.message);
+          setErrMsg(err.response.data.message);
         } else {
           setErrMsg("Server encountered an error, please try again.");
         }
