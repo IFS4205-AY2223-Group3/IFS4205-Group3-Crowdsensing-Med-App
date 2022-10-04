@@ -11,3 +11,11 @@ class isDoctor(permissions.BasePermission):
             return True
         except Doctor.DoesNotExist:
             return False
+
+class IsVerified(permissions.BasePermission):
+    message = "OTP not verified!"
+
+    def has_permission(self, request, view):
+        if request.auth.user is not None and request.auth.verified is True:
+            return True
+        return False

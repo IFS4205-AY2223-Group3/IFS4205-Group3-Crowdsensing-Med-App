@@ -58,6 +58,7 @@ class TOTPVerifyView(APIView):
             if not device.confirmed:
                 device.confirmed = True
                 device.save()
+            request.auth.verify()
             return Response(True, status=status.HTTP_200_OK)
         return Response(status=status.HTTP_400_BAD_REQUEST)
 
@@ -72,11 +73,11 @@ class Login(ObtainAuthToken):
             user = serializer.validated_data["user"]
             role.objects.get(user=user)
             try:
-                token = Token.objects.get(user=user)
+                token = UserToken.objects.get(user=user)
                 token.delete()
-            except Token.DoesNotExist:
+            except UserToken.DoesNotExist:
                 pass
-            token = Token.objects.create(user=user)
+            token = UserToken.objects.create(user=user)
             data = {}
             data["token"] = token.key
             data["name"] = user.name
@@ -276,7 +277,7 @@ class CreateSession(APIView):
 
 class PatientViewRecords(APIView):
     parser_classes = [JSONParser]
-    permission_classes = (IsAuthenticated,)
+    permission_classes = (IsAuthenticated, IsVerified)
 
     @csrf_exempt
     def get(self, request):
