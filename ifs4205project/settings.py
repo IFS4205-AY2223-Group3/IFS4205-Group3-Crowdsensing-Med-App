@@ -105,6 +105,9 @@ DATABASES = {
 		'NAME': get_secret('NAME'),
 		'USER': get_secret('USER'),
 		'PASSWORD': get_secret('PASSWORD'),
+		'OPTIONS': {
+			'sslmode':'require',
+		},
 	}
 }
 
