@@ -145,22 +145,17 @@ const setData = ({examId, patientId, patientName}) => {
 };
 
 const createResponseObjectFromError = (err) => {
+	const errorStatusCodes = [400, 401, 403, 405, 500];
 	const responseObject = {
 		status: 0,
-		messsage: "",
+		message: "",
 	};
 
 	if (!err?.response) {
 		responseObject.message = "No Server Response";
-	} else if (err.response?.status === 400) {
-		responseObject.status = 400;
-		responseObject.message = err.response.message;
-	} else if (err.response?.status === 403) {
-		responseObject.status = 403;
-		responseObject.message = err.response.message;
-	} else if (err.response?.status === 500) {
-		responseObject.status = 500;
-		responseObject.message = err.response.message;
+	} else if (errorStatusCodes.find((statusCode) => {return err.response?.status === statusCode})) {
+		responseObject.status = err.response.status;
+		responseObject.message = err.response.data.message;
 	} else {
 		responseObject.message = "Server encountered an error, please try again.";
 	}
