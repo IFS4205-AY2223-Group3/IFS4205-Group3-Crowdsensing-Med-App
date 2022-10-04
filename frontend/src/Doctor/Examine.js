@@ -30,6 +30,7 @@ const Examine = () => {
       navigate("/submitexamination");
     } else {
       console.log(response);
+      setErrMsg(response.message);
       setIsErrPopUp(true);
     }
   };
@@ -45,7 +46,7 @@ const Examine = () => {
   return (
     <div className={styles.container}>
       {isErrPopUp ? (
-        <PopUp toggle={togglePopUp} msg="Patient has not clicked allowed." />
+        <PopUp toggle={togglePopUp} msg={errMsg} />
       ) : null}
 
       <section>
