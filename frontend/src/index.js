@@ -12,6 +12,8 @@ import Doctor_View_Records from "./Doctor/Doctor_View_Records";
 import Generate_Session from "./Patient/Generate_Session";
 import View_Records from "./Patient/View_Records";
 import Allow_Session from "./Patient/Allow_Session";
+import Doctor_Home from "./Doctor-Dashboard/Doctor_Home";
+import Patient_Home from "./Patient-Dashboard/Patient_Home";
 
 const rootElement = document.getElementById("root");
 const root = createRoot(rootElement);
@@ -23,6 +25,9 @@ root.render(
         <Routes>
           <Route index element={<Login />} />
           <Route path="login" element={<Login />} />
+          <Route path="doctorhome" element={<Doctor_Home />} />
+          <Route path="patienthome" element={<Patient_Home />} />
+
           <Route
             path="patient"
             element={
