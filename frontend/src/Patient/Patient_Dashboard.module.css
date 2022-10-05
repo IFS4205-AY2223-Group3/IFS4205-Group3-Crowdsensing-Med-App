@@ -12,10 +12,11 @@
 }
 
 
-table {
+.table {
     font-family: arial, sans-serif;
-    width: 80%;
-    margin: 25px 20px 10px 30px;
+    width: 70%;
+    margin: 50px 50px 30px 30px;
+    font-weight: bold;
 
   }
 
