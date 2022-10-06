@@ -11,24 +11,29 @@ const Doctor_Dashboard = () => {
   const navigate = useNavigate();
   const name = localStorage.getItem("name");
   const [errMsg, setErrMsg] = useState("");
-  const [count, setCrowdCounter] = useState("");
+  const [count, setCrowdCounter] = useState(0);
   const [success, setSuccess] = useState(false);
   const [failure, setFailure] = useState(false);
   const [buffer, setBuffer] = useState(true);
 
   useEffect(() => {
-    axios
+    const interval = setInterval(() => {
+      axios
       .get(VIEW_COUNT_URL)
-      .then(function (response) {
+      .then((response) => {
         setCrowdCounter(response.data.count);
         setSuccess(true);
         setBuffer(false);
       })
-      .catch(function (err) {
+      .catch((err) => {
         setFailure(true);
         setBuffer(false);
+        setErrMsg(err.response.data.message);
       });
-  });
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, []);
 
   const handleSignOut = async () => {
     const response = await logout();
