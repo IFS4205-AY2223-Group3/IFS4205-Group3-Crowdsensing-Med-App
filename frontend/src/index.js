@@ -4,16 +4,14 @@ import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { createRoot } from "react-dom/client";
 import "./index.css";
 import Login from "./Login/Login";
-import Patient_Dashboard from "./Patient/Patient_Dashboard";
+import Patient_Home from "./Patient-Dashboard/Patient_Home";
+import Patient_Records from "./Patient-Dashboard/Patient_Records";
+import Patient_Session from "./Patient-Dashboard/Patient_Session";
 import Doctor_Dashboard from "./Doctor/Doctor_Dashboard";
 import Examine from "./Doctor/Examine";
 import Submit_Examination from "./Doctor/Submit_Examination";
 import Doctor_View_Records from "./Doctor/Doctor_View_Records";
-import Generate_Session from "./Patient/Generate_Session";
-import View_Records from "./Patient/View_Records";
-import Allow_Session from "./Patient/Allow_Session";
 import Doctor_Home from "./Doctor-Dashboard/Doctor_Home";
-import Patient_Home from "./Patient-Dashboard/Patient_Home";
 
 const rootElement = document.getElementById("root");
 const root = createRoot(rootElement);
@@ -26,13 +24,12 @@ root.render(
           <Route index element={<Login />} />
           <Route path="login" element={<Login />} />
           <Route path="doctorhome" element={<Doctor_Home />} />
-          <Route path="patienthome" element={<Patient_Home />} />
 
           <Route
             path="patient"
             element={
               <RequireAuth role="patient">
-                <Patient_Dashboard />
+                <Patient_Home />
               </RequireAuth>
             }
           />
@@ -40,23 +37,15 @@ root.render(
             path="generatesession"
             element={
               <RequireAuth role="patient">
-                <Generate_Session />
+                <Patient_Session />
               </RequireAuth>
             }
           />
           <Route
-            path="patientviewrecords"
+            path="healthrecords"
             element={
               <RequireAuth role="patient">
-                <View_Records />
-              </RequireAuth>
-            }
-          />
-          <Route
-            path="allowsession"
-            element={
-              <RequireAuth role="patient">
-                <Allow_Session />
+                <Patient_Records />
               </RequireAuth>
             }
           />

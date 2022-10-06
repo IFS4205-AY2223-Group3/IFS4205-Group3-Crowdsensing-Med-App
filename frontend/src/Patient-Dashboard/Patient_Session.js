@@ -22,13 +22,12 @@ import LogoutIcon from "@mui/icons-material/Logout";
 import DashboardIcon from "@mui/icons-material/Dashboard";
 import PeopleIcon from "@mui/icons-material/People";
 import LayersIcon from "@mui/icons-material/Layers";
-import Chart from "../Components/Chart";
-import Crowd from "../Components/Crowd";
-import PastSessions from "./Components/PastSessions";
 import { useNavigate } from "react-router-dom";
+import Title from "../Components/Title";
 import { useAuth } from "../context/AuthProvider";
 import { useState } from "react";
 import PopUp from "../Components/PopUp";
+import GenerateSession from "./Components/GenerateSession";
 
 const drawerWidth = 240;
 
@@ -82,6 +81,7 @@ function DashboardContent() {
   const name = localStorage.getItem("name");
   const [errMsg, setErrMsg] = useState("");
   const [isErrPopUp, setIsErrPopUp] = useState(false);
+  const [isNoticePopUp, setIsNoticePopUp] = useState(true);
   const { logout } = useAuth();
   const navigate = useNavigate();
 
@@ -90,8 +90,12 @@ function DashboardContent() {
     setOpen(!open);
   };
 
-  const togglePopUp = () => {
+  const toggleErrPopUp = () => {
     setIsErrPopUp(!isErrPopUp);
+  };
+
+  const toggleNoticePopUp = () => {
+    setIsNoticePopUp(!isNoticePopUp);
   };
 
   const handleLogout = async () => {
@@ -104,7 +108,6 @@ function DashboardContent() {
       setIsErrPopUp(true);
     }
   };
-
   const handleDashboard = async () => {
     navigate("/patient");
   };
@@ -123,7 +126,14 @@ function DashboardContent() {
 
   return (
     <ThemeProvider theme={mdTheme}>
-      {isErrPopUp ? <PopUp toggle={togglePopUp} msg={errMsg} /> : null}
+      {isNoticePopUp ? (
+        <PopUp
+          toggle={toggleNoticePopUp}
+          msg="Please make sure you are with a Doctor physically.
+           An Examination ID will be generated."
+        />
+      ) : null}
+      {isErrPopUp ? <PopUp toggle={toggleErrPopUp} msg={errMsg} /> : null}
       <Box sx={{ display: "flex" }}>
         <CssBaseline />
         <AppBar position="absolute" open={open}>
@@ -214,36 +224,10 @@ function DashboardContent() {
           <Toolbar />
           <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
             <Grid container spacing={3}>
-              {/* Chart */}
-              <Grid item xs={12} md={8} lg={9}>
-                <Paper
-                  sx={{
-                    p: 2,
-                    display: "flex",
-                    flexDirection: "column",
-                    height: 240,
-                  }}
-                >
-                  <Chart />
-                </Paper>
-              </Grid>
-              {/* Recent Crowd */}
-              <Grid item xs={12} md={4} lg={3}>
-                <Paper
-                  sx={{
-                    p: 2,
-                    display: "flex",
-                    flexDirection: "column",
-                    height: 240,
-                  }}
-                >
-                  <Crowd />
-                </Paper>
-              </Grid>
               {/* Recent Sessions */}
               <Grid item xs={12}>
                 <Paper sx={{ p: 2, display: "flex", flexDirection: "column" }}>
-                  <PastSessions />
+                  <GenerateSession></GenerateSession>
                 </Paper>
               </Grid>
             </Grid>
@@ -254,6 +238,6 @@ function DashboardContent() {
   );
 }
 
-export default function Patient_Home() {
+export default function Patient_Session() {
   return <DashboardContent />;
 }
