@@ -14,4 +14,5 @@ urlpatterns = [
     path("iot", views.CrowdView.as_view()),
     path('createotp', views.TOTPCreateView.as_view()),
     path('verifyotp', views.TOTPVerifyView.as_view()),
+    path("doctorviewoldsessions", views.DoctorViewOldSessions.as_view()),
 ]

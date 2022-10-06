@@ -238,6 +238,23 @@ class AddExamination(APIView):
                 {"message": GENERIC_ERROR_MESSAGE}, status=status.HTTP_400_BAD_REQUEST
             )
 
+class DoctorViewOldSessions(APIView):
+    parser_classes = [JSONParser]
+    permission_classes = (IsAuthenticated, isDoctor)
+
+    @csrf_exempt
+    def get(self, request):
+        data = {}
+        doctor_object = Doctor.objects.get(user=request.auth.user)
+        past_sessions = Examination.objects.filter(doctor=doctor_object)
+        try:
+            data["examRecords"] = DoctorPastSessionSerializer(
+                past_sessions, many=True
+            ).data
+        except Examination.DoesNotExist:
+            data["examRecords"] = {}
+        return Response(data, status=status.HTTP_200_OK)
+
 
 #######################################################################################################################
 # PATIENT API
