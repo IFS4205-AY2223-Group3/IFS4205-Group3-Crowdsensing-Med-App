@@ -15,17 +15,71 @@ function createData(time, amount) {
   return { time, amount };
 }
 
-const data = [
-  createData("00:00", 0),
-  createData("03:00", 30),
-  createData("06:00", 50),
-  createData("09:00", 33),
-  createData("12:00", 43),
-  createData("15:00", 32),
-  createData("18:00", 70),
-  createData("21:00", 0),
-  createData("24:00", undefined),
-];
+const data = {
+  Monday_data: [
+    createData("08:00", 0),
+    createData("10:00", 70),
+    createData("12:00", 80),
+    createData("14:00", 85),
+    createData("16:00", 95),
+    createData("18:00", 10),
+    createData("20:00", 5),
+  ],
+  Tuesday_data: [
+    createData("08:00", 0),
+    createData("10:00", 60),
+    createData("12:00", 40),
+    createData("14:00", 30),
+    createData("16:00", 30),
+    createData("18:00", 15),
+    createData("20:00", 5),
+  ],
+  Wednesday_data: [
+    createData("08:00", 0),
+    createData("10:00", 10),
+    createData("12:00", 45),
+    createData("14:00", 75),
+    createData("16:00", 35),
+    createData("18:00", 55),
+    createData("20:00", 40),
+  ],
+  Thursday_data: [
+    createData("08:00", 0),
+    createData("10:00", 40),
+    createData("12:00", 75),
+    createData("14:00", 85),
+    createData("16:00", 90),
+    createData("18:00", 60),
+    createData("20:00", 30),
+  ],
+  Friday_data: [
+    createData("08:00", 0),
+    createData("10:00", 20),
+    createData("12:00", 60),
+    createData("14:00", 85),
+    createData("16:00", 90),
+    createData("18:00", 55),
+    createData("20:00", 24),
+  ],
+  Saturday_data: [
+    createData("08:00", 0),
+    createData("10:00", 30),
+    createData("12:00", 45),
+    createData("14:00", 55),
+    createData("16:00", 15),
+    createData("18:00", 20),
+    createData("20:00", 40),
+  ],
+  Sunday_data: [
+    createData("08:00", 0),
+    createData("10:00", 5),
+    createData("12:00", 15),
+    createData("14:00", 45),
+    createData("16:00", 25),
+    createData("18:00", 15),
+    createData("20:00", 10),
+  ],
+};
 
 export default function Chart() {
   const theme = useTheme();
@@ -40,13 +94,14 @@ export default function Chart() {
   ];
   const d = new Date();
   let day = weekday[d.getDay()];
+  var display_data = data[day + "_data"];
 
   return (
     <React.Fragment>
       <Title>Popular Times on {day}</Title>
       <ResponsiveContainer>
         <LineChart
-          data={data}
+          data={display_data}
           margin={{
             top: 16,
             right: 16,

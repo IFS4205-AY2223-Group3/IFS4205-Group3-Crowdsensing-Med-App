@@ -22,10 +22,8 @@ import LogoutIcon from "@mui/icons-material/Logout";
 import DashboardIcon from "@mui/icons-material/Dashboard";
 import PeopleIcon from "@mui/icons-material/People";
 import LayersIcon from "@mui/icons-material/Layers";
-import Chart from "../Components/Chart";
-import Crowd from "../Components/Crowd";
-import PastSessions from "./Components/PastSessions";
 import { useNavigate } from "react-router-dom";
+import HealthRecords from "./Components/HealthRecords";
 import { useAuth } from "../context/AuthProvider";
 import { useState } from "react";
 import PopUp from "../Components/PopUp";
@@ -104,7 +102,6 @@ function DashboardContent() {
       setIsErrPopUp(true);
     }
   };
-
   const handleDashboard = async () => {
     navigate("/patient");
   };
@@ -214,36 +211,10 @@ function DashboardContent() {
           <Toolbar />
           <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
             <Grid container spacing={3}>
-              {/* Chart */}
-              <Grid item xs={12} md={8} lg={9}>
-                <Paper
-                  sx={{
-                    p: 2,
-                    display: "flex",
-                    flexDirection: "column",
-                    height: 240,
-                  }}
-                >
-                  <Chart />
-                </Paper>
-              </Grid>
-              {/* Recent Crowd */}
-              <Grid item xs={12} md={4} lg={3}>
-                <Paper
-                  sx={{
-                    p: 2,
-                    display: "flex",
-                    flexDirection: "column",
-                    height: 240,
-                  }}
-                >
-                  <Crowd />
-                </Paper>
-              </Grid>
               {/* Recent Sessions */}
               <Grid item xs={12}>
                 <Paper sx={{ p: 2, display: "flex", flexDirection: "column" }}>
-                  <PastSessions />
+                  <HealthRecords />
                 </Paper>
               </Grid>
             </Grid>
@@ -254,6 +225,6 @@ function DashboardContent() {
   );
 }
 
-export default function Patient_Home() {
+export default function Patient_Records() {
   return <DashboardContent />;
 }

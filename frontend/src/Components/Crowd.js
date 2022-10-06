@@ -1,6 +1,7 @@
 import * as React from "react";
 import { useEffect, useState } from "react";
 import Typography from "@mui/material/Typography";
+import loading from "../imports/loading.gif";
 import Title from "./Title";
 import { VIEW_COUNT_URL } from "../api/constants";
 import axios from "axios";
@@ -10,6 +11,7 @@ export default function Crowd() {
   const [success, setSuccess] = useState(false);
   const [failure, setFailure] = useState(false);
   const [buffer, setBuffer] = useState(true);
+  const [errMsg, setErrMsg] = useState("");
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -21,6 +23,7 @@ export default function Crowd() {
           setBuffer(false);
         })
         .catch(function (err) {
+          setErrMsg(err.response.data.message);
           setFailure(true);
           setBuffer(false);
         });
@@ -56,6 +59,7 @@ export default function Crowd() {
         <Typography color="text.primary" sx={{ flex: 5 }}>
           Generating...
         </Typography>{" "}
+        <img src={loading} />
       </React.Fragment>
     );
   } else if (failure) {
@@ -63,7 +67,7 @@ export default function Crowd() {
       <React.Fragment>
         <Title>Crowd Counter</Title>
         <Typography color="text.primary" sx={{ flex: 5 }}>
-          Error...
+          {errMsg}
         </Typography>{" "}
       </React.Fragment>
     );

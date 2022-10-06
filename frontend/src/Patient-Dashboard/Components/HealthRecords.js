@@ -6,14 +6,14 @@ import axios from "axios";
 import { VIEW_RECORDS_URL } from "../../api/constants";
 import { useState, useEffect } from "react";
 
-export default function PastSessions() {
+export default function HealthRecords() {
   const token = localStorage.getItem("accessToken");
   const tokenString = " Token " + token;
   const [success, setSuccess] = useState(false);
   const [failure, setFailure] = useState(false);
   const [buffer, setBuffer] = useState(true);
   const [errMsg, setErrMsg] = useState("");
-  const [examRecords, setExamRecords] = useState();
+  const [healthRecords, setHealthRecords] = useState();
 
   useEffect(() => {
     axios
@@ -24,7 +24,7 @@ export default function PastSessions() {
         },
       })
       .then(function (response) {
-        setExamRecords(response.data.examRecords);
+        setHealthRecords(response.data.healthRecords);
         setSuccess(true);
         setBuffer(false);
       })
@@ -52,22 +52,32 @@ export default function PastSessions() {
   if (success) {
     return (
       <React.Fragment>
-        <Title>Past Sessions</Title>
+        <Title>Health Record</Title>
         <table>
           <tr>
-            <th>Date Time</th>
-            <th>Doctor Name</th>
-            <th>Prescription</th>
-            <th>Diagnosis</th>
+            <th>Name</th>
+            <td>{healthRecords.name}</td>
           </tr>
-          {examRecords.map((examRecords) => (
-            <tr>
-              <td>{examRecords.examtime}</td>
-              <td>{examRecords.doctor}</td>
-              <td>{examRecords.diagnosis}</td>
-              <td>{examRecords.prescription}</td>
-            </tr>
-          ))}
+          <tr>
+            <th>Date of Birth</th>
+            <td>{healthRecords.dateofbirth}</td>
+          </tr>
+          <tr>
+            <th>Height</th>
+            <td>{healthRecords.height}cm</td>
+          </tr>
+          <tr>
+            <th>Weight</th>
+            <td>{healthRecords.weight}.kg</td>
+          </tr>
+          <tr>
+            <th>Blood Type</th>
+            <td>{healthRecords.bloodtype}</td>
+          </tr>
+          <tr>
+            <th>Allergies</th>
+            <td>{healthRecords.allergies}</td>
+          </tr>
         </table>
       </React.Fragment>
     );
