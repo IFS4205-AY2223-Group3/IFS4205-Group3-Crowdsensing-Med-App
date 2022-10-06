@@ -363,7 +363,11 @@ class CrowdView(APIView):
         serialized_data = CrowdSerializer(data=request.data)
         if serialized_data.is_valid():
             serialized_data.save()
-        return Response({"message": SUCCESS_MESSAGE}, status=status.HTTP_200_OK)
+            return Response({"message": SUCCESS_MESSAGE}, status=status.HTTP_200_OK)
+        else:
+            return Response(
+                {"message": GENERIC_ERROR_MESSAGE}, status=status.HTTP_400_BAD_REQUEST
+            )
 
     @csrf_exempt
     def get(self, request):
