@@ -1,5 +1,5 @@
 import binascii
-import os
+import secrets
 
 from django.db import models
 from django.contrib.auth.models import (
@@ -80,7 +80,7 @@ class UserToken(models.Model):
         return super(UserToken, self).save(*args, **kwargs)
 
     def generate_key(self):
-        return binascii.hexlify(os.urandom(20)).decode()
+        return secrets.token_hex(20)
     
     def __str__(self):
         return self.key
