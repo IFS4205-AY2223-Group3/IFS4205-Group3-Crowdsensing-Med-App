@@ -53,9 +53,6 @@ class User(AbstractBaseUser, PermissionsMixin):
     objects = CustomAccountManager()
 
 class UserToken(models.Model):
-    """
-    The default authorization token model.
-    """
     key = models.CharField(("Key"), max_length=40, primary_key=True)
 
     user = models.OneToOneField(
