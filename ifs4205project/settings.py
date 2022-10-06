@@ -40,6 +40,7 @@ SECRET_KEY = get_secret("SECRET_KEY")
 DEBUG = True
 
 ALLOWED_HOSTS = ["ifs4205-group3-backend-i.comp.nus.edu.sg"]
+# ALLOWED_HOSTS = ["localhost"]
 
 CORS_ORIGIN_ALLOW_ALL = True
 CORS_ORIGIN_WHITELIST = [
@@ -55,9 +56,6 @@ CORS_ALLOW_HEADERS = default_headers + (
 # Application definition
 
 INSTALLED_APPS = [
-    "login",
-    "patient",
-    "doctor",
     "corsheaders",
     "backend.apps.BackendConfig",
     "django.contrib.admin",
