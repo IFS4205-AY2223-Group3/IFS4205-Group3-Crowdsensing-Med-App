@@ -124,6 +124,7 @@ REST_FRAMEWORK = {
         "rest_framework.renderers.JSONRenderer",
     ],
     "EXCEPTION_HANDLER": "backend.exceptions.custom_handler",
+    "DATETIME_FORMAT": "%a %b %d %Y %H:%M:%S",
 }
 
 # Password validation
