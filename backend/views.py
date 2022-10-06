@@ -34,33 +34,31 @@ def get_user_totp_device(self, user, confirmed=None):
 			return device
 
 class TOTPCreateView(APIView):
-    """
-    Use this endpoint to set up a new TOTP device
-    """
     permission_classes = [IsAuthenticated]
-    def get(self, request, format=None):
+    def get(self, request, *args, **kwargs):
         user = request.user
         device = get_user_totp_device(self, user)
         if not device:
             device = user.totpdevice_set.create(confirmed=False)
         url = device.config_url
-        return Response(url, status=status.HTTP_201_CREATED)
+        return Response({'message':url}, status=status.HTTP_201_CREATED)
 
 class TOTPVerifyView(APIView):
-    """
-    Use this endpoint to verify/enable a TOTP device
-    """
     permission_classes = [IsAuthenticated]
-    def post(self, request, token, format=None):
-        user = request.user
-        device = get_user_totp_device(self, user)
-        if not device == None and device.verify_token(token):
-            if not device.confirmed:
-                device.confirmed = True
-                device.save()
-            request.auth.verify()
-            return Response(True, status=status.HTTP_200_OK)
-        return Response(status=status.HTTP_400_BAD_REQUEST)
+    def post(self, request, *args, **kwargs):
+        try:
+            otp = request.data['otp']
+            user = request.user
+            device = get_user_totp_device(self, user)
+            if not device == None and device.verify_token(otp):
+                if not device.confirmed:
+                    device.confirmed = True
+                    device.save()
+                request.auth.verify()
+                return Response({'message': SUCCESS_MESSAGE}, status=status.HTTP_200_OK)
+        except KeyError:
+            return Response({'message': 'Invalid'}, status=status.HTTP_400_BAD_REQUEST)
+        return Response({'message': 'Invalid'}, status=status.HTTP_400_BAD_REQUEST)
 
 class Login(ObtainAuthToken):
     def post(self, request, *args, **kwargs):
@@ -113,7 +111,7 @@ class Logout(APIView):
 
 class AssignPendingExam(APIView):
     parser_classes = [JSONParser]
-    permission_classes = (IsAuthenticated, isDoctor)
+    permission_classes = (IsAuthenticated, IsVerified, IsDoctor)
 
     # assign doctor to a session (done by doctors)
     @csrf_exempt
@@ -170,7 +168,7 @@ class AssignPendingExam(APIView):
 
 class DoctorGetRecords(APIView):
     parser_classes = [JSONParser]
-    permission_classes = (IsAuthenticated, isDoctor)
+    permission_classes = (IsAuthenticated, IsDoctor)
 
     # get examinations (done by doctors)
     @csrf_exempt
@@ -207,7 +205,7 @@ class DoctorGetRecords(APIView):
 
 class AddExamination(APIView):
     parser_classes = [JSONParser]
-    permission_classes = (IsAuthenticated, isDoctor)
+    permission_classes = (IsAuthenticated, IsDoctor)
 
     # store new examination result (done by doctors)
     @csrf_exempt
