@@ -1,5 +1,5 @@
 import * as React from "react";
-import styles from "../Patient.css";
+import "../Patient.css";
 import Title from "../../Components/Title";
 import loading from "../../imports/loading.gif";
 import axios from "axios";
@@ -68,7 +68,7 @@ export default function HealthRecords() {
           </tr>
           <tr>
             <th>Weight</th>
-            <td>{healthRecords.weight}.kg</td>
+            <td>{healthRecords.weight}kg</td>
           </tr>
           <tr>
             <th>Blood Type</th>
@@ -83,14 +83,14 @@ export default function HealthRecords() {
     );
   } else if (buffer) {
     return (
-      <div className={styles.buttons_container}>
+      <div>
         <Title>Generating...</Title>
-        <img className={styles.loading} src={loading} alt="loading..." />
+        <img src={loading} alt="loading..." />
       </div>
     );
   } else if (failure) {
     return (
-      <div className={styles.buttons_container}>
+      <div>
         <Title>{errMsg}</Title>
       </div>
     );

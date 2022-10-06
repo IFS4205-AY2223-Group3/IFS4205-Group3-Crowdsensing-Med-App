@@ -199,7 +199,7 @@ function DashboardContent() {
               <ListItemIcon>
                 <HealthAndSafetyIcon />
               </ListItemIcon>
-              <ListItemText primary="Health Records" />
+              <ListItemText primary="Health Record" />
             </ListItemButton>
             <ListItemButton onClick={handleSetting}>
               <ListItemIcon>
