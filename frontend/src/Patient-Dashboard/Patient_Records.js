@@ -121,6 +121,7 @@ function DashboardContent() {
   return (
     <ThemeProvider theme={mdTheme}>
       {isErrPopUp ? <PopUp toggle={togglePopUp} msg={errMsg} /> : null}
+
       <Box sx={{ display: "flex" }}>
         <CssBaseline />
         <AppBar position="absolute" open={open}>

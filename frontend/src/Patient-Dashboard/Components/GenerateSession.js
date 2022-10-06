@@ -1,9 +1,8 @@
 import * as React from "react";
-import styles from "../Patient.css";
+import "../Patient.css";
 import Title from "../../Components/Title";
 import loading from "../../imports/loading.gif";
 import axios from "axios";
-import Button from "@mui/material/Button";
 import { GENERATE_SESSION_URL, ALLOWS_SESSION_URL } from "../../api/constants";
 import { useState, useEffect } from "react";
 import PopUp from "../../Components/PopUp";
@@ -118,22 +117,19 @@ export default function GenerateSession() {
           </center>
         </p>
         <br></br>
-        <br></br>
-        <Button variant="contained" onClick={HandleAllow}>
-          Allow
-        </Button>
+        <button onClick={HandleAllow}>Allow</button>
       </React.Fragment>
     );
   } else if (buffer) {
     return (
-      <div className={styles.buttons_container}>
+      <div>
         <Title>Generating...</Title>
-        <img className={styles.loading} src={loading} alt="loading..." />
+        <img src={loading} alt="loading..." />
       </div>
     );
   } else if (failure) {
     return (
-      <div className={styles.buttons_container}>
+      <div>
         <Title>{errMsg}</Title>
       </div>
     );
