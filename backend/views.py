@@ -23,9 +23,11 @@ from django_otp.plugins.otp_totp.models import TOTPDevice
 LOGIN_ERROR_MESSAGE = "Login credentials are incorrect. Please check and try again."
 LOGOUT_ERROR_MESSAGE = "Invalid credentials"
 SUCCESS_MESSAGE = "success"
+ASSIGN_ERROR_MESSAGE = "This examination ID is invalid or the patient has to approve the examination."
 GENERIC_ERROR_MESSAGE = "There was an error, please try again."
-ALREADY_ASSIGNED_ERROR_MESSAGE = "You have already been assigned a patient!"
-SELF_ASSIGN_ERROR_MESSAGE = "You cannot assign yourself as a doctor!"
+ALREADY_ASSIGNED_ERROR_MESSAGE = "A doctor has been assigned to this examination"
+SELF_ASSIGN_ERROR_MESSAGE = "You cannot assign yourself as a doctor."
+INVALID_EXAM_ERROR_MESSAGE = "Please check examination details again."
 
 def get_user_totp_device(self, user, confirmed=None):
 	devices = devices_for_user(user, confirmed=confirmed)
@@ -126,13 +128,13 @@ class AssignPendingExam(APIView):
                 and assigned_session.doctor != doctor
             ):
                 return Response(
-                    {"message": GENERIC_ERROR_MESSAGE},
+                    {"message": ASSIGN_ERROR_MESSAGE},
                     status=status.HTTP_400_BAD_REQUEST,
                 )
 
             if assigned_session.approved == False:
                 return Response(
-                    {"message": GENERIC_ERROR_MESSAGE},
+                    {"message": ASSIGN_ERROR_MESSAGE},
                     status=status.HTTP_400_BAD_REQUEST,
                 )
 
@@ -157,7 +159,7 @@ class AssignPendingExam(APIView):
             )
         except PendingExamination.DoesNotExist:
             return Response(
-                {"message": GENERIC_ERROR_MESSAGE}, status=status.HTTP_400_BAD_REQUEST
+                {"message": ASSIGN_ERROR_MESSAGE}, status=status.HTTP_400_BAD_REQUEST
             )
         except IntegrityError:
             return Response(
@@ -227,7 +229,7 @@ class AddExamination(APIView):
                 ).delete()
                 return Response({"message": "success"}, status=status.HTTP_200_OK)
             return Response(
-                {"message": GENERIC_ERROR_MESSAGE}, status=status.HTTP_400_BAD_REQUEST
+                {"message": INVALID_EXAM_ERROR_MESSAGE}, status=status.HTTP_400_BAD_REQUEST
             )
         except PendingExamination.DoesNotExist:
             return Response(
