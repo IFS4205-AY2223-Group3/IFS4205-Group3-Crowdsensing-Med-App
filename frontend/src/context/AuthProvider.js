@@ -6,12 +6,10 @@ import React, { useState, useEffect } from "react";
 const Context = React.createContext();
 
 export function useAuth() {
-  const navigate = useNavigate();
-
   const setData = ({ accessToken, userRole, name }) => {
-    localStorage.setItem("accessToken", accessToken);
-    localStorage.setItem("userRole", userRole);
-    localStorage.setItem("name", name);
+    sessionStorage.setItem("accessToken", accessToken);
+    sessionStorage.setItem("userRole", userRole);
+    sessionStorage.setItem("name", name);
   };
 
   const login = async ({ user, pwd, userRole }) => {
@@ -70,7 +68,7 @@ export function useAuth() {
   };
 
   const logout = async () => {
-    const tokenString = " Token " + localStorage.getItem("accessToken");
+    const tokenString = " Token " + sessionStorage.getItem("accessToken");
 
     const logoutResponse = await axios
       .get(LOGOUT_URL, {
@@ -80,14 +78,14 @@ export function useAuth() {
         },
       })
       .then(function (response) {
-        localStorage.clear();
+        sessionStorage.clear();
         return response;
       })
       .catch(function (error) {
         // //local testing
         // var errorCode = 200;
-        // localStorage.clear(); 
-  
+        // sessionStorage.clear();
+
         var errorCode;
         if (!error?.response) {
           errorCode = 400;
@@ -98,7 +96,7 @@ export function useAuth() {
         } else {
           errorCode = 500;
         }
-  
+
         const errorObject = {
           status: errorCode,
         };
@@ -118,9 +116,9 @@ export function AuthProvider({ children }) {
   const [auth, setAuth] = useState({});
 
   useEffect(() => {
-    const accessToken = localStorage.getItem("accessToken");
-    const userRole = localStorage.getItem("userRole");
-    const name = localStorage.getItem("name");
+    const accessToken = sessionStorage.getItem("accessToken");
+    const userRole = sessionStorage.getItem("userRole");
+    const name = sessionStorage.getItem("name");
 
     if (accessToken && userRole && name) {
       const temp = {
@@ -135,13 +133,27 @@ export function AuthProvider({ children }) {
   return <Context.Provider value={auth}>{children} </Context.Provider>;
 }
 
+/* This Function checks that user is authenticated to access role page*/
 export function RequireAuth({ children, role }) {
-  const accessToken = localStorage.getItem("accessToken");
-  const userRole = localStorage.getItem("userRole");
+  const accessToken = sessionStorage.getItem("accessToken");
+  const userRole = sessionStorage.getItem("userRole");
 
   if (accessToken && userRole && userRole === role) {
     return children;
   } else {
     return <Navigate to="/login" replace />;
+  }
+}
+
+/* This Function checks that the user is authenticated to access Examination Page */
+export function RequireExam({ children }) {
+  const examId = sessionStorage.getItem("examId");
+  const patientName = sessionStorage.getItem("patientName");
+  const userRole = sessionStorage.getItem("userRole");
+
+  if (examId && patientName && userRole === "doctor") {
+    return children;
+  } else {
+    return <Navigate to="/doctor" replace />;
   }
 }

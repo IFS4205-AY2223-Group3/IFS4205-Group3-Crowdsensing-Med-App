@@ -23,7 +23,6 @@ import DashboardIcon from "@mui/icons-material/Dashboard";
 import PeopleIcon from "@mui/icons-material/People";
 import LayersIcon from "@mui/icons-material/Layers";
 import { useNavigate } from "react-router-dom";
-import Title from "../Components/Title";
 import { useAuth } from "../context/AuthProvider";
 import { useState } from "react";
 import PopUp from "../Components/PopUp";
@@ -78,7 +77,7 @@ const Drawer = styled(MuiDrawer, {
 const mdTheme = createTheme();
 
 function DashboardContent() {
-  const name = localStorage.getItem("name");
+  const name = sessionStorage.getItem("name");
   const [errMsg, setErrMsg] = useState("");
   const [isErrPopUp, setIsErrPopUp] = useState(false);
   const [isNoticePopUp, setIsNoticePopUp] = useState(true);
