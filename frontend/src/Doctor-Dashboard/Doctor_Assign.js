@@ -17,16 +17,16 @@ import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
 import ListItemButton from "@mui/material/ListItemButton";
 import ListItemIcon from "@mui/material/ListItemIcon";
 import ListItemText from "@mui/material/ListItemText";
-import HealthAndSafetyIcon from "@mui/icons-material/HealthAndSafety";
 import LogoutIcon from "@mui/icons-material/Logout";
 import DashboardIcon from "@mui/icons-material/Dashboard";
+import LocalHospitalIcon from "@mui/icons-material/LocalHospital";
 import PeopleIcon from "@mui/icons-material/People";
 import LayersIcon from "@mui/icons-material/Layers";
 import { useNavigate } from "react-router-dom";
-import HealthRecords from "./Components/HealthRecords";
 import { useAuth } from "../context/AuthProvider";
 import { useState } from "react";
 import PopUp from "../Components/PopUp";
+import AssignDoctor from "./Components/AssignDoctor";
 
 const drawerWidth = 240;
 
@@ -102,16 +102,25 @@ function DashboardContent() {
       setIsErrPopUp(true);
     }
   };
+
+  const handleOngoingSession = async () => {
+    const examId = sessionStorage.getItem("examId");
+    const patientName = sessionStorage.getItem("patientName");
+
+    if (examId && patientName) {
+      navigate("/submitexamination");
+    } else {
+      setErrMsg("No Ongoing Session.");
+      setIsErrPopUp(true);
+    }
+  };
+
   const handleDashboard = async () => {
-    navigate("/patient");
+    navigate("/doctor");
   };
 
   const handleExamine = async () => {
-    navigate("/generatesession");
-  };
-
-  const handleHealthrecords = async () => {
-    navigate("/healthrecords");
+    navigate("/assigndoctor");
   };
 
   const handleSetting = async () => {
@@ -182,11 +191,11 @@ function DashboardContent() {
               </ListItemIcon>
               <ListItemText primary="Examine" />
             </ListItemButton>
-            <ListItemButton onClick={handleHealthrecords}>
+            <ListItemButton onClick={handleOngoingSession}>
               <ListItemIcon>
-                <HealthAndSafetyIcon />
+                <LocalHospitalIcon />
               </ListItemIcon>
-              <ListItemText primary="Health Records" />
+              <ListItemText primary="Current Session" />
             </ListItemButton>
             <ListItemButton onClick={handleSetting}>
               <ListItemIcon>
@@ -214,7 +223,7 @@ function DashboardContent() {
               {/* Recent Sessions */}
               <Grid item xs={12}>
                 <Paper sx={{ p: 2, display: "flex", flexDirection: "column" }}>
-                  <HealthRecords />
+                  <AssignDoctor />
                 </Paper>
               </Grid>
             </Grid>
@@ -225,6 +234,6 @@ function DashboardContent() {
   );
 }
 
-export default function Patient_Records() {
+export default function Doctor_Assign() {
   return <DashboardContent />;
 }
