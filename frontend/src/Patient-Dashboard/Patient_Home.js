@@ -79,7 +79,7 @@ const Drawer = styled(MuiDrawer, {
 const mdTheme = createTheme();
 
 function DashboardContent() {
-  const name = localStorage.getItem("name");
+  const name = sessionStorage.getItem("name");
   const [errMsg, setErrMsg] = useState("");
   const [isErrPopUp, setIsErrPopUp] = useState(false);
   const { logout } = useAuth();

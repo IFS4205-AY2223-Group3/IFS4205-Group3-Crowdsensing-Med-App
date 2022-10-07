@@ -9,7 +9,7 @@ import PopUp from "../../Components/PopUp";
 import { useNavigate } from "react-router-dom";
 
 export default function GenerateSession() {
-  const token = localStorage.getItem("accessToken");
+  const token = sessionStorage.getItem("accessToken");
   const tokenString = " Token " + token;
   const [success, setSuccess] = useState(false);
   const [failure, setFailure] = useState(false);

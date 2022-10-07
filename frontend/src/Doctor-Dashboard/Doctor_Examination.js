@@ -17,16 +17,17 @@ import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
 import ListItemButton from "@mui/material/ListItemButton";
 import ListItemIcon from "@mui/material/ListItemIcon";
 import ListItemText from "@mui/material/ListItemText";
-import HealthAndSafetyIcon from "@mui/icons-material/HealthAndSafety";
 import LogoutIcon from "@mui/icons-material/Logout";
+import LocalHospitalIcon from "@mui/icons-material/LocalHospital";
 import DashboardIcon from "@mui/icons-material/Dashboard";
 import PeopleIcon from "@mui/icons-material/People";
 import LayersIcon from "@mui/icons-material/Layers";
 import { useNavigate } from "react-router-dom";
-import HealthRecords from "./Components/HealthRecords";
 import { useAuth } from "../context/AuthProvider";
 import { useState } from "react";
 import PopUp from "../Components/PopUp";
+import Title from "../Components/Title";
+import Examination from "./Components/Examination";
 
 const drawerWidth = 240;
 
@@ -80,6 +81,7 @@ function DashboardContent() {
   const name = sessionStorage.getItem("name");
   const [errMsg, setErrMsg] = useState("");
   const [isErrPopUp, setIsErrPopUp] = useState(false);
+  const [isNoticePopUp, setIsNoticePopUp] = useState(true);
   const { logout } = useAuth();
   const navigate = useNavigate();
 
@@ -92,6 +94,10 @@ function DashboardContent() {
     setIsErrPopUp(!isErrPopUp);
   };
 
+  const toggleNoticePopUp = () => {
+    setIsNoticePopUp(!isNoticePopUp);
+  };
+
   const handleLogout = async () => {
     const response = await logout();
 
@@ -102,16 +108,25 @@ function DashboardContent() {
       setIsErrPopUp(true);
     }
   };
+
   const handleDashboard = async () => {
-    navigate("/patient");
+    navigate("/doctor");
   };
 
   const handleExamine = async () => {
-    navigate("/generatesession");
+    navigate("/assigndoctor");
   };
 
-  const handleHealthrecords = async () => {
-    navigate("/healthrecords");
+  const handleOngoingSession = async () => {
+    const examId = sessionStorage.getItem("examId");
+    const patientName = sessionStorage.getItem("patientName");
+
+    if (examId && patientName) {
+      navigate("/submitexamination");
+    } else {
+      setErrMsg("No Ongoing Session.");
+      setIsErrPopUp(true);
+    }
   };
 
   const handleSetting = async () => {
@@ -120,6 +135,12 @@ function DashboardContent() {
 
   return (
     <ThemeProvider theme={mdTheme}>
+      {isNoticePopUp ? (
+        <PopUp
+          toggle={toggleNoticePopUp}
+          msg="You are entering Examination Mode. Please ensure all information submitted are accurate."
+        />
+      ) : null}
       {isErrPopUp ? <PopUp toggle={togglePopUp} msg={errMsg} /> : null}
       <Box sx={{ display: "flex" }}>
         <CssBaseline />
@@ -182,11 +203,11 @@ function DashboardContent() {
               </ListItemIcon>
               <ListItemText primary="Examine" />
             </ListItemButton>
-            <ListItemButton onClick={handleHealthrecords}>
+            <ListItemButton onClick={handleOngoingSession}>
               <ListItemIcon>
-                <HealthAndSafetyIcon />
+                <LocalHospitalIcon />
               </ListItemIcon>
-              <ListItemText primary="Health Records" />
+              <ListItemText primary="Current Session" />
             </ListItemButton>
             <ListItemButton onClick={handleSetting}>
               <ListItemIcon>
@@ -214,7 +235,7 @@ function DashboardContent() {
               {/* Recent Sessions */}
               <Grid item xs={12}>
                 <Paper sx={{ p: 2, display: "flex", flexDirection: "column" }}>
-                  <HealthRecords />
+                  <Examination></Examination>
                 </Paper>
               </Grid>
             </Grid>
@@ -225,6 +246,6 @@ function DashboardContent() {
   );
 }
 
-export default function Patient_Records() {
+export default function Doctor_Examination() {
   return <DashboardContent />;
 }

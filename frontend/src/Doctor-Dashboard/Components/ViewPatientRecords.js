@@ -1,29 +1,32 @@
 import * as React from "react";
-import styles from "../Patient.css";
+import "../Doctors.css";
 import Title from "../../Components/Title";
 import loading from "../../imports/loading.gif";
 import axios from "axios";
-import { VIEW_RECORDS_URL } from "../../api/constants";
+import { DOCTOR_VIEW_HEALTH_RECORDS_URL } from "../../api/constants";
 import { useState, useEffect } from "react";
 
-export default function PastSessions() {
+export default function ViewPatientRecords() {
   const token = sessionStorage.getItem("accessToken");
+  const patientName = sessionStorage.getItem("patientName");
   const tokenString = " Token " + token;
   const [success, setSuccess] = useState(false);
   const [failure, setFailure] = useState(false);
   const [buffer, setBuffer] = useState(true);
   const [errMsg, setErrMsg] = useState("");
+  const [healthRecords, setHealthRecords] = useState();
   const [examRecords, setExamRecords] = useState();
 
   useEffect(() => {
     axios
-      .get(VIEW_RECORDS_URL, {
+      .get(DOCTOR_VIEW_HEALTH_RECORDS_URL, {
         headers: {
           "Content-Type": "application/json",
           Authorization: tokenString,
         },
       })
       .then(function (response) {
+        setHealthRecords(response.data.healthRecords);
         setExamRecords(response.data.examRecords);
         setSuccess(true);
         setBuffer(false);
@@ -52,7 +55,35 @@ export default function PastSessions() {
   if (success) {
     return (
       <React.Fragment>
-        <Title>Past Sessions</Title>
+        <Title>{patientName}'s Health Records</Title>
+        <table>
+          <tr>
+            <th>Name</th>
+            <td>{healthRecords.name}</td>
+          </tr>
+          <tr>
+            <th>Date of Birth</th>
+            <td>{healthRecords.dateofbirth}</td>
+          </tr>
+          <tr>
+            <th>Height</th>
+            <td>{healthRecords.height}cm</td>
+          </tr>
+          <tr>
+            <th>Weight</th>
+            <td>{healthRecords.weight}kg</td>
+          </tr>
+          <tr>
+            <th>Blood Type</th>
+            <td>{healthRecords.bloodtype}</td>
+          </tr>
+          <tr>
+            <th>Allergies</th>
+            <td>{healthRecords.allergies}</td>
+          </tr>
+        </table>
+        <br></br>
+        <Title>{patientName}'s Past Sessions</Title>
         <table>
           <tr>
             <th>Date Time</th>
@@ -69,18 +100,19 @@ export default function PastSessions() {
             </tr>
           ))}
         </table>
+        <br></br>
       </React.Fragment>
     );
   } else if (buffer) {
     return (
-      <div className={styles.buttons_container}>
+      <div>
         <Title>Generating...</Title>
-        <img className={styles.loading} src={loading} alt="loading..." />
+        <img src={loading} alt="loading..." />
       </div>
     );
   } else if (failure) {
     return (
-      <div className={styles.buttons_container}>
+      <div>
         <Title>{errMsg}</Title>
       </div>
     );

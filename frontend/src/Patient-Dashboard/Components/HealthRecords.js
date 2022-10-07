@@ -7,7 +7,7 @@ import { VIEW_RECORDS_URL } from "../../api/constants";
 import { useState, useEffect } from "react";
 
 export default function HealthRecords() {
-  const token = localStorage.getItem("accessToken");
+  const token = sessionStorage.getItem("accessToken");
   const tokenString = " Token " + token;
   const [success, setSuccess] = useState(false);
   const [failure, setFailure] = useState(false);
