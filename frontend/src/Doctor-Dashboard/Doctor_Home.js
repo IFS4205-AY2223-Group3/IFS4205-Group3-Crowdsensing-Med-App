@@ -21,10 +21,14 @@ import LogoutIcon from "@mui/icons-material/Logout";
 import DashboardIcon from "@mui/icons-material/Dashboard";
 import PeopleIcon from "@mui/icons-material/People";
 import LayersIcon from "@mui/icons-material/Layers";
+import LocalHospitalIcon from "@mui/icons-material/LocalHospital";
 import Chart from "../Components/Chart";
 import Crowd from "../Components/Crowd";
 import PastSessions from "./Components/PastSessions";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "../context/AuthProvider";
+import { useState } from "react";
+import PopUp from "../Components/PopUp";
 
 const drawerWidth = 240;
 
@@ -75,18 +79,46 @@ const Drawer = styled(MuiDrawer, {
 const mdTheme = createTheme();
 
 function DashboardContent() {
-  const [open, setOpen] = React.useState(true);
+  const name = sessionStorage.getItem("name");
+  const [errMsg, setErrMsg] = useState("");
+  const [isErrPopUp, setIsErrPopUp] = useState(false);
+  const { logout } = useAuth();
+  const navigate = useNavigate();
+
+  const [open, setOpen] = React.useState(false);
   const toggleDrawer = () => {
     setOpen(!open);
   };
-  const navigate = useNavigate();
+
+  const togglePopUp = () => {
+    setIsErrPopUp(!isErrPopUp);
+  };
 
   const handleLogout = async () => {
-    navigate("/login");
+    const response = await logout();
+
+    if (response.status === 200) {
+      navigate("/login");
+    } else {
+      setErrMsg("Cannot Logout. Please try again later ");
+      setIsErrPopUp(true);
+    }
+  };
+
+  const handleOngoingSession = async () => {
+    const examId = sessionStorage.getItem("examId");
+    const patientName = sessionStorage.getItem("patientName");
+
+    if (examId && patientName) {
+      navigate("/submitexamination");
+    } else {
+      setErrMsg("No Ongoing Session.");
+      setIsErrPopUp(true);
+    }
   };
 
   const handleDashboard = async () => {
-    navigate("/dashboard");
+    navigate("/doctor");
   };
 
   const handleExamine = async () => {
@@ -99,6 +131,7 @@ function DashboardContent() {
 
   return (
     <ThemeProvider theme={mdTheme}>
+      {isErrPopUp ? <PopUp toggle={togglePopUp} msg={errMsg} /> : null}
       <Box sx={{ display: "flex" }}>
         <CssBaseline />
         <AppBar position="absolute" open={open}>
@@ -126,7 +159,7 @@ function DashboardContent() {
               noWrap
               sx={{ flexGrow: 1 }}
             >
-              Welcome John
+              Welcome {name}
             </Typography>
             <IconButton color="inherit" onClick={handleLogout}>
               <LogoutIcon />
@@ -159,6 +192,12 @@ function DashboardContent() {
                 <LayersIcon />
               </ListItemIcon>
               <ListItemText primary="Examine" />
+            </ListItemButton>
+            <ListItemButton onClick={handleOngoingSession}>
+              <ListItemIcon>
+                <LocalHospitalIcon />
+              </ListItemIcon>
+              <ListItemText primary="Current Session" />
             </ListItemButton>
             <ListItemButton onClick={handleSetting}>
               <ListItemIcon>
