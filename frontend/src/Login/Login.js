@@ -36,11 +36,15 @@ const Login = () => {
     const response = await login(data);
 
     if (response.statusCode === 200) {
-      const role = localStorage.getItem("userRole");
+      const role = sessionStorage.getItem("userRole");
       if (role === "patient") {
         navigate("/patient");
       } else if (role === "doctor") {
         navigate("/doctor");
+      } else if (role === "researcher") {
+        navigate("/researcher");
+      } else if (role === "staff") {
+        navigate("/staff");
       } else {
         navigate("");
       }

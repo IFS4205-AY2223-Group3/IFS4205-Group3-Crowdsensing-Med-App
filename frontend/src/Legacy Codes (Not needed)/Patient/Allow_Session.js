@@ -1,15 +1,15 @@
 import { useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 import styles from "./Patient_Dashboard.module.css";
-import { GENERATE_SESSION_URL } from "../api/constants";
+import { ALLOWS_SESSION_URL } from "../../api/constants";
 import axios from "axios";
 import loading from "../imports/loading.gif";
 
-const Generate_Session = () => {
+const Allow_Session = () => {
   const navigate = useNavigate();
+  const examId = localStorage.getItem("examId");
   const name = localStorage.getItem("name");
   const token = localStorage.getItem("accessToken");
-  const [examId, setExamId] = useState("");
   const [errMsg, setErrMsg] = useState("");
   const [success, setSuccess] = useState(false);
   const [failure, setFailure] = useState(false);
@@ -22,23 +22,25 @@ const Generate_Session = () => {
 
   const post = async () => {
     axios
-      .get(GENERATE_SESSION_URL, {
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: tokenString,
+      .post(
+        ALLOWS_SESSION_URL,
+        {
+          examId: examId,
         },
-      })
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: tokenString,
+          },
+        }
+      )
       .then(function (response) {
-        setExamId(response?.data?.examId);
-        localStorage.setItem("examId", response?.data?.examId);
         setSuccess(true);
         setBuffer(false);
       })
       .catch(function (err) {
         // setSuccess(true); //comment out
         // setBuffer(false); //comment out
-        // setExamId("12345"); //comment out
-        // localStorage.setItem("examId", "12345"); //comment out
 
         setFailure(true);
         setBuffer(false);
@@ -60,32 +62,23 @@ const Generate_Session = () => {
       });
   };
 
-  const Allow = async () => {
-    navigate("/allowsession");
-  };
-  const Back = async () => {
+  const Home = async () => {
     navigate("/patient");
+    localStorage.removeItem("examId"); //comment out
   };
 
   if (success) {
     return (
       <div className={styles.container}>
         <h1 className={styles.header}>Generating a Session for {name}</h1>
+
         <div className={styles.buttons_container}>
-          <h2 className={styles.header}>Session ID: {examId}</h2>
           <h2 className={styles.header}>
-            Click Allow to give the Doctor full consent to examine you.
+            You have given consent for the examination. Thank you.{" "}
           </h2>
-          <h2 className={styles.italic}>
-            Note: Only Click Allow when you are with a Doctor
-          </h2>
-          <button className={styles.button} onClick={Back}>
+          <button className={styles.button} onClick={Home}>
             {" "}
-            Back{" "}
-          </button>
-          <button className={styles.allowButton} onClick={Allow}>
-            {" "}
-            Allow
+            Home{" "}
           </button>
         </div>
       </div>
@@ -94,19 +87,19 @@ const Generate_Session = () => {
     return (
       <div className={styles.buttons_container}>
         <img className={styles.loading} src={loading} alt="loading..." />
-        <h2 className={styles.header}>Generating...</h2>
+        <h2 className={styles.header}>Loading...</h2>
       </div>
     );
   } else if (failure) {
     return (
       <div className={styles.buttons_container}>
         <h2 className={styles.header}>{errMsg}</h2>
-        <button className={styles.button} onClick={Back}>
+        <button className={styles.button} onClick={Home}>
           {" "}
-          Back{" "}
+          Home{" "}
         </button>
       </div>
     );
   }
 };
-export default Generate_Session;
+export default Allow_Session;

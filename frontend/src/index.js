@@ -1,17 +1,16 @@
 import React from "react";
-import { AuthProvider, RequireAuth } from "./context/AuthProvider";
+import { AuthProvider, RequireAuth, RequireExam } from "./context/AuthProvider";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { createRoot } from "react-dom/client";
 import "./index.css";
 import Login from "./Login/Login";
-import Patient_Dashboard from "./Patient/Patient_Dashboard";
-import Doctor_Dashboard from "./Doctor/Doctor_Dashboard";
-import Examine from "./Doctor/Examine";
-import Submit_Examination from "./Doctor/Submit_Examination";
-import Doctor_View_Records from "./Doctor/Doctor_View_Records";
-import Generate_Session from "./Patient/Generate_Session";
-import View_Records from "./Patient/View_Records";
-import Allow_Session from "./Patient/Allow_Session";
+import Patient_Home from "./Patient-Dashboard/Patient_Home";
+import Patient_Records from "./Patient-Dashboard/Patient_Records";
+import Patient_Session from "./Patient-Dashboard/Patient_Session";
+import Doctor_Home from "./Doctor-Dashboard/Doctor_Home";
+import Doctor_Assign from "./Doctor-Dashboard/Doctor_Assign";
+import Doctor_View_Records from "./Doctor-Dashboard/Doctor_View_Records";
+import Doctor_Examination from "./Doctor-Dashboard/Doctor_Examination";
 
 const rootElement = document.getElementById("root");
 const root = createRoot(rootElement);
@@ -27,7 +26,7 @@ root.render(
             path="patient"
             element={
               <RequireAuth role="patient">
-                <Patient_Dashboard />
+                <Patient_Home />
               </RequireAuth>
             }
           />
@@ -35,23 +34,15 @@ root.render(
             path="generatesession"
             element={
               <RequireAuth role="patient">
-                <Generate_Session />
+                <Patient_Session />
               </RequireAuth>
             }
           />
           <Route
-            path="patientviewrecords"
+            path="healthrecords"
             element={
               <RequireAuth role="patient">
-                <View_Records />
-              </RequireAuth>
-            }
-          />
-          <Route
-            path="allowsession"
-            element={
-              <RequireAuth role="patient">
-                <Allow_Session />
+                <Patient_Records />
               </RequireAuth>
             }
           />
@@ -59,15 +50,16 @@ root.render(
             path="doctor"
             element={
               <RequireAuth role="doctor">
-                <Doctor_Dashboard />
+                <Doctor_Home />
               </RequireAuth>
             }
           />
+
           <Route
             path="assigndoctor"
             element={
               <RequireAuth role="doctor">
-                <Examine />
+                <Doctor_Assign />
               </RequireAuth>
             }
           />
@@ -75,7 +67,9 @@ root.render(
             path="submitexamination"
             element={
               <RequireAuth role="doctor">
-                <Submit_Examination />
+                <RequireExam>
+                  <Doctor_Examination />
+                </RequireExam>
               </RequireAuth>
             }
           />
@@ -83,7 +77,9 @@ root.render(
             path="doctorviewrecords"
             element={
               <RequireAuth role="doctor">
-                <Doctor_View_Records />
+                <RequireExam>
+                  <Doctor_View_Records />
+                </RequireExam>
               </RequireAuth>
             }
           />
