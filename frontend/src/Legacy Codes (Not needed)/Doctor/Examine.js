@@ -2,7 +2,7 @@ import React, { useRef, useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { DoctorApi } from "./DoctorAPI";
 import styles from "./Examine.module.css";
-import PopUp from "../PopUp";
+import PopUp from "../Components/PopUp";
 
 const Examine = () => {
   const { send_examId } = DoctorApi();
@@ -45,9 +45,7 @@ const Examine = () => {
 
   return (
     <div className={styles.container}>
-      {isErrPopUp ? (
-        <PopUp toggle={togglePopUp} msg={errMsg} />
-      ) : null}
+      {isErrPopUp ? <PopUp toggle={togglePopUp} msg={errMsg} /> : null}
 
       <section>
         <h1>Enter Session ID to examine</h1>
