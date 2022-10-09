@@ -242,7 +242,7 @@ class AddExamination(APIView):
 
 class DoctorViewOldSessions(APIView):
     parser_classes = [JSONParser]
-    permission_classes = (IsAuthenticated, isDoctor)
+    permission_classes = (IsAuthenticated, IsDoctor)
 
     @csrf_exempt
     def get(self, request):
