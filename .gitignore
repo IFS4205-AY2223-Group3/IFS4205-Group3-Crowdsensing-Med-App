@@ -1,3 +1,4 @@
 *.pyc
 tutorial-env/
 /secrets.json
+venv/

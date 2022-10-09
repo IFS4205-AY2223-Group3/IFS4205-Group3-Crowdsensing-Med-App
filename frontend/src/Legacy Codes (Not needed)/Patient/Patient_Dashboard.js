@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
-import { useAuth } from "../context/AuthProvider";
+import { useAuth } from "../../context/AuthProvider";
 import { useNavigate } from "react-router-dom";
 import styles from "./Patient_Dashboard.module.css";
-import { VIEW_COUNT_URL } from "../api/constants";
+import { VIEW_COUNT_URL } from "../../api/constants";
 import axios from "axios";
 
 const Patient_Dashboard = () => {
@@ -20,20 +20,22 @@ const Patient_Dashboard = () => {
   useEffect(() => {
     const interval = setInterval(() => {
       axios
-      .get(VIEW_COUNT_URL)
-      .then(function (response) {
-        setCrowdCounter(response.data.count);
-        setSuccess(true);
-        setBuffer(false);
-      })
-      .catch(function (err) {
-        setFailure(true);
-        setBuffer(false);
-        setErrMsg(err.response.data.message);
-      });
+        .get(VIEW_COUNT_URL)
+        .then(function (response) {
+          setCrowdCounter(response.data.count);
+          setSuccess(true);
+          setBuffer(false);
+        })
+        .catch(function (err) {
+          setFailure(true);
+          setBuffer(false);
+          setErrMsg(err.response.data.message);
+        });
     }, 1000);
 
-    return () => {clearInterval(interval)};
+    return () => {
+      clearInterval(interval);
+    };
   }, []);
 
   const handleSignOut = async () => {
