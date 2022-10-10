@@ -16,13 +16,51 @@ from backend.serializers import *
 from backend.permissions import *
 from rest_framework.serializers import ValidationError
 
+from django_otp import devices_for_user
+from django_otp.plugins.otp_totp.models import TOTPDevice
+
+
 LOGIN_ERROR_MESSAGE = "Login credentials are incorrect. Please check and try again."
 LOGOUT_ERROR_MESSAGE = "Invalid credentials"
 SUCCESS_MESSAGE = "success"
+ASSIGN_ERROR_MESSAGE = "This examination ID is invalid or the patient has to approve the examination."
 GENERIC_ERROR_MESSAGE = "There was an error, please try again."
-ALREADY_ASSIGNED_ERROR_MESSAGE = "You have already been assigned a patient!"
-SELF_ASSIGN_ERROR_MESSAGE = "You cannot assign yourself as a doctor!"
+ALREADY_ASSIGNED_ERROR_MESSAGE = "A doctor has been assigned to this examination"
+SELF_ASSIGN_ERROR_MESSAGE = "You cannot assign yourself as a doctor."
+INVALID_EXAM_ERROR_MESSAGE = "Please check examination details again."
 
+def get_user_totp_device(self, user, confirmed=None):
+	devices = devices_for_user(user, confirmed=confirmed)
+	for device in devices:
+		if isinstance(device, TOTPDevice):
+			return device
+
+class TOTPCreateView(APIView):
+    permission_classes = [IsAuthenticated]
+    def get(self, request, *args, **kwargs):
+        user = request.user
+        device = get_user_totp_device(self, user)
+        if not device:
+            device = user.totpdevice_set.create(confirmed=False)
+        url = device.config_url
+        return Response({'message':url}, status=status.HTTP_201_CREATED)
+
+class TOTPVerifyView(APIView):
+    permission_classes = [IsAuthenticated]
+    def post(self, request, *args, **kwargs):
+        try:
+            otp = request.data['otp']
+            user = request.user
+            device = get_user_totp_device(self, user)
+            if not device == None and device.verify_token(otp):
+                if not device.confirmed:
+                    device.confirmed = True
+                    device.save()
+                request.auth.verify()
+                return Response({'message': SUCCESS_MESSAGE}, status=status.HTTP_200_OK)
+        except KeyError:
+            return Response({'message': 'Invalid'}, status=status.HTTP_400_BAD_REQUEST)
+        return Response({'message': 'Invalid'}, status=status.HTTP_400_BAD_REQUEST)
 
 class Login(ObtainAuthToken):
     def post(self, request, *args, **kwargs):
@@ -35,11 +73,11 @@ class Login(ObtainAuthToken):
             user = serializer.validated_data["user"]
             role.objects.get(user=user)
             try:
-                token = Token.objects.get(user=user)
+                token = UserToken.objects.get(user=user)
                 token.delete()
-            except Token.DoesNotExist:
+            except UserToken.DoesNotExist:
                 pass
-            token = Token.objects.create(user=user)
+            token = UserToken.objects.create(user=user)
             data = {}
             data["token"] = token.key
             data["name"] = user.name
@@ -75,7 +113,7 @@ class Logout(APIView):
 
 class AssignPendingExam(APIView):
     parser_classes = [JSONParser]
-    permission_classes = (IsAuthenticated, isDoctor)
+    permission_classes = (IsAuthenticated, IsVerified, IsDoctor)
 
     # assign doctor to a session (done by doctors)
     @csrf_exempt
@@ -90,13 +128,13 @@ class AssignPendingExam(APIView):
                 and assigned_session.doctor != doctor
             ):
                 return Response(
-                    {"message": GENERIC_ERROR_MESSAGE},
+                    {"message": ASSIGN_ERROR_MESSAGE},
                     status=status.HTTP_400_BAD_REQUEST,
                 )
 
             if assigned_session.approved == False:
                 return Response(
-                    {"message": GENERIC_ERROR_MESSAGE},
+                    {"message": ASSIGN_ERROR_MESSAGE},
                     status=status.HTTP_400_BAD_REQUEST,
                 )
 
@@ -121,7 +159,7 @@ class AssignPendingExam(APIView):
             )
         except PendingExamination.DoesNotExist:
             return Response(
-                {"message": GENERIC_ERROR_MESSAGE}, status=status.HTTP_400_BAD_REQUEST
+                {"message": ASSIGN_ERROR_MESSAGE}, status=status.HTTP_400_BAD_REQUEST
             )
         except IntegrityError:
             return Response(
@@ -132,7 +170,7 @@ class AssignPendingExam(APIView):
 
 class DoctorGetRecords(APIView):
     parser_classes = [JSONParser]
-    permission_classes = (IsAuthenticated, isDoctor)
+    permission_classes = (IsAuthenticated, IsDoctor)
 
     # get examinations (done by doctors)
     @csrf_exempt
@@ -169,7 +207,7 @@ class DoctorGetRecords(APIView):
 
 class AddExamination(APIView):
     parser_classes = [JSONParser]
-    permission_classes = (IsAuthenticated, isDoctor)
+    permission_classes = (IsAuthenticated, IsDoctor)
 
     # store new examination result (done by doctors)
     @csrf_exempt
@@ -191,7 +229,7 @@ class AddExamination(APIView):
                 ).delete()
                 return Response({"message": "success"}, status=status.HTTP_200_OK)
             return Response(
-                {"message": GENERIC_ERROR_MESSAGE}, status=status.HTTP_400_BAD_REQUEST
+                {"message": INVALID_EXAM_ERROR_MESSAGE}, status=status.HTTP_400_BAD_REQUEST
             )
         except PendingExamination.DoesNotExist:
             return Response(
@@ -204,7 +242,7 @@ class AddExamination(APIView):
 
 class DoctorViewOldSessions(APIView):
     parser_classes = [JSONParser]
-    permission_classes = (IsAuthenticated, isDoctor)
+    permission_classes = (IsAuthenticated, IsDoctor)
 
     @csrf_exempt
     def get(self, request):
@@ -256,7 +294,7 @@ class CreateSession(APIView):
 
 class PatientViewRecords(APIView):
     parser_classes = [JSONParser]
-    permission_classes = (IsAuthenticated,)
+    permission_classes = (IsAuthenticated, IsVerified)
 
     @csrf_exempt
     def get(self, request):
@@ -344,7 +382,11 @@ class CrowdView(APIView):
         serialized_data = CrowdSerializer(data=request.data)
         if serialized_data.is_valid():
             serialized_data.save()
-        return Response({"message": SUCCESS_MESSAGE}, status=status.HTTP_200_OK)
+            return Response({"message": SUCCESS_MESSAGE}, status=status.HTTP_200_OK)
+        else:
+            return Response(
+                {"message": GENERIC_ERROR_MESSAGE}, status=status.HTTP_400_BAD_REQUEST
+            )
 
     @csrf_exempt
     def get(self, request):
