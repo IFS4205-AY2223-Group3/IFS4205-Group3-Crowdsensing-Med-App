@@ -29,7 +29,7 @@ SELF_ASSIGN_ERROR_MESSAGE = "You cannot assign yourself as a doctor."
 INVALID_EXAM_ERROR_MESSAGE = "Please check examination details again."
 
 def get_user_totp_device(self, user, confirmed=None):
-	devices = devices_for_user(user, confirmed=confirmed)
+	devices = devices_for_user(user, confirmed=None)
 	for device in devices:
 		if isinstance(device, TOTPDevice):
 			return device
@@ -41,6 +41,8 @@ class TOTPCreateView(APIView):
         device = get_user_totp_device(self, user)
         if not device:
             device = user.totpdevice_set.create(confirmed=False)
+            return Response({'message':device.config_url}, status=status.HTTP_201_CREATED)
+        elif device.confirmed == False:
             return Response({'message':device.config_url}, status=status.HTTP_201_CREATED)
         else:
             return Response({'message':'you already have a device registered'}, status=status.HTTP_200_OK)
@@ -78,10 +80,12 @@ class Login(ObtainAuthToken):
             except UserToken.DoesNotExist:
                 pass
             token = UserToken.objects.create(user=user)
+            device = get_user_totp_device(self, user)
             data = {}
             data["token"] = token.key
             data["name"] = user.name
             data["role"] = request.data["role"]
+            data["hasDevice"] = (device is not None and device.confirmed == True)
             update_last_login(None, user)
 
             return Response(data, status=status.HTTP_200_OK)
