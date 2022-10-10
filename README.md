@@ -84,6 +84,12 @@ python -m pip install Django
     - Python (ms-python.python), comes with Pylance
 - If face issue of "unresolved import" after opening the Python files, [select Python interpreter](https://stackoverflow.com/questions/53939751/pylint-unresolved-import-error-in-visual-studio-code) (e.g. use the one in the `virtualenv` folder)
 
+6. Install additional django libraries
+```bash
+python -m pip install djangorestframework
+python -m pip install django-cors-headers
+python -m pip install django-otp
+```
 &nbsp;
 
 ### DB

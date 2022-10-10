@@ -50,4 +50,4 @@ class DoctorPastSessionSerializer(serializers.ModelSerializer):
 class CrowdSerializer(serializers.ModelSerializer):
     class Meta:
         model = Crowd
-        fields = ["time_recorded", "count"]
+        fields = ["count"]
