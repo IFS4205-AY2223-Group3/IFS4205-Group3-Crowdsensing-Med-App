@@ -8,9 +8,7 @@ def custom_handler(exc, context):
         if response.status_code == 405:
             response.data["message"] = "Invalid request method."
         elif response.status_code == 401:
-            response.data[
-                "message"
-            ] = "You have to be logged in to access this resource!"
+            response.data["message"] = "You have to be logged in to access this resource!"
         else:
             response.data["message"] = response.data["detail"]
         del response.data["detail"]
