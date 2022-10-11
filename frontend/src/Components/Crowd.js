@@ -23,7 +23,6 @@ export default function Crowd() {
           setBuffer(false);
         })
         .catch(function (err) {
-          console.log(err.response);
           setErrMsg(err.response.data.message);
           setFailure(true);
           setBuffer(false);
