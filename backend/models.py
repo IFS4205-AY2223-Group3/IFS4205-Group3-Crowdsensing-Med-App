@@ -45,8 +45,12 @@ class User(AbstractBaseUser, PermissionsMixin):
     REQUIRED_FIELDS = ("email",)
 
     def save(self, *args, **kwargs):
+        self.username = str(self.username).lower()
         if not self.user_id:
-            self.user_id = get_random_string(16)
+            id = secrets.token_hex(8)
+            while User.objects.filter(user_id=id).count() > 0:
+                id = secrets.token_hex(8) 
+            self.user_id = id
         super().save(*args, **kwargs)
 
     objects = CustomAccountManager()
