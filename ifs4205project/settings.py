@@ -126,6 +126,7 @@ REST_FRAMEWORK = {
     ],
     "EXCEPTION_HANDLER": "backend.exceptions.custom_handler",
     "DATETIME_FORMAT": "%a %b %d %Y %H:%M:%S",
+    'TEST_REQUEST_DEFAULT_FORMAT': 'json',
 }
 
 # Password validation
