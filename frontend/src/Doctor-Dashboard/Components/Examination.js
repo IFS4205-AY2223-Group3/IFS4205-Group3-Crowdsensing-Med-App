@@ -6,7 +6,6 @@ import { DOCTOR_SUBMIT_URL } from "../../api/constants";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import PopUp from "../../Components/PopUp";
-import TextField from "@mui/material/TextField";
 
 export default function Examination() {
   const token = sessionStorage.getItem("accessToken");
