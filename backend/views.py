@@ -1,7 +1,9 @@
+from smtplib import SMTPAuthenticationError
 from django.db.utils import IntegrityError
 from django.views.decorators.csrf import csrf_exempt
 from django.core.exceptions import ObjectDoesNotExist
 from django.contrib.auth.models import update_last_login
+from django.core.mail import send_mail
 
 from rest_framework import status
 from rest_framework.views import APIView
@@ -29,7 +31,7 @@ SELF_ASSIGN_ERROR_MESSAGE = "You cannot assign yourself as a doctor."
 INVALID_EXAM_ERROR_MESSAGE = "Please check examination details again."
 
 def get_user_totp_device(self, user, confirmed=None):
-	devices = devices_for_user(user, confirmed=None)
+	devices = devices_for_user(user, confirmed=confirmed)
 	for device in devices:
 		if isinstance(device, TOTPDevice):
 			return device
@@ -46,6 +48,67 @@ class TOTPCreateView(APIView):
             return Response({'message':device.config_url}, status=status.HTTP_201_CREATED)
         else:
             return Response({'message':'you already have a device registered'}, status=status.HTTP_200_OK)
+
+class TOTPDeleteView(APIView):
+    permission_classes = [IsAuthenticated]
+    def get(self, request, *args, **kwargs):
+        user = request.user
+        device = get_user_totp_device(self, user, True)
+        if device == None:
+            return Response({'message': 'You do not have a registered device.'}, status=status.HTTP_404_NOT_FOUND)
+        try:
+            old_request = RemoveOTPRequest.objects.get(user=user)
+            old_request.delete()
+        except RemoveOTPRequest.DoesNotExist:
+            pass
+
+        new_request = RemoveOTPRequest.create(user)
+        new_request.save()
+
+        subject = 'Delete MediBook Authenticator'
+        message = 'Hi ' + user.name + ',' + '\n\n'
+        message += 'You requested to delete your authenticator for your MediBook account: ' + user.username + '\n\n'
+        message += 'Your OTP is ' + new_request.key + '\n\n'
+        message += 'If you did not make this request, please change your password immediately!'
+        try: 
+            send_mail(
+                subject=subject,
+                message=message,
+                from_email=None,
+                recipient_list=[user.email],
+                fail_silently=False,
+            )
+        except SMTPAuthenticationError:
+            return Response({'message': 'An error occurred on our end, please try again later.'}, status=status.HTTP_503_SERVICE_UNAVAILABLE)
+
+        return Response({'message': 'Success, please check your email for a OTP'}, status=status.HTTP_200_OK)
+    
+    def post(self, request, *args, **kwargs):
+        try:
+            otp = request.data['otp']
+            user = request.user
+
+            remove_request = RemoveOTPRequest.objects.get(user=user)
+            if otp == remove_request.key:
+                device = get_user_totp_device(self, user, True)
+                if device != None:
+                    device.delete()
+                    remove_request.delete()
+                    return Response({'message':'Device successfully removed.'}, status=status.HTTP_200_OK)
+                else:
+                   return Response({'message': 'You do not have a registered device.'}, status=status.HTTP_404_NOT_FOUND) 
+            else:
+                remove_request.attempts += 1
+                if remove_request.attempts >= 5:
+                    remove_request.delete()
+                    return Response({'message': 'You have exceeded the number of attempts to remove the authenticator, please make a new request'}, status=status.HTTP_406_NOT_ACCEPTABLE)
+                else:
+                    remove_request.save()
+                    return Response({'message': 'Invalid OTP, please try again.'}, status=status.HTTP_403_FORBIDDEN)
+        except KeyError:
+            return Response({'message': GENERIC_ERROR_MESSAGE}, status=status.HTTP_400_BAD_REQUEST)
+        except RemoveOTPRequest.DoesNotExist:
+            return Response({'message': GENERIC_ERROR_MESSAGE}, status=status.HTTP_400_BAD_REQUEST)
 
 class TOTPVerifyView(APIView):
     permission_classes = [IsAuthenticated]

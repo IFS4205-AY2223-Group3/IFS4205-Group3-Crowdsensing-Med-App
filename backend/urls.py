@@ -15,4 +15,5 @@ urlpatterns = [
     path('createotp', views.TOTPCreateView.as_view()),
     path('verifyotp', views.TOTPVerifyView.as_view()),
     path("doctorviewoldsessions", views.DoctorViewOldSessions.as_view()),
+    path('deleteotp', views.TOTPDeleteView.as_view())
 ]

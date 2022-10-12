@@ -1,4 +1,3 @@
-import binascii
 import secrets
 
 from django.db import models
@@ -85,8 +84,21 @@ class UserToken(models.Model):
     def verify(self):
         self.verified = True
         self.save()
-    
 
+class RemoveOTPRequest(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE, primary_key=True)
+    key = models.CharField(max_length=30)
+    time_created = models.DateField(auto_now_add=True)
+    attempts = models.IntegerField()
+
+    @classmethod
+    def create(cls, user):
+        request = cls(
+            user = user,
+            key = secrets.token_hex(8),
+            attempts = 0
+        )
+        return request
 
 class Researcher(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, primary_key=True)
