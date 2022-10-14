@@ -2,3 +2,4 @@
 tutorial-env/
 /secrets.json
 venv/
+backend/migrations/00*.py
