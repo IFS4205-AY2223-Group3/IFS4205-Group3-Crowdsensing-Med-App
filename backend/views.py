@@ -15,10 +15,14 @@ from rest_framework.authtoken.views import ObtainAuthToken
 from backend.models import *
 from backend.serializers import *
 from backend.permissions import *
+from backend.exceptions import *
 from rest_framework.serializers import ValidationError
 
 from django_otp import devices_for_user
 from django_otp.plugins.otp_totp.models import TOTPDevice
+
+import logging
+logger = logging.getLogger(__name__)
 
 
 LOGIN_ERROR_MESSAGE = "Login credentials are incorrect. Please check and try again."
@@ -26,9 +30,15 @@ LOGOUT_ERROR_MESSAGE = "Invalid credentials"
 SUCCESS_MESSAGE = "success"
 ASSIGN_ERROR_MESSAGE = "This examination ID is invalid or the patient has to approve the examination."
 GENERIC_ERROR_MESSAGE = "There was an error, please try again."
-ALREADY_ASSIGNED_ERROR_MESSAGE = "A doctor has been assigned to this examination"
+ALREADY_ASSIGNED_ERROR_MESSAGE = "This examination has been assigned to another doctor"
 SELF_ASSIGN_ERROR_MESSAGE = "You cannot assign yourself as a doctor."
 INVALID_EXAM_ERROR_MESSAGE = "Please check examination details again."
+
+def log_info(data):
+    logger.info(" | ".join(data))
+
+#######################################################################################################################
+# OTP API
 
 def get_user_totp_device(self, user, confirmed=None):
 	devices = devices_for_user(user, confirmed=confirmed)
@@ -41,12 +51,12 @@ class TOTPCreateView(APIView):
     def get(self, request, *args, **kwargs):
         user = request.user
         device = get_user_totp_device(self, user)
-        if not device:
-            device = user.totpdevice_set.create(confirmed=False)
-            return Response({'message':device.config_url}, status=status.HTTP_201_CREATED)
-        elif device.confirmed == False:
+        if not device or device.confirmed == False:
+            log_info(['OTP', user.username, '/createotp', 'Success', 'New device created'])
+            device, _ = user.totpdevice_set.get_or_create(confirmed=False)
             return Response({'message':device.config_url}, status=status.HTTP_201_CREATED)
         else:
+            log_info(['OTP', user.username, '/createotp', 'Failure', 'Device already registered'])
             return Response({'message':'you already have a device registered'}, status=status.HTTP_200_OK)
 
 class TOTPDeleteView(APIView):
@@ -55,7 +65,8 @@ class TOTPDeleteView(APIView):
         user = request.user
         device = get_user_totp_device(self, user, True)
         if device == None:
-            return Response({'message': 'You do not have a registered device.'}, status=status.HTTP_404_NOT_FOUND)
+            log_info(['OTP', user.username, '/deleteotp', 'Failure', 'No confirmed device registered'])
+            raise NoDeviceException()
         try:
             old_request = RemoveOTPRequest.objects.get(user=user)
             old_request.delete()
@@ -79,8 +90,9 @@ class TOTPDeleteView(APIView):
                 fail_silently=False,
             )
         except SMTPAuthenticationError:
-            return Response({'message': 'An error occurred on our end, please try again later.'}, status=status.HTTP_503_SERVICE_UNAVAILABLE)
-
+            log_info(['OTP', user.username, '/deleteotp', 'Failure', 'SMTP error'])
+            raise SMTPException()
+        log_info(['OTP', user.username, '/deleteotp', 'Success', 'Email containing OTP sent'])
         return Response({'message': 'Success, please check your email for a OTP'}, status=status.HTTP_200_OK)
     
     def post(self, request, *args, **kwargs):
@@ -106,9 +118,9 @@ class TOTPDeleteView(APIView):
                     remove_request.save()
                     return Response({'message': 'Invalid OTP, please try again.'}, status=status.HTTP_403_FORBIDDEN)
         except KeyError:
-            return Response({'message': GENERIC_ERROR_MESSAGE}, status=status.HTTP_400_BAD_REQUEST)
+            raise InvalidRequestException()
         except RemoveOTPRequest.DoesNotExist:
-            return Response({'message': GENERIC_ERROR_MESSAGE}, status=status.HTTP_400_BAD_REQUEST)
+            raise InvalidRequestException()
 
 class TOTPVerifyView(APIView):
     permission_classes = [IsAuthenticated]
@@ -119,97 +131,112 @@ class TOTPVerifyView(APIView):
             device = get_user_totp_device(self, user)
             if not device == None and device.verify_token(otp):
                 if not device.confirmed:
+                    log_info(['OTP', user.username, '/verifyotp', 'Success', 'New device and token verified'])
                     device.confirmed = True
                     device.save()
+                else:
+                    log_info(['OTP', user.username, '/verifyotp', 'Success', 'Token verified'])
                 request.auth.verify()
                 return Response({'message': SUCCESS_MESSAGE}, status=status.HTTP_200_OK)
         except KeyError:
-            return Response({'message': 'Invalid'}, status=status.HTTP_400_BAD_REQUEST)
+            raise InvalidRequestException()
+        log_info(['OTP', user.username, '/verifyotp', 'Failure', 'Invalid OTP'])
         return Response({'message': 'Invalid'}, status=status.HTTP_400_BAD_REQUEST)
+
+#######################################################################################################################
+# LOGIN/LOGOUT API
 
 class Login(ObtainAuthToken):
     def post(self, request, *args, **kwargs):
         try:
+            request.data['username'] = str(request.data['username']).lower()
             role = get_role(request.data["role"])
-            serializer = self.serializer_class(
-                data=request.data, context={"request": request}
-            )
-            serializer.is_valid(raise_exception=True)
-            user = serializer.validated_data["user"]
-            role.objects.get(user=user)
+        except KeyError: #missing username / role field
+            raise AlreadyAssignedException()
+        
+        if role is not None:
+            serializer = self.serializer_class(data=request.data, context={"request": request})
             try:
-                token = UserToken.objects.get(user=user)
-                token.delete()
+                serializer.is_valid(raise_exception=True)
+            except ValidationError: #invalid username, password
+                log_info(['User', serializer.data['username'], '/login', 'Failure', 'Invalid username / password'])
+                raise InvalidLoginException()
+            
+            user = serializer.validated_data["user"]
+
+            try:
+                role.objects.get(user=user)
+                UserToken.objects.get(user=user).delete()
+            except role.DoesNotExist:
+                log_info(['User', user.username, '/login', 'Failure', 'No such role for user'])
+                raise InvalidLoginException()
             except UserToken.DoesNotExist:
                 pass
+                
             token = UserToken.objects.create(user=user)
             device = get_user_totp_device(self, user)
-            data = {}
-            data["token"] = token.key
-            data["name"] = user.name
-            data["role"] = request.data["role"]
-            data["hasDevice"] = (device is not None and device.confirmed == True)
-            update_last_login(None, user)
+            data = {
+                "token": token.key,
+                "name": user.name,
+                "role": role.__name__,
+                "hasDevice": (device is not None and device.confirmed == True)
+            }
 
+            update_last_login(None, user)
+            log_info(['User', user.username, '/login', 'Successful'])
             return Response(data, status=status.HTTP_200_OK)
-        except KeyError:
-            return Response(
-                {"message": LOGIN_ERROR_MESSAGE}, status=status.HTTP_403_FORBIDDEN
-            )
-        except role.DoesNotExist:
-            return Response(
-                {"message": LOGIN_ERROR_MESSAGE}, status=status.HTTP_403_FORBIDDEN
-            )
-        except ValidationError:
-            return Response(
-                {"message": LOGIN_ERROR_MESSAGE}, status=status.HTTP_403_FORBIDDEN
-            )
+        raise InvalidLoginException()
 
 
 class Logout(APIView):
     permission_classes = (IsAuthenticated,)
 
     def get(self, request, *args, **kwargs):
+        log_info(['User', request.user.username, '/logout', 'Successful'])
         request.auth.delete()
         return Response({"message": SUCCESS_MESSAGE}, status=status.HTTP_200_OK)
 
+def get_role(user_role):
+    role = user_role.lower()
+    if role == "patient":
+        return Patient
+    if role == "doctor":
+        return Doctor
+    if role == "researcher":
+        return Researcher
+    if role == "medicalstaff":
+        return MedicalStaff
+    return None
 
 #######################################################################################################################
 # DOCTOR API
 
-
 class AssignPendingExam(APIView):
     parser_classes = [JSONParser]
-    permission_classes = (IsAuthenticated, IsVerified, IsDoctor)
+    permission_classes = (IsAuthenticated, IsDoctor)
 
     # assign doctor to a session (done by doctors)
     @csrf_exempt
     def post(self, request):
         try:
+            doctor = Doctor.objects.get(user=request.auth.user)
             exam_id = request.data["examId"]
             assigned_session = PendingExamination.objects.get(exam_id=exam_id)
-            doctor = Doctor.objects.get(user=request.auth.user)
 
             if (
                 assigned_session.doctor is not None
                 and assigned_session.doctor != doctor
             ):
-                return Response(
-                    {"message": ASSIGN_ERROR_MESSAGE},
-                    status=status.HTTP_400_BAD_REQUEST,
-                )
+                log_info(['Doctor', doctor.user.username, '/assigndoctor', 'Failure', 'Doctor already assigned', 'exam_id = ' + exam_id])
+                raise AlreadyAssignedException()
 
             if assigned_session.approved == False:
-                return Response(
-                    {"message": ASSIGN_ERROR_MESSAGE},
-                    status=status.HTTP_400_BAD_REQUEST,
-                )
+                log_info(['Doctor', doctor.user.username, '/assigndoctor', 'Failure', 'Session not approved', 'exam_id = ' + exam_id])
+                raise CannotAssignException()
 
             if assigned_session.patient.user == request.auth.user:
-                return Response(
-                    {"message": SELF_ASSIGN_ERROR_MESSAGE},
-                    status=status.HTTP_400_BAD_REQUEST,
-                )
+                log_info(['Doctor', doctor.user.username, '/assigndoctor', 'Failure', 'Cannot self-assign as patient/doctor', 'exam_id = ' + exam_id])
+                raise CannotAssignException()
 
             assigned_session.doctor = doctor
             assigned_session.save()
@@ -218,21 +245,17 @@ class AssignPendingExam(APIView):
                 "patientName": assigned_session.patient.user.name,
                 "examId": assigned_session.exam_id,
             }
+            log_info(['Doctor', doctor.user.username, '/assigndoctor', 'Success', 'exam_id = ' + exam_id])
             return Response(response, status=status.HTTP_200_OK)
 
         except KeyError:
-            return Response(
-                {"message": GENERIC_ERROR_MESSAGE}, status=status.HTTP_400_BAD_REQUEST
-            )
+            log_info(['Doctor', doctor.user.username, '/assigndoctor', 'Failure', 'Missing data'])
+            raise InvalidRequestException()
         except PendingExamination.DoesNotExist:
-            return Response(
-                {"message": ASSIGN_ERROR_MESSAGE}, status=status.HTTP_400_BAD_REQUEST
-            )
+            log_info(['Doctor', doctor.user.username, '/assigndoctor', 'Failure', 'No such session'])
+            raise CannotAssignException()
         except IntegrityError:
-            return Response(
-                {"message": ALREADY_ASSIGNED_ERROR_MESSAGE},
-                status=status.HTTP_400_BAD_REQUEST,
-            )
+            raise AlreadyAssignedException()
 
 
 class DoctorGetRecords(APIView):
@@ -247,29 +270,26 @@ class DoctorGetRecords(APIView):
             doctor = Doctor.objects.get(user=request.auth.user)
             pendingexam = PendingExamination.objects.get(doctor=doctor)
             patient = pendingexam.patient
-            records = HealthRecord.objects.get(user=patient)
-            exams = Examination.objects.all().filter(patient=patient)
-            serialized_record = PatientRecordsSerializer(records)
             data = {}
-            data["healthRecords"] = serialized_record.data
+            try:
+                records = HealthRecord.objects.get(user=patient)
+                serialized_record = PatientRecordsSerializer(records)
+                data["healthRecords"] = serialized_record.data
+            except HealthRecord.DoesNotExist:
+                data["healthRecords"] = {}
+
+            exams = Examination.objects.all().filter(patient=patient)    
             try:
                 serialized_exams = PatientPastSessionSerializer(exams, many=True)
                 data["examRecords"] = serialized_exams.data
             except PendingExamination.DoesNotExist:
                 data["examRecords"] = {}
+
+            log_info(['Doctor', doctor.user.username, '/doctorviewrecords', 'Successful', 'Retrieved records of patient ' + patient.user.user_id])
             return Response(data, status=status.HTTP_200_OK)
-        except Patient.DoesNotExist:
-            return Response(
-                {"message": GENERIC_ERROR_MESSAGE}, status=status.HTTP_400_BAD_REQUEST
-            )
         except PendingExamination.DoesNotExist:
-            return Response(
-                {"message": GENERIC_ERROR_MESSAGE}, status=status.HTTP_400_BAD_REQUEST
-            )
-        except HealthRecord.DoesNotExist:
-            return Response(
-                {"message": GENERIC_ERROR_MESSAGE}, status=status.HTTP_400_BAD_REQUEST
-            )
+            log_info(['Doctor', doctor.user.username, '/doctorviewrecords', 'Failure', 'Not assigned to a session'])
+            raise NoSessionException()
 
 
 class AddExamination(APIView):
@@ -280,32 +300,30 @@ class AddExamination(APIView):
     @csrf_exempt
     def post(self, request):
         try:
-            data = {}
             doctor = Doctor.objects.get(user=request.auth.user)
             pendingexam = PendingExamination.objects.get(doctor=doctor)
-            data["exam_id"] = pendingexam.exam_id
-            data["doctor"] = pendingexam.doctor
-            data["patient"] = pendingexam.patient
-            data["diagnosis"] = request.data["code"]
-            data["prescription"] = request.data["prescription"]
+            data = {
+                "exam_id" : pendingexam.exam_id,
+                "doctor" : pendingexam.doctor,
+                "patient" : pendingexam.patient,
+                "diagnosis" : request.data["code"],
+                "prescription" : request.data["prescription"]
+            }
             exam = ExaminationSerializer(data=data)
             if exam.is_valid():
                 exam.save()
                 PendingExamination.objects.get(
                     exam_id=exam.validated_data["exam_id"]
                 ).delete()
+                log_info(['Doctor', doctor.user.username, '/submitexamination', 'Success', 'Submitted examination ' + exam.validated_data['exam_id']])
                 return Response({"message": "success"}, status=status.HTTP_200_OK)
-            return Response(
-                {"message": INVALID_EXAM_ERROR_MESSAGE}, status=status.HTTP_400_BAD_REQUEST
-            )
+            log_info(['Doctor', doctor.user.username, '/submitexamination', 'Failure', 'Invalid data submitted'])
+            raise InvalidExamException()
         except PendingExamination.DoesNotExist:
-            return Response(
-                {"message": GENERIC_ERROR_MESSAGE}, status=status.HTTP_400_BAD_REQUEST
-            )
+            log_info(['Doctor', doctor.user.username, '/submitexamination', 'Failure', 'Not assigned to a session'])
+            raise NoSessionException()
         except KeyError:
-            return Response(
-                {"message": GENERIC_ERROR_MESSAGE}, status=status.HTTP_400_BAD_REQUEST
-            )
+            raise InvalidRequestException()
 
 class DoctorViewOldSessions(APIView):
     parser_classes = [JSONParser]
@@ -322,6 +340,7 @@ class DoctorViewOldSessions(APIView):
             ).data
         except Examination.DoesNotExist:
             data["examRecords"] = {}
+        log_info(['Doctor', request.user.username, '/doctorviewoldsessions', 'Success'])
         return Response(data, status=status.HTTP_200_OK)
 
 
@@ -423,19 +442,6 @@ def get_patient_object(user):
     except ObjectDoesNotExist:
         return Patient.objects.none()
     return patient_obj
-
-
-def get_role(user_role):
-    role = user_role.lower()
-    if role == "patient":
-        return Patient
-    if role == "doctor":
-        return Doctor
-    if role == "researcher":
-        return Researcher
-    if role == "medicalstaff":
-        return MedicalStaff
-
 
 #######################################################################################################################
 # IOT API

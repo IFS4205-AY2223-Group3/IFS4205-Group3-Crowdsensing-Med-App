@@ -3,3 +3,4 @@ tutorial-env/
 /secrets.json
 venv/
 backend/migrations/*
+backend.log
