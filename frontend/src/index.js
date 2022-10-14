@@ -1,9 +1,16 @@
 import React from "react";
-import { AuthProvider, RequireAuth, RequireExam } from "./context/AuthProvider";
+import {
+  AuthProvider,
+  RequireAuth,
+  RequireExam,
+  RequireInitAuth,
+} from "./context/AuthProvider";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { createRoot } from "react-dom/client";
 import "./index.css";
-import Login from "./Login/Login";
+import Login_Home from "./Login/Login_Home";
+import Login_CreateAuth from "./Login/Login_CreateAuth";
+import Login_OTP from "./Login/Login_OTP";
 import Patient_Home from "./Patient-Dashboard/Patient_Home";
 import Patient_Records from "./Patient-Dashboard/Patient_Records";
 import Patient_Session from "./Patient-Dashboard/Patient_Session";
@@ -20,8 +27,25 @@ root.render(
     <AuthProvider>
       <BrowserRouter>
         <Routes>
-          <Route index element={<Login />} />
-          <Route path="login" element={<Login />} />
+          <Route index element={<Login_Home />} />
+          <Route path="login" element={<Login_Home />} />
+          <Route
+            path="createauth"
+            element={
+              <RequireInitAuth>
+                <Login_CreateAuth />
+              </RequireInitAuth>
+            }
+          />
+          <Route
+            path="verifyotp"
+            element={
+              <RequireInitAuth>
+                <Login_OTP />{" "}
+              </RequireInitAuth>
+            }
+          />
+
           <Route
             path="patient"
             element={
