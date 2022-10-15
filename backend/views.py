@@ -8,7 +8,6 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.parsers import JSONParser
 from rest_framework.permissions import IsAuthenticated
-from rest_framework.authtoken.models import Token
 from rest_framework.authtoken.views import ObtainAuthToken
 
 from backend.models import *
@@ -33,11 +32,10 @@ INVALID_EXAM_ERROR_MESSAGE = "Please check examination details again."
 
 
 def get_user_totp_device(self, user, confirmed=None):
-    devices = devices_for_user(user, confirmed=confirmed)
-    for device in devices:
-        if isinstance(device, TOTPDevice):
-            return device
-
+	devices = devices_for_user(user, confirmed=None)
+	for device in devices:
+		if isinstance(device, TOTPDevice):
+			return device
 
 class TOTPCreateView(APIView):
     permission_classes = [IsAuthenticated]
@@ -47,9 +45,11 @@ class TOTPCreateView(APIView):
         device = get_user_totp_device(self, user)
         if not device:
             device = user.totpdevice_set.create(confirmed=False)
-        url = device.config_url
-        return Response({"message": url}, status=status.HTTP_201_CREATED)
-
+            return Response({'message':device.config_url}, status=status.HTTP_201_CREATED)
+        elif device.confirmed == False:
+            return Response({'message':device.config_url}, status=status.HTTP_201_CREATED)
+        else:
+            return Response({'message':'you already have a device registered'}, status=status.HTTP_200_OK)
 
 class TOTPVerifyView(APIView):
     permission_classes = [IsAuthenticated]
@@ -86,10 +86,12 @@ class Login(ObtainAuthToken):
             except UserToken.DoesNotExist:
                 pass
             token = UserToken.objects.create(user=user)
+            device = get_user_totp_device(self, user)
             data = {}
             data["token"] = token.key
             data["name"] = user.name
             data["role"] = request.data["role"]
+            data["hasDevice"] = (device is not None and device.confirmed == True)
             update_last_login(None, user)
 
             return Response(data, status=status.HTTP_200_OK)
@@ -402,9 +404,9 @@ class CrowdView(APIView):
     def get(self, request):
         try:
             crowd = Crowd.objects.latest("time_recorded")
-            serialized_data = CrowdSerializer(crowd)
+            serializer = CrowdDataSerializer(crowd)
         except Crowd.DoesNotExist:
             return Response(
                 {"message": GENERIC_ERROR_MESSAGE}, status=status.HTTP_400_BAD_REQUEST
             )
-        return Response({"count": serialized_data.data}, status=status.HTTP_200_OK)
+        return Response({"count":serializer.data}, status=status.HTTP_200_OK)

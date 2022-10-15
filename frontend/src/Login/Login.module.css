@@ -1,7 +1,7 @@
 @import url('https://fonts.googleapis.com/css2?family=Nunito&display=swap');
 
 .container {
-    height:100vh;
+    height:88vh;
     width:100vw;
     display:flex;
     justify-content: center;
@@ -42,13 +42,19 @@ button {
 
 button {
   padding: 0.5rem;
-  background-color: rgb(46, 102, 148);
+  background-color: rgb(42, 130, 203);
     
 }
 
 button:hover{
     background-color: rgb(110, 170, 219);
 
+}
+
+.qrCode{
+    display: block;
+    margin-left: auto;
+    margin-right: auto 
 }
 
 .instructions {
