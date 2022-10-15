@@ -75,7 +75,7 @@ MIDDLEWARE = [
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
-    'django_otp.middleware.OTPMiddleware',
+    "django_otp.middleware.OTPMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
@@ -105,16 +105,16 @@ WSGI_APPLICATION = "ifs4205project.wsgi.application"
 # https://docs.djangoproject.com/en/4.1/ref/settings/#databases
 
 DATABASES = {
-	'default': {
-		'ENGINE': 'django.db.backends.postgresql',
-		'HOST': get_secret('HOST'),
-		'NAME': get_secret('NAME'),
-		'USER': get_secret('USER'),
-		'PASSWORD': get_secret('PASSWORD'),
-		'OPTIONS': {
-			'sslmode':'require',
-		},
-	}
+    "default": {
+        "ENGINE": "django.db.backends.postgresql",
+        "HOST": get_secret("HOST"),
+        "NAME": get_secret("NAME"),
+        "USER": get_secret("USER"),
+        "PASSWORD": get_secret("PASSWORD"),
+        "OPTIONS": {
+            "sslmode": "require",
+        },
+    }
 }
 
 REST_FRAMEWORK = {
