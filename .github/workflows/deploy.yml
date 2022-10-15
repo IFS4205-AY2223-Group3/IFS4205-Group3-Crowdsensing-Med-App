@@ -15,15 +15,16 @@ jobs:
           known_hosts: 'unnecessary'
 
       - name: Adding Known Hosts
-        run: ssh-keyscan -p ${{ secrets.SSH_PORT}} -H ${{ secrets.SSH_HOST_BACKEND }}  >> ~/.ssh/known_hosts
+        run: ssh-keyscan -p ${{ secrets.SSH_PORT}} -H ${{ secrets.SSH_HOST }}  >> ~/.ssh/known_hosts
 
       - name: Restart Apache Server
         uses: appleboy/ssh-action@master
         with:
-          host: ${{ secrets.SSH_HOST_BACKEND }}
+          host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           port: ${{ secrets.SSH_PORT }}
           script: |
+            ssh backend
             cd /home/sadm/Backend/IFS4205-Group3-Crowdsensing-Med-App/
             touch test.txt
