@@ -12,6 +12,7 @@ class IsDoctor(permissions.BasePermission):
         except Doctor.DoesNotExist:
             return False
 
+
 class IsVerified(permissions.BasePermission):
     message = "OTP not verified!"
 
