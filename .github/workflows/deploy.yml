@@ -24,6 +24,4 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           port: ${{ secrets.SSH_PORT }}
           script: |
-            ssh backend
-            cd /home/sadm/Backend/IFS4205-Group3-Crowdsensing-Med-App/
-            touch test.txt
+            whoami
