@@ -7,9 +7,10 @@ repos:
     -   id: trailing-whitespace
 
 -   repo: https://github.com/psf/black
-    rev: 21.12b0
+    rev: 22.3.0
     hooks:
     -   id: black
+        language_version: python3.9
 
 -   repo: https://github.com/pycqa/flake8
     rev: '3.7.9'  # pick a git hash / tag to point to
