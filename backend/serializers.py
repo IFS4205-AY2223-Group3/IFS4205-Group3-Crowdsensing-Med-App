@@ -38,6 +38,7 @@ class PatientPastSessionSerializer(serializers.ModelSerializer):
         model = Examination
         fields = ["exam_id", "doctor", "diagnosis", "prescription", "examtime"]
 
+
 class DoctorPastSessionSerializer(serializers.ModelSerializer):
     patient = serializers.CharField(source="patient.user.name")
     diagnosis = serializers.CharField(source="diagnosis.description")
