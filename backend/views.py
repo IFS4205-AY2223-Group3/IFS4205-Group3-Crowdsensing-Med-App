@@ -22,11 +22,14 @@ from django_otp.plugins.otp_totp.models import TOTPDevice
 LOGIN_ERROR_MESSAGE = "Login credentials are incorrect. Please check and try again."
 LOGOUT_ERROR_MESSAGE = "Invalid credentials"
 SUCCESS_MESSAGE = "success"
-ASSIGN_ERROR_MESSAGE = "This examination ID is invalid or the patient has to approve the examination."
+ASSIGN_ERROR_MESSAGE = (
+    "This examination ID is invalid or the patient has to approve the examination."
+)
 GENERIC_ERROR_MESSAGE = "There was an error, please try again."
 ALREADY_ASSIGNED_ERROR_MESSAGE = "A doctor has been assigned to this examination"
 SELF_ASSIGN_ERROR_MESSAGE = "You cannot assign yourself as a doctor."
 INVALID_EXAM_ERROR_MESSAGE = "Please check examination details again."
+
 
 def get_user_totp_device(self, user, confirmed=None):
 	devices = devices_for_user(user, confirmed=None)
@@ -36,6 +39,7 @@ def get_user_totp_device(self, user, confirmed=None):
 
 class TOTPCreateView(APIView):
     permission_classes = [IsAuthenticated]
+
     def get(self, request, *args, **kwargs):
         user = request.user
         device = get_user_totp_device(self, user)
@@ -49,9 +53,10 @@ class TOTPCreateView(APIView):
 
 class TOTPVerifyView(APIView):
     permission_classes = [IsAuthenticated]
+
     def post(self, request, *args, **kwargs):
         try:
-            otp = request.data['otp']
+            otp = request.data["otp"]
             user = request.user
             device = get_user_totp_device(self, user)
             if not device == None and device.verify_token(otp):
@@ -59,10 +64,11 @@ class TOTPVerifyView(APIView):
                     device.confirmed = True
                     device.save()
                 request.auth.verify()
-                return Response({'message': SUCCESS_MESSAGE}, status=status.HTTP_200_OK)
+                return Response({"message": SUCCESS_MESSAGE}, status=status.HTTP_200_OK)
         except KeyError:
-            return Response({'message': 'Invalid'}, status=status.HTTP_400_BAD_REQUEST)
-        return Response({'message': 'Invalid'}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({"message": "Invalid"}, status=status.HTTP_400_BAD_REQUEST)
+        return Response({"message": "Invalid"}, status=status.HTTP_400_BAD_REQUEST)
+
 
 class Login(ObtainAuthToken):
     def post(self, request, *args, **kwargs):
@@ -233,7 +239,8 @@ class AddExamination(APIView):
                 ).delete()
                 return Response({"message": "success"}, status=status.HTTP_200_OK)
             return Response(
-                {"message": INVALID_EXAM_ERROR_MESSAGE}, status=status.HTTP_400_BAD_REQUEST
+                {"message": INVALID_EXAM_ERROR_MESSAGE},
+                status=status.HTTP_400_BAD_REQUEST,
             )
         except PendingExamination.DoesNotExist:
             return Response(
@@ -243,6 +250,7 @@ class AddExamination(APIView):
             return Response(
                 {"message": GENERIC_ERROR_MESSAGE}, status=status.HTTP_400_BAD_REQUEST
             )
+
 
 class DoctorViewOldSessions(APIView):
     parser_classes = [JSONParser]
