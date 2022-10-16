@@ -10,6 +10,7 @@ from django.contrib.auth.models import (
 from django.utils.crypto import get_random_string
 from django.utils.translation import gettext_lazy as _
 
+
 class CustomAccountManager(BaseUserManager):
     def create_user(self, username, email, password, **other_fields):
         if not email:
@@ -56,13 +57,11 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     objects = CustomAccountManager()
 
+
 class UserToken(models.Model):
     key = models.CharField(("Key"), max_length=40, primary_key=True)
 
-    user = models.OneToOneField(
-        User,
-        on_delete=models.CASCADE, verbose_name="User"
-    )
+    user = models.OneToOneField(User, on_delete=models.CASCADE, verbose_name="User")
     created = models.DateTimeField(_("Created"), auto_now_add=True)
     verified = models.BooleanField()
 
@@ -82,10 +81,10 @@ class UserToken(models.Model):
 
     def generate_key(self):
         return secrets.token_hex(20)
-    
+
     def __str__(self):
         return self.key
-    
+
     def verify(self):
         self.verified = True
         self.save()
