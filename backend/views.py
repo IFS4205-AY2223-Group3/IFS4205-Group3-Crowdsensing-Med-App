@@ -28,7 +28,9 @@ logger = logging.getLogger(__name__)
 LOGIN_ERROR_MESSAGE = "Login credentials are incorrect. Please check and try again."
 LOGOUT_ERROR_MESSAGE = "Invalid credentials"
 SUCCESS_MESSAGE = "success"
-ASSIGN_ERROR_MESSAGE = "This examination ID is invalid or the patient has to approve the examination."
+ASSIGN_ERROR_MESSAGE = (
+    "This examination ID is invalid or the patient has to approve the examination."
+)
 GENERIC_ERROR_MESSAGE = "There was an error, please try again."
 ALREADY_ASSIGNED_ERROR_MESSAGE = "This examination has been assigned to another doctor"
 SELF_ASSIGN_ERROR_MESSAGE = "You cannot assign yourself as a doctor."
@@ -48,6 +50,7 @@ def get_user_totp_device(self, user, confirmed=None):
 
 class TOTPCreateView(APIView):
     permission_classes = [IsAuthenticated]
+
     def get(self, request, *args, **kwargs):
         user = request.user
         device = get_user_totp_device(self, user)
@@ -124,9 +127,10 @@ class TOTPDeleteView(APIView):
 
 class TOTPVerifyView(APIView):
     permission_classes = [IsAuthenticated]
+
     def post(self, request, *args, **kwargs):
         try:
-            otp = request.data['otp']
+            otp = request.data["otp"]
             user = request.user
             device = get_user_totp_device(self, user)
             if not device == None and device.verify_token(otp):
@@ -137,7 +141,7 @@ class TOTPVerifyView(APIView):
                 else:
                     log_info(['OTP', user.username, '/verifyotp', 'Success', 'Token verified'])
                 request.auth.verify()
-                return Response({'message': SUCCESS_MESSAGE}, status=status.HTTP_200_OK)
+                return Response({"message": SUCCESS_MESSAGE}, status=status.HTTP_200_OK)
         except KeyError:
             raise InvalidRequestException()
         log_info(['OTP', user.username, '/verifyotp', 'Failure', 'Invalid OTP'])
@@ -324,6 +328,7 @@ class AddExamination(APIView):
             raise NoSessionException()
         except KeyError:
             raise InvalidRequestException()
+
 
 class DoctorViewOldSessions(APIView):
     parser_classes = [JSONParser]
