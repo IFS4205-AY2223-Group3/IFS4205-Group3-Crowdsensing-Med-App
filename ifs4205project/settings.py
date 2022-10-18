@@ -126,6 +126,7 @@ REST_FRAMEWORK = {
     ],
     "EXCEPTION_HANDLER": "backend.exceptions.custom_handler",
     "DATETIME_FORMAT": "%a %b %d %Y %H:%M:%S",
+    'TEST_REQUEST_DEFAULT_FORMAT': 'json',
 }
 
 # Password validation
@@ -146,6 +147,32 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters':{
+        'verbose':{
+            'format': '[{levelname}] [{asctime}] {message}',
+            'style': '{',
+        }
+    },
+    'handlers': {
+        'file': {
+            'level': 'INFO',
+            'class':'logging.FileHandler',
+            'filename':'backend.log',
+            'formatter':'verbose'
+        },
+    },
+    'loggers': {
+        'backend': {
+            'handlers': ['file'],
+            'level': 'INFO',
+            'propagate': True,
+        },
+    },
+}
+
 
 # Internationalization
 # https://docs.djangoproject.com/en/4.1/topics/i18n/
@@ -158,6 +185,13 @@ USE_I18N = True
 
 USE_TZ = True
 
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST ='smtp.office365.com'
+EMAIL_PORT = 587
+EMAIL_HOST_USER = get_secret('EMAIL_HOST_USER')
+DEFAULT_FROM_EMAIL = get_secret('EMAIL_HOST_USER')
+EMAIL_HOST_PASSWORD = get_secret('EMAIL_HOST_PASSWORD')
+EMAIL_USE_TLS = True
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.1/howto/static-files/

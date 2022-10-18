@@ -1,5 +1,5 @@
-import binascii
 import secrets
+from unittest.util import _MAX_LENGTH
 
 from django.db import models
 from django.contrib.auth.models import (
@@ -47,8 +47,12 @@ class User(AbstractBaseUser, PermissionsMixin):
     REQUIRED_FIELDS = ("email",)
 
     def save(self, *args, **kwargs):
+        self.username = str(self.username).lower()
         if not self.user_id:
-            self.user_id = get_random_string(16)
+            id = secrets.token_hex(8)
+            while User.objects.filter(user_id=id).count() > 0:
+                id = secrets.token_hex(8) 
+            self.user_id = id
         super().save(*args, **kwargs)
 
     objects = CustomAccountManager()
@@ -85,6 +89,20 @@ class UserToken(models.Model):
         self.verified = True
         self.save()
 
+class RemoveOTPRequest(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE, primary_key=True)
+    key = models.CharField(max_length=30)
+    time_created = models.DateField(auto_now_add=True)
+    attempts = models.IntegerField()
+
+    @classmethod
+    def create(cls, user):
+        request = cls(
+            user = user,
+            key = secrets.token_hex(8),
+            attempts = 0
+        )
+        return request
 
 class Researcher(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, primary_key=True)
@@ -105,10 +123,12 @@ class MedicalStaff(models.Model):
 class HealthRecord(models.Model):
     user = models.OneToOneField(Patient, on_delete=models.CASCADE, primary_key=True)
     dateofbirth = models.DateField()
-    height = models.IntegerField()
-    weight = models.IntegerField()
+    height = models.DecimalField(max_digits=5,decimal_places=1)
+    weight = models.DecimalField(max_digits=5,decimal_places=1)
     bloodtype = models.CharField(max_length=3)
     allergies = models.CharField(max_length=50)
+    zipcode = models.CharField(max_length=6)
+    address = models.CharField(max_length=100)
 
 
 class Diagnosis(models.Model):
