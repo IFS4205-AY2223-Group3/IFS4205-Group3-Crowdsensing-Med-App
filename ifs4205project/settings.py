@@ -160,7 +160,7 @@ LOGGING = {
         'file': {
             'level': 'INFO',
             'class':'logging.FileHandler',
-            'filename':'backend.log',
+            'filename': os.path.join(BASE_DIR, 'backend.log'),
             'formatter':'verbose'
         },
     },
