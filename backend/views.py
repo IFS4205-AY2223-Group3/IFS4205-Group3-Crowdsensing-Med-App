@@ -267,7 +267,6 @@ class DoctorGetRecords(APIView):
     permission_classes = (IsAuthenticated, IsDoctor)
 
     # get examinations (done by doctors)
-    @csrf_exempt
     def get(self, request):
         try:
             # check if doctor is assigned to patient
@@ -301,7 +300,6 @@ class AddExamination(APIView):
     permission_classes = (IsAuthenticated, IsDoctor)
 
     # store new examination result (done by doctors)
-    @csrf_exempt
     def post(self, request):
         try:
             doctor = Doctor.objects.get(user=request.auth.user)
@@ -334,7 +332,6 @@ class DoctorViewOldSessions(APIView):
     parser_classes = [JSONParser]
     permission_classes = (IsAuthenticated, IsDoctor)
 
-    @csrf_exempt
     def get(self, request):
         data = {}
         doctor_object = Doctor.objects.get(user=request.auth.user)
@@ -357,7 +354,6 @@ class CreateSession(APIView):
     parser_classes = [JSONParser]
     permission_classes = (IsAuthenticated,)
 
-    @csrf_exempt
     def get(self, request):
         user_obj = request.auth.user
         patient_obj = get_patient_object(user_obj)
@@ -387,7 +383,6 @@ class PatientViewRecords(APIView):
     parser_classes = [JSONParser]
     permission_classes = (IsAuthenticated, IsVerified)
 
-    @csrf_exempt
     def get(self, request):
         user_obj = request.auth.user
         patient_obj = get_patient_object(user_obj)
@@ -416,7 +411,6 @@ class AllowSession(APIView):
     parser_classes = [JSONParser]
     permission_classes = (IsAuthenticated,)
 
-    @csrf_exempt
     def post(self, request):
         user_obj = request.auth.user
         patient_obj = get_patient_object(user_obj)
@@ -451,11 +445,9 @@ def get_patient_object(user):
 #######################################################################################################################
 # IOT API
 
-
 class CrowdView(APIView):
     parser_classes = [JSONParser]
 
-    @csrf_exempt
     def post(self, request):
         serialized_data = CrowdSerializer(data=request.data)
         if serialized_data.is_valid():
@@ -466,7 +458,6 @@ class CrowdView(APIView):
                 {"message": GENERIC_ERROR_MESSAGE}, status=status.HTTP_400_BAD_REQUEST
             )
 
-    @csrf_exempt
     def get(self, request):
         try:
             crowd = Crowd.objects.latest("time_recorded")
@@ -476,3 +467,24 @@ class CrowdView(APIView):
                 {"message": GENERIC_ERROR_MESSAGE}, status=status.HTTP_400_BAD_REQUEST
             )
         return Response({"count":serializer.data}, status=status.HTTP_200_OK)
+
+#######################################################################################################################
+# RESEARCHER API
+
+class ResearcherView(APIView):
+    permission_classes = (IsAuthenticated, IsResearcher)
+
+    def get(self, request):
+        serializer = DiagnosisSerializer(Diagnosis.objects.all(), many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    def post(self, request):
+        try:
+            code = request.data['code']
+            Diagnosis.objects.get(code=code)
+        except (KeyError, Diagnosis.DoesNotExist) as e:
+            return InvalidRequestException()
+        
+        records = AnonymizedRecord.objects.filter(diagnosis=code)
+        serializer = AnonymizedRecordSerializer(records, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
