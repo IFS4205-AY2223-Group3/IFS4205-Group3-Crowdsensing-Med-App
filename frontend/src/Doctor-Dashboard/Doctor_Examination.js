@@ -129,7 +129,7 @@ function DashboardContent() {
   };
 
   const handleSetting = async () => {
-    navigate("/login");
+    navigate("/doctorsetting");
   };
 
   return (

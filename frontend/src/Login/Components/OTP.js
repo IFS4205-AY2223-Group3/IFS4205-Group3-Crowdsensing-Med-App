@@ -34,13 +34,13 @@ export default function OTP() {
       .then((response) => {
         const role = sessionStorage.getItem("userRole");
         sessionStorage.setItem("isVerified", true);
-        if (role === "patient") {
+        if (role === "Patient") {
           navigate("/patient");
-        } else if (role === "doctor") {
+        } else if (role === "Doctor") {
           navigate("/doctor");
-        } else if (role === "researcher") {
+        } else if (role === "Researcher") {
           navigate("/researcher");
-        } else if (role === "staff") {
+        } else if (role === "Staff") {
           navigate("/staff");
         } else {
           navigate("");
