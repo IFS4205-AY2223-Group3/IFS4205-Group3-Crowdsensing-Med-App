@@ -27,6 +27,8 @@ export const LOGIN_OTP_URL =
   "http://ifs4205-group3-backend-i.comp.nus.edu.sg/verifyotp";
 export const LOGOUT_URL =
   "http://ifs4205-group3-backend-i.comp.nus.edu.sg/logout";
+export const CHANGE_OTP_URL =
+  "http://ifs4205-group3-backend-i.comp.nus.edu.sg/deleteotp";
 export const GENERATE_SESSION_URL =
   "http://ifs4205-group3-backend-i.comp.nus.edu.sg/generatesession";
 export const ALLOWS_SESSION_URL =
