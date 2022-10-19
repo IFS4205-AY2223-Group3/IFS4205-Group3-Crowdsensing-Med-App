@@ -57,3 +57,13 @@ class CrowdDataSerializer(serializers.ModelSerializer):
     class Meta:
         model = Crowd
         fields = ["time_recorded","count"]
+
+class DiagnosisSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Diagnosis
+        fields = ["code", "description"]
+
+class AnonymizedRecordSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = AnonymizedRecord
+        fields = ["diagnosis", "sex", "race", "zipcode", "age_range", "height_range", "weight_range", "allergies"]
