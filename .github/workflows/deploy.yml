@@ -10,23 +10,21 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      - name: SSH actions
-        run: |
-          mkdir -p ~/.ssh/
-          echo "$SSH_KEY" > ~/.ssh/github
-          chmod 600 ~/.ssh/github
-          ssh-keyscan -H ${{ secrets.SSH_HOST }} >> ~/.ssh/known_hosts
-          cat >>~/.ssh/config <<END
-          Host github
+      - name: Install SSH key
+        uses: shimataro/ssh-key-action@v2
+        with:
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          known_hosts: ${{ secrets.SSH_HOST }}
+          config: |
+            Host github
             HostName $SSH_HOST
             User $SSH_USER
             IdentityFile ~/.ssh/github
             StrictHostKeyChecking no
-          END
         env:
           SSH_USER: ${{ secrets.SSH_USER }}
           SSH_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
           SSH_HOST: ${{ secrets.SSH_HOST }}
 
-      - name: Stop the server
+      - name: Test
         run: ssh github 'whoami'
