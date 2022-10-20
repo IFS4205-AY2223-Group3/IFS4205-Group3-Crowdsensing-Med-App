@@ -13,8 +13,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-          with:
-            fetch-depth: 0 #get fuller history
+        with:
+          fetch-depth: 0 #get fuller history
           
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v3
