@@ -1,6 +1,7 @@
 from rest_framework.views import exception_handler
 from rest_framework.exceptions import APIException
 
+
 def custom_handler(exc, context):
     response = exception_handler(exc, context)
 
@@ -16,42 +17,50 @@ def custom_handler(exc, context):
         del response.data["detail"]
     return response
 
+
 class InvalidLoginException(APIException):
-    status_code = '403'
-    default_detail = 'Login failed. Invalid username, password or role'
-    default_code = 'login_failed'
+    status_code = "403"
+    default_detail = "Login failed. Invalid username, password or role"
+    default_code = "login_failed"
+
 
 class InvalidRequestException(APIException):
-    status_code = '400'
-    default_detail = 'The request is invalid.'
-    default_code = 'invalid_request'
+    status_code = "400"
+    default_detail = "The request is invalid."
+    default_code = "invalid_request"
+
 
 class CannotAssignException(APIException):
-    status_code = '400'
-    default_detail = 'Assignment failed. Please ensure that the exam ID is correct and patient has approved the exam'
-    default_code = 'assignment_failed'
+    status_code = "400"
+    default_detail = "Assignment failed. Please ensure that the exam ID is correct and patient has approved the exam"
+    default_code = "assignment_failed"
+
 
 class AlreadyAssignedException(APIException):
-    status_code = '400'
-    default_detail = 'Assignment failed. The exam has already been assigned'
-    default_code = 'already_assigned'
+    status_code = "400"
+    default_detail = "Assignment failed. The exam has already been assigned"
+    default_code = "already_assigned"
+
 
 class SMTPException(APIException):
-    status_code = '503'
-    default_detail = 'An error occurred on our end, please try again later.'
-    default_code = 'backend_error'
+    status_code = "503"
+    default_detail = "An error occurred on our end, please try again later."
+    default_code = "backend_error"
+
 
 class NoDeviceException(APIException):
-    status_code = '404'
-    default_detail = 'You do not have a registered device.'
-    default_code = 'no_device'
+    status_code = "404"
+    default_detail = "You do not have a registered device."
+    default_code = "no_device"
+
 
 class NoSessionException(APIException):
-    status_code = '404'
-    default_detail = 'You have no assigned session.'
-    default_code = 'no_session'
+    status_code = "404"
+    default_detail = "You have no assigned session."
+    default_code = "no_session"
+
 
 class InvalidExamException(APIException):
-    status_code = '400'
-    default_detail = 'Submission failed. Please check examination details again.'
-    default_code = 'invalid_exam_submission'
+    status_code = "400"
+    default_detail = "Submission failed. Please check examination details again."
+    default_code = "invalid_exam_submission"
