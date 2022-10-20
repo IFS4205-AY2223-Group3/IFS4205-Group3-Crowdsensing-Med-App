@@ -13,7 +13,7 @@ jobs:
       - name: Restart Apache Server
         run: |
           mkdir -p ~/.ssh/
-          echo "$SSH_PRIVATE_KEY" > ~/.ssh/github
+          echo "$SSH_KEY" > ~/.ssh/github
           chmod 600 ~/.ssh/github
           cat >>~/.ssh/config <<END
           Host github
