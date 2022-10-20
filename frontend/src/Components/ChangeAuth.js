@@ -29,7 +29,7 @@ export default function ChangeAuth() {
       )
       .then((response) => {
         setPopMsg(
-          "Deviced Successfully Removed. Relogin to set a new Authenticator"
+          "Device Successfully Removed. Relogin to set a new Authenticator"
         );
         setIsPopUp(true);
       })
