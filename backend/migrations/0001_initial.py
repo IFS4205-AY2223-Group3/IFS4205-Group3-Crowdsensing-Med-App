@@ -9,9 +9,7 @@ class Migration(migrations.Migration):
 
     initial = True
 
-    dependencies = [
-        ("auth", "0012_alter_user_first_name_max_length"),
-    ]
+    dependencies = [("auth", "0012_alter_user_first_name_max_length")]
 
     operations = [
         migrations.CreateModel(
@@ -65,9 +63,7 @@ class Migration(migrations.Migration):
                     ),
                 ),
             ],
-            options={
-                "abstract": False,
-            },
+            options={"abstract": False},
         ),
         migrations.CreateModel(
             name="Crowd",
@@ -106,7 +102,7 @@ class Migration(migrations.Migration):
                         serialize=False,
                         to=settings.AUTH_USER_MODEL,
                     ),
-                ),
+                )
             ],
         ),
         migrations.CreateModel(
@@ -120,7 +116,7 @@ class Migration(migrations.Migration):
                         serialize=False,
                         to=settings.AUTH_USER_MODEL,
                     ),
-                ),
+                )
             ],
         ),
         migrations.CreateModel(
@@ -134,7 +130,7 @@ class Migration(migrations.Migration):
                         serialize=False,
                         to=settings.AUTH_USER_MODEL,
                     ),
-                ),
+                )
             ],
         ),
         migrations.CreateModel(
@@ -148,7 +144,7 @@ class Migration(migrations.Migration):
                         serialize=False,
                         to=settings.AUTH_USER_MODEL,
                     ),
-                ),
+                )
             ],
         ),
         migrations.CreateModel(
