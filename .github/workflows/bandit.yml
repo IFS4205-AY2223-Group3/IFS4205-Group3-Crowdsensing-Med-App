@@ -9,8 +9,11 @@ on:
       - created
 
 jobs:
-  bandit:
-  uses: jpetrucciani/bandit-check@master
-    with:
-      path: '.'
+  build:
+
+    runs-on: ubuntu-latest
+    steps:
+    - uses: jpetrucciani/bandit-check@master
+      with:
+        path: '.'
 
