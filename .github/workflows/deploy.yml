@@ -10,11 +10,12 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      - name: Restart Apache Server
+      - name: SSH actions
         run: |
           mkdir -p ~/.ssh/
           echo "$SSH_KEY" > ~/.ssh/github
           chmod 600 ~/.ssh/github
+          ssh-keyscan -H ${{ secrets.SSH_HOST }} >> ~/.ssh/known_hosts
           cat >>~/.ssh/config <<END
           Host github
             HostName $SSH_HOST
