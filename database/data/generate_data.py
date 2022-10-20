@@ -31,15 +31,21 @@ list_staff = []
 def generate_password():
     pw = os.urandom(12)
     salt = os.urandom(18)
-    key = pbkdf2_hmac('sha256', pw, salt, 390000)
-    return 'pbkdf2_sha256$390000$' + base64.b64encode(salt).decode() + '$' + base64.b64encode(key).decode()
+    key = pbkdf2_hmac("sha256", pw, salt, 390000)
+    return (
+        "pbkdf2_sha256$390000$"
+        + base64.b64encode(salt).decode()
+        + "$"
+        + base64.b64encode(key).decode()
+    )
+
 
 # Function generates a unique identifier
 def generate_uid():
     uid = secrets.token_hex(8)
     while uid in list_uid:
         uid = secrets.token_hex(8)
-    list_uid.append(uid) 
+    list_uid.append(uid)
     return uid
 
 
@@ -53,16 +59,16 @@ def generate_username():
 def generate_nric():
     foo = ["S", "T"]
     first_letter = random.choice(foo)
-    if first_letter == 'S':
-        birth_year = randint(68,99)
-        
-    else:
-        birth_year = randint(00,15)
+    if first_letter == "S":
+        birth_year = randint(68, 99)
 
-    last_five = randint(00000,99999)
-    
+    else:
+        birth_year = randint(00, 15)
+
+    last_five = randint(00000, 99999)
+
     last_letter = random.choice(string.ascii_uppercase)
-    nric = first_letter + f'{birth_year:02d}' + f'{last_five:05d}' + last_letter
+    nric = first_letter + f"{birth_year:02d}" + f"{last_five:05d}" + last_letter
     return nric
 
 
@@ -70,6 +76,7 @@ def generate_nric():
 def generate_contact():
     contact = randint(80000000, 99999999)
     return contact
+
 
 # Function generates a random email domain string
 def generate_domain():
@@ -88,6 +95,7 @@ def generate_dob():
     random_number_of_days = random.randrange(days_between_dates)
     random_date = start_date + datetime.timedelta(days=random_number_of_days)
     return random_date
+
 
 # Function generates random height
 def generate_height():
@@ -109,26 +117,37 @@ def generate_bloodtype():
     random_bt = random.choice(bloodtype)
     return random_bt
 
+
 def generate_address():
-    sector = randint(1,80)
-    delivery = randint(0,9999)
-    
+    sector = randint(1, 80)
+    delivery = randint(0, 9999)
+
     addr = fake.street_address()
-    return addr, f'{sector:02d}' + f'{delivery:04d}'
+    return addr, f"{sector:02d}" + f"{delivery:04d}"
+
 
 def generate_allergies():
-    types = ['Eggs', 'Milk and Dairy', 'Peanuts', 'Tree nuts', 'Fish', 'Shellfish', 'Wheat', 'Soy', 'Sesame']
-    b = randint(0,15)
+    types = [
+        "Eggs",
+        "Milk and Dairy",
+        "Peanuts",
+        "Tree nuts",
+        "Fish",
+        "Shellfish",
+        "Wheat",
+        "Soy",
+        "Sesame",
+    ]
+    b = randint(0, 15)
 
     if b <= 12:
-        return 'None'
+        return "None"
     else:
         return random.choice(types)
-    
 
 
 # Generate medicalapp_users
-with open("medicalapp_users.csv", mode="w", newline='\n') as file:
+with open("medicalapp_users.csv", mode="w", newline="\n") as file:
     file_writer = csv.writer(
         file, delimiter=",", quotechar='"', quoting=csv.QUOTE_MINIMAL
     )
@@ -146,7 +165,18 @@ with open("medicalapp_users.csv", mode="w", newline='\n') as file:
         domain = generate_domain()
         email = user_name + domain
         file_writer.writerow(
-            ['null', 'f', uid, user_name, password, full_name, nric, contact, email, "t"]
+            [
+                "null",
+                "f",
+                uid,
+                user_name,
+                password,
+                full_name,
+                nric,
+                contact,
+                email,
+                "t",
+            ]
         )
 
 # Seperate uids to different roles
@@ -163,7 +193,7 @@ for count, uid in enumerate(list_uid):
 
 
 # Generate medicalapp_researchers
-with open("medicalapp_researchers.csv", mode="w", newline='\n') as file:
+with open("medicalapp_researchers.csv", mode="w", newline="\n") as file:
     file_writer = csv.writer(
         file, delimiter=",", quotechar='"', quoting=csv.QUOTE_MINIMAL
     )
@@ -171,7 +201,7 @@ with open("medicalapp_researchers.csv", mode="w", newline='\n') as file:
         file_writer.writerow([x])
 
 # Generate medicalapp_doctors
-with open("medicalapp_doctors.csv", mode="w", newline='\n') as file:
+with open("medicalapp_doctors.csv", mode="w", newline="\n") as file:
     file_writer = csv.writer(
         file, delimiter=",", quotechar='"', quoting=csv.QUOTE_MINIMAL
     )
@@ -179,7 +209,7 @@ with open("medicalapp_doctors.csv", mode="w", newline='\n') as file:
         file_writer.writerow([x])
 
 # Generate medicalapp_patient
-with open("medicalapp_patient.csv", mode="w", newline='\n') as file:
+with open("medicalapp_patient.csv", mode="w", newline="\n") as file:
     file_writer = csv.writer(
         file, delimiter=",", quotechar='"', quoting=csv.QUOTE_MINIMAL
     )
@@ -187,7 +217,7 @@ with open("medicalapp_patient.csv", mode="w", newline='\n') as file:
         file_writer.writerow([x])
 
 # Generate medicalapp_staff
-with open("medicalapp_staff.csv", mode="w", newline='\n') as file:
+with open("medicalapp_staff.csv", mode="w", newline="\n") as file:
     file_writer = csv.writer(
         file, delimiter=",", quotechar='"', quoting=csv.QUOTE_MINIMAL
     )
@@ -195,7 +225,7 @@ with open("medicalapp_staff.csv", mode="w", newline='\n') as file:
         file_writer.writerow([x])
 
 # Generate medicalapp.healthrecords
-with open("medicalapp_healthrecords.csv", mode="w", newline='\n') as file:
+with open("medicalapp_healthrecords.csv", mode="w", newline="\n") as file:
     file_writer = csv.writer(
         file, delimiter=",", quotechar='"', quoting=csv.QUOTE_MINIMAL
     )
@@ -207,4 +237,6 @@ with open("medicalapp_healthrecords.csv", mode="w", newline='\n') as file:
         bloodtype = generate_bloodtype()
         allergies = generate_allergies()
         address, zipcode = generate_address()
-        file_writer.writerow([pid, dob, height, weight, bloodtype, allergies, zipcode, address])
+        file_writer.writerow(
+            [pid, dob, height, weight, bloodtype, allergies, zipcode, address]
+        )

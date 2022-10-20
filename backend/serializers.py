@@ -53,7 +53,8 @@ class CrowdSerializer(serializers.ModelSerializer):
         model = Crowd
         fields = ["count"]
 
+
 class CrowdDataSerializer(serializers.ModelSerializer):
     class Meta:
         model = Crowd
-        fields = ["time_recorded","count"]
+        fields = ["time_recorded", "count"]
