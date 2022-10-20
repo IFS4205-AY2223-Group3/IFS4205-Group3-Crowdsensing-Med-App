@@ -17,10 +17,10 @@ jobs:
           known_hosts: unnecessary
 
       - name: Restart Apache Server
-        uses: appleboy/ssh-action@master
+        uses: garygrossgarten/github-action-ssh@release
         with:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USER }}
-          passphrase: ${{ secrets.SSH_PASSWORD }}
+          privateKey: ${{ secrets.SSH_PRIVATE_KEY }}
           port: ${{ secrets.SSH_PORT }}
-          script: whoami
+          command: whoami; ls -a;
