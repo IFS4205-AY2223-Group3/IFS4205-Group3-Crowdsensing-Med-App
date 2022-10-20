@@ -134,7 +134,7 @@ export function RequireExam({ children }) {
   const patientName = sessionStorage.getItem("patientName");
   const userRole = sessionStorage.getItem("userRole");
 
-  if (examId && patientName && userRole === "doctor") {
+  if (examId && patientName && userRole === "Doctor") {
     return children;
   } else {
     return <Navigate to="/doctor" replace />;
