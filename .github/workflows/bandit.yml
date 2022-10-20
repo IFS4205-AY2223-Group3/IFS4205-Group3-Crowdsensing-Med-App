@@ -17,5 +17,5 @@ jobs:
     steps:
     - uses: jpetrucciani/bandit-check@master
       with:
-        path: './backend/*'
+        bandit-flags: '-r ./backend'
 
