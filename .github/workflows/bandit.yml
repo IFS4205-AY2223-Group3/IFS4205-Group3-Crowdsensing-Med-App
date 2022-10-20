@@ -15,6 +15,15 @@ jobs:
       - uses: actions/checkout@v2
         with:
           fetch-depth: 0 #get fuller history
+          
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v3
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Install Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
       - name: Run Bandit Report
         uses: libertyy/py3-bandit-check@v2
       - name: Save Bandit txt Report
