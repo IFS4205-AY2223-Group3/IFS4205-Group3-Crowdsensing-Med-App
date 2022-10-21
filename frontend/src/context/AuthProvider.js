@@ -140,3 +140,16 @@ export function RequireExam({ children }) {
     return <Navigate to="/doctor" replace />;
   }
 }
+
+/* This Function checks that the researcher is authenticated to access generate data */
+export function RequireResearcher({ children }) {
+  const key = sessionStorage.getItem("key");
+  const value = sessionStorage.getItem("value");
+  const userRole = sessionStorage.getItem("userRole");
+
+  if (key && value && userRole === "Researcher") {
+    return children;
+  } else {
+    return <Navigate to="/researcher" replace />;
+  }
+}
