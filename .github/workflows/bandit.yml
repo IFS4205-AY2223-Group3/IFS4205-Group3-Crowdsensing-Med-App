@@ -1,6 +1,8 @@
 name: Bandit
 on:
   pull_request:
+    branches:
+      - main
   push:
     branches:
       - main
@@ -13,7 +15,8 @@ jobs:
 
     runs-on: ubuntu-latest
     steps:
+    - uses: actions/checkout@v3
     - uses: jpetrucciani/bandit-check@master
       with:
-        path: '.'
+        path: './backend'
 
