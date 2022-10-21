@@ -4,6 +4,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.core.exceptions import ObjectDoesNotExist
 from django.contrib.auth.models import update_last_login
 from django.core.mail import send_mail
+from django.contrib.postgres.fields import IntegerRangeField, RangeOperators
 
 from rest_framework import status
 from rest_framework.views import APIView
@@ -480,11 +481,32 @@ class ResearcherView(APIView):
 
     def post(self, request):
         try:
-            code = request.data['code']
-            Diagnosis.objects.get(code=code)
-        except (KeyError, Diagnosis.DoesNotExist) as e:
-            return InvalidRequestException()
+            search_key = request.data['key']
+            value = request.data['value']
+            verify_search_key(search_key)
+        except KeyError:
+            raise InvalidRequestException()
         
-        records = AnonymizedRecord.objects.filter(diagnosis=code)
-        serializer = AnonymizedRecordSerializer(records, many=True)
-        return Response(serializer.data, status=status.HTTP_200_OK)
+        try:
+            if search_key == 'diagnosis':
+                records = AnonymizedRecord.objects.filter(diagnosis=value)
+            else:
+                value = int(value)
+                if search_key == 'zipcode':
+                    records = AnonymizedRecord.objects.filter(zipcode_range__contains=value)
+                elif search_key == 'age':
+                    records = AnonymizedRecord.objects.filter(age_range__contains=value)
+                elif search_key == 'height':
+                    records = AnonymizedRecord.objects.filter(height_range__contains=value)
+                elif search_key == 'weight':
+                    records = AnonymizedRecord.objects.filter(weight_range__contains=value)
+            serializer = AnonymizedRecordSerializer(records, many=True)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        except ValueError:
+            raise InvalidRequestException()
+        
+def verify_search_key(s):
+    accepted_values = {'zipcode', 'age', 'height', 'weight', 'diagnosis'}
+    if str(s).lower() not in accepted_values:
+        raise KeyError
+    
