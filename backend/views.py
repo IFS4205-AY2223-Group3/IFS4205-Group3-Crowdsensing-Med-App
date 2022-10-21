@@ -231,7 +231,7 @@ class Login(ObtainAuthToken):
             request.data["username"] = str(request.data["username"]).lower()
             role = get_role(request.data["role"])
         except KeyError:  # missing username / role field
-            raise AlreadyAssignedException()
+            raise InvalidRequestException()
 
         if role is not None:
             serializer = self.serializer_class(
