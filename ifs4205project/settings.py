@@ -198,9 +198,16 @@ USE_TZ = True
 EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
 EMAIL_HOST = "smtp.office365.com"
 EMAIL_PORT = 587
-EMAIL_HOST_USER = get_secret("EMAIL_HOST_USER")
-DEFAULT_FROM_EMAIL = get_secret("EMAIL_HOST_USER")
-EMAIL_HOST_PASSWORD = get_secret("EMAIL_HOST_PASSWORD")
+
+if PRODUCTION:
+    EMAIL_HOST_USER = get_secret("EMAIL_HOST_USER")
+    DEFAULT_FROM_EMAIL = get_secret("EMAIL_HOST_USER")
+    EMAIL_HOST_PASSWORD = get_secret("EMAIL_HOST_PASSWORD")
+else:
+    EMAIL_HOST_USER = "default_user"
+    DEFAULT_FROM_EMAIL = "default"
+    EMAIL_HOST_PASSWORD = "password"
+
 EMAIL_USE_TLS = True
 
 # Static files (CSS, JavaScript, Images)
