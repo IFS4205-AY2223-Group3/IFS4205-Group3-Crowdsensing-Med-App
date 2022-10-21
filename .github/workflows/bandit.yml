@@ -19,5 +19,5 @@ jobs:
     - uses: jpetrucciani/bandit-check@master
       with:
         path: './backend'
-        bandit_flags: '-x ./backend/tests.py'
+        bandit_flags: '-x ./backend/test_backend.py'
 
