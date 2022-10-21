@@ -147,7 +147,21 @@ LOGGING = {
             "formatter": "verbose",
         }
     },
-    "loggers": {"backend": {"handlers": ["file"], "level": "INFO", "propagate": True}},
+    'handlers': {
+        'file': {
+            'level': 'INFO',
+            'class':'logging.FileHandler',
+            'filename': os.path.join(BASE_DIR, 'backend.log'),
+            'formatter':'verbose'
+        },
+    },
+    'loggers': {
+        'backend': {
+            'handlers': ['file'],
+            'level': 'INFO',
+            'propagate': True,
+        },
+    },
 }
 
 

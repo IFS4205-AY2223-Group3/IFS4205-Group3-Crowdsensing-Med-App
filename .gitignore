@@ -1,6 +1,7 @@
 *.pyc
 tutorial-env/
-/secrets.json
+secrets.json
 venv/
 backend/migrations/*
 backend.log
+database/data/*.csv
