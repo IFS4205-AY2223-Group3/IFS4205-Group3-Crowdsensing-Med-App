@@ -51,7 +51,7 @@ class User(AbstractBaseUser, PermissionsMixin):
         if not self.user_id:
             id = secrets.token_hex(8)
             while User.objects.filter(user_id=id).count() > 0:
-                id = secrets.token_hex(8) 
+                id = secrets.token_hex(8)
             self.user_id = id
         super().save(*args, **kwargs)
 
@@ -89,6 +89,7 @@ class UserToken(models.Model):
         self.verified = True
         self.save()
 
+
 class RemoveOTPRequest(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, primary_key=True)
     key = models.CharField(max_length=30)
@@ -97,12 +98,9 @@ class RemoveOTPRequest(models.Model):
 
     @classmethod
     def create(cls, user):
-        request = cls(
-            user = user,
-            key = secrets.token_hex(8),
-            attempts = 0
-        )
+        request = cls(user=user, key=secrets.token_hex(8), attempts=0)
         return request
+
 
 class Researcher(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, primary_key=True)
@@ -124,8 +122,8 @@ class HealthRecord(models.Model):
     user = models.OneToOneField(Patient, on_delete=models.CASCADE, primary_key=True)
     dateofbirth = models.DateField()
     sex = models.CharField(max_length=2)
-    height = models.DecimalField(max_digits=5,decimal_places=1)
-    weight = models.DecimalField(max_digits=5,decimal_places=1)
+    height = models.DecimalField(max_digits=5, decimal_places=1)
+    weight = models.DecimalField(max_digits=5, decimal_places=1)
     bloodtype = models.CharField(max_length=3)
     allergies = models.CharField(max_length=50)
     race = models.CharField(max_length=10)
