@@ -1,5 +1,5 @@
 # FILE: .bandit 
 [bandit] 
-exclude = backend/tests.py
+exclude = ./backend/tests.py
 tests = B201,B301 
 skips = B101,B601
