@@ -63,7 +63,12 @@ class DiagnosisSerializer(serializers.ModelSerializer):
         model = Diagnosis
         fields = ["code", "description"]
 
-class AnonymizedRecordSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = AnonymizedRecord
-        fields = ["diagnosis", "sex", "race", "zipcode", "age_range", "height_range", "weight_range", "allergies"]
+class AnonymizedRecordSerializer(serializers.Serializer):
+    zipcode_range = serializers.CharField(max_length=15)
+    age_range = serializers.CharField(max_length=15)
+    height_range = serializers.CharField(max_length=15)
+    weight_range = serializers.CharField(max_length=15)
+    allergies = serializers.CharField(max_length=10)
+    race = serializers.CharField(max_length=10)
+    sex = serializers.CharField(max_length=2)
+    diagnosis = serializers.CharField(max_length=10)  

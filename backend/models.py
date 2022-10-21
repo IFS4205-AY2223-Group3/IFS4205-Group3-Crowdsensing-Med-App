@@ -9,7 +9,7 @@ from django.contrib.auth.models import (
 )
 from django.utils.crypto import get_random_string
 from django.utils.translation import gettext_lazy as _
-
+from django.contrib.postgres.fields import IntegerRangeField, RangeOperators
 
 class CustomAccountManager(BaseUserManager):
     def create_user(self, username, email, password, **other_fields):
@@ -185,11 +185,11 @@ class Crowd(models.Model):
     count = models.IntegerField()
 
 class AnonymizedRecord(models.Model):
-    age_range = models.CharField(max_length=15)
-    height_range = models.CharField(max_length=15)
-    weight_range = models.CharField(max_length=15)
+    age_range = IntegerRangeField()
+    height_range = IntegerRangeField()
+    weight_range = IntegerRangeField()
     allergies = models.CharField(max_length=15)
     race = models.CharField(max_length=10)
-    zipcode = models.CharField(max_length=15)
+    zipcode_range = IntegerRangeField()
     sex = models.CharField(max_length=2)
     diagnosis = models.CharField(max_length=10)

@@ -4,3 +4,4 @@ tutorial-env/
 venv/
 backend/migrations/*
 backend.log
+database/data/*.csv
