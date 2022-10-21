@@ -38,6 +38,7 @@ class PatientPastSessionSerializer(serializers.ModelSerializer):
         model = Examination
         fields = ["exam_id", "doctor", "diagnosis", "prescription", "examtime"]
 
+
 class DoctorPastSessionSerializer(serializers.ModelSerializer):
     patient = serializers.CharField(source="patient.user.name")
     diagnosis = serializers.CharField(source="diagnosis.description")
@@ -52,7 +53,23 @@ class CrowdSerializer(serializers.ModelSerializer):
         model = Crowd
         fields = ["count"]
 
+
 class CrowdDataSerializer(serializers.ModelSerializer):
     class Meta:
         model = Crowd
-        fields = ["time_recorded","count"]
+        fields = ["time_recorded", "count"]
+
+class DiagnosisSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Diagnosis
+        fields = ["code", "description"]
+
+class AnonymizedRecordSerializer(serializers.Serializer):
+    zipcode_range = serializers.CharField(max_length=15)
+    age_range = serializers.CharField(max_length=15)
+    height_range = serializers.CharField(max_length=15)
+    weight_range = serializers.CharField(max_length=15)
+    allergies = serializers.CharField(max_length=10)
+    race = serializers.CharField(max_length=10)
+    sex = serializers.CharField(max_length=2)
+    diagnosis = serializers.CharField(max_length=10)  

@@ -37,6 +37,8 @@ def get_secret(setting, secrets=secrets):
 # SECURITY WARNING: keep the secret key used in production secret!
 if PRODUCTION:
     SECRET_KEY = get_secret("SECRET_KEY")
+else:
+    SECRET_KEY = "+&-a*d+9^o1owr8otsv=zbvs&yjm4&4l!3&(s9#*ab2l#@roq"
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -47,9 +49,7 @@ else:
     ALLOWED_HOSTS = ["localhost"]
 
 CORS_ORIGIN_ALLOW_ALL = True
-CORS_ORIGIN_WHITELIST = [
-    "http://172.25.97.106:3000",
-]
+CORS_ORIGIN_WHITELIST = ["http://172.25.97.106:3000"]
 
 CORS_ALLOW_CREDENTIALS = True
 CORS_ALLOW_HEADERS = default_headers + (
@@ -81,7 +81,7 @@ MIDDLEWARE = [
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
-    'django_otp.middleware.OTPMiddleware',
+    "django_otp.middleware.OTPMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
@@ -99,9 +99,9 @@ TEMPLATES = [
                 "django.template.context_processors.request",
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
-            ],
+            ]
         },
-    },
+    }
 ]
 
 WSGI_APPLICATION = "ifs4205project.wsgi.application"
@@ -133,14 +133,11 @@ else:
 
 
 REST_FRAMEWORK = {
-    "DEFAULT_AUTHENTICATION_CLASSES": [
-        "backend.authentication.TokenAuth",
-    ],
-    "DEFAULT_RENDERER_CLASSES": [
-        "rest_framework.renderers.JSONRenderer",
-    ],
+    "DEFAULT_AUTHENTICATION_CLASSES": ["backend.authentication.TokenAuth"],
+    "DEFAULT_RENDERER_CLASSES": ["rest_framework.renderers.JSONRenderer"],
     "EXCEPTION_HANDLER": "backend.exceptions.custom_handler",
     "DATETIME_FORMAT": "%a %b %d %Y %H:%M:%S",
+    "TEST_REQUEST_DEFAULT_FORMAT": "json",
 }
 
 # Password validation
@@ -148,18 +145,43 @@ REST_FRAMEWORK = {
 
 AUTH_PASSWORD_VALIDATORS = [
     {
-        "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator",
+        "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator"
     },
-    {
-        "NAME": "django.contrib.auth.password_validation.MinimumLengthValidator",
-    },
-    {
-        "NAME": "django.contrib.auth.password_validation.CommonPasswordValidator",
-    },
-    {
-        "NAME": "django.contrib.auth.password_validation.NumericPasswordValidator",
-    },
+    {"NAME": "django.contrib.auth.password_validation.MinimumLengthValidator"},
+    {"NAME": "django.contrib.auth.password_validation.CommonPasswordValidator"},
+    {"NAME": "django.contrib.auth.password_validation.NumericPasswordValidator"},
 ]
+
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "formatters": {
+        "verbose": {"format": "[{levelname}] [{asctime}] {message}", "style": "{"}
+    },
+    "handlers": {
+        "file": {
+            "level": "INFO",
+            "class": "logging.FileHandler",
+            "filename": "backend.log",
+            "formatter": "verbose",
+        }
+    },
+    'handlers': {
+        'file': {
+            'level': 'INFO',
+            'class':'logging.FileHandler',
+            'filename': os.path.join(BASE_DIR, 'backend.log'),
+            'formatter':'verbose'
+        },
+    },
+    'loggers': {
+        'backend': {
+            'handlers': ['file'],
+            'level': 'INFO',
+            'propagate': True,
+        },
+    },
+}
 
 
 # Internationalization
@@ -173,6 +195,13 @@ USE_I18N = True
 
 USE_TZ = True
 
+EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
+EMAIL_HOST = "smtp.office365.com"
+EMAIL_PORT = 587
+EMAIL_HOST_USER = get_secret("EMAIL_HOST_USER")
+DEFAULT_FROM_EMAIL = get_secret("EMAIL_HOST_USER")
+EMAIL_HOST_PASSWORD = get_secret("EMAIL_HOST_PASSWORD")
+EMAIL_USE_TLS = True
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.1/howto/static-files/
