@@ -5,7 +5,7 @@ import loading from "../../imports/loading.gif";
 import axios from "axios";
 import { VIEW_ANON_DATA_URL } from "../../api/constants";
 import { useState, useEffect } from "react";
-import { CSVLink, CSVDownload } from "react-csv";
+import { CSVLink } from "react-csv";
 
 export default function GenerateData() {
   const token = sessionStorage.getItem("accessToken");

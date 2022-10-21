@@ -7,7 +7,6 @@ import Grid from "@mui/material/Grid";
 import Paper from "@mui/material/Paper";
 import Toolbar from "@mui/material/Toolbar";
 import Typography from "@mui/material/Typography";
-import PopUp from "../Components/PopUp";
 import OTP from "./Components/OTP";
 
 const drawerWidth = 240;

@@ -9,7 +9,6 @@ import PopUp from "../../Components/PopUp";
 export default function Login() {
   const { login } = useAuth();
   const userRef = useRef();
-  const errRef = useRef();
   const navigate = useNavigate();
   const [user, setUser] = useState("");
   const [pwd, setPwd] = useState("");
