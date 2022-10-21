@@ -1,12 +1,7 @@
 import * as React from "react";
 import Title from "../../Components/Title";
-import styles from "../Researcher.css";
-import axios from "axios";
-import { DOCTOR_SUBMIT_URL } from "../../api/constants";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import PopUp from "../../Components/PopUp";
-import Dropdown from "react-dropdown";
 
 export default function InputData() {
   const [key, setKey] = useState("");

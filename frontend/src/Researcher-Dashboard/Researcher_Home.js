@@ -20,7 +20,6 @@ import ListItemText from "@mui/material/ListItemText";
 import LogoutIcon from "@mui/icons-material/Logout";
 import DashboardIcon from "@mui/icons-material/Dashboard";
 import PeopleIcon from "@mui/icons-material/People";
-import LayersIcon from "@mui/icons-material/Layers";
 import Chart from "../Components/Chart";
 import Crowd from "../Components/Crowd";
 import { useNavigate } from "react-router-dom";
