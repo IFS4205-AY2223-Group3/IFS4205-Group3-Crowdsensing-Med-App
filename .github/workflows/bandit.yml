@@ -19,4 +19,5 @@ jobs:
     - uses: jpetrucciani/bandit-check@master
       with:
         path: './backend'
+        args: "--exclude ./backend/tests.py"
 
