@@ -4,6 +4,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.core.exceptions import ObjectDoesNotExist
 from django.contrib.auth.models import update_last_login
 from django.core.mail import send_mail
+from django.contrib.postgres.fields import IntegerRangeField, RangeOperators
 
 from rest_framework import status
 from rest_framework.views import APIView
@@ -230,7 +231,7 @@ class Login(ObtainAuthToken):
             request.data["username"] = str(request.data["username"]).lower()
             role = get_role(request.data["role"])
         except KeyError:  # missing username / role field
-            raise AlreadyAssignedException()
+            raise InvalidRequestException()
 
         if role is not None:
             serializer = self.serializer_class(
@@ -413,7 +414,6 @@ class DoctorGetRecords(APIView):
     permission_classes = (IsAuthenticated, IsDoctor)
 
     # get examinations (done by doctors)
-    @csrf_exempt
     def get(self, request):
         try:
             # check if doctor is assigned to patient
@@ -463,7 +463,6 @@ class AddExamination(APIView):
     permission_classes = (IsAuthenticated, IsDoctor)
 
     # store new examination result (done by doctors)
-    @csrf_exempt
     def post(self, request):
         try:
             doctor = Doctor.objects.get(user=request.auth.user)
@@ -520,7 +519,6 @@ class DoctorViewOldSessions(APIView):
     parser_classes = [JSONParser]
     permission_classes = (IsAuthenticated, IsDoctor)
 
-    @csrf_exempt
     def get(self, request):
         data = {}
         doctor_object = Doctor.objects.get(user=request.auth.user)
@@ -543,7 +541,6 @@ class CreateSession(APIView):
     parser_classes = [JSONParser]
     permission_classes = (IsAuthenticated,)
 
-    @csrf_exempt
     def get(self, request):
         user_obj = request.auth.user
         patient_obj = get_patient_object(user_obj)
@@ -573,7 +570,6 @@ class PatientViewRecords(APIView):
     parser_classes = [JSONParser]
     permission_classes = (IsAuthenticated, IsVerified)
 
-    @csrf_exempt
     def get(self, request):
         user_obj = request.auth.user
         patient_obj = get_patient_object(user_obj)
@@ -602,7 +598,6 @@ class AllowSession(APIView):
     parser_classes = [JSONParser]
     permission_classes = (IsAuthenticated,)
 
-    @csrf_exempt
     def post(self, request):
         user_obj = request.auth.user
         patient_obj = get_patient_object(user_obj)
@@ -638,11 +633,9 @@ def get_patient_object(user):
 #######################################################################################################################
 # IOT API
 
-
 class CrowdView(APIView):
     parser_classes = [JSONParser]
 
-    @csrf_exempt
     def post(self, request):
         serialized_data = CrowdSerializer(data=request.data)
         if serialized_data.is_valid():
@@ -653,7 +646,6 @@ class CrowdView(APIView):
                 {"message": GENERIC_ERROR_MESSAGE}, status=status.HTTP_400_BAD_REQUEST
             )
 
-    @csrf_exempt
     def get(self, request):
         try:
             crowd = Crowd.objects.latest("time_recorded")
@@ -663,3 +655,45 @@ class CrowdView(APIView):
                 {"message": GENERIC_ERROR_MESSAGE}, status=status.HTTP_400_BAD_REQUEST
             )
         return Response({"count": serializer.data}, status=status.HTTP_200_OK)
+
+#######################################################################################################################
+# RESEARCHER API
+
+class ResearcherView(APIView):
+    permission_classes = (IsAuthenticated, IsResearcher)
+
+    def get(self, request):
+        serializer = DiagnosisSerializer(Diagnosis.objects.all(), many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    def post(self, request):
+        try:
+            search_key = request.data['key']
+            value = request.data['value']
+            verify_search_key(search_key)
+        except KeyError:
+            raise InvalidRequestException()
+        
+        try:
+            if search_key == 'diagnosis':
+                records = AnonymizedRecord.objects.filter(diagnosis=value)
+            else:
+                value = int(value)
+                if search_key == 'zipcode':
+                    records = AnonymizedRecord.objects.filter(zipcode_range__contains=value)
+                elif search_key == 'age':
+                    records = AnonymizedRecord.objects.filter(age_range__contains=value)
+                elif search_key == 'height':
+                    records = AnonymizedRecord.objects.filter(height_range__contains=value)
+                elif search_key == 'weight':
+                    records = AnonymizedRecord.objects.filter(weight_range__contains=value)
+            serializer = AnonymizedRecordSerializer(records, many=True)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        except ValueError:
+            raise InvalidRequestException()
+        
+def verify_search_key(s):
+    accepted_values = {'zipcode', 'age', 'height', 'weight', 'diagnosis'}
+    if str(s).lower() not in accepted_values:
+        raise KeyError
+    

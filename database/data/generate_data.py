@@ -13,7 +13,7 @@ from faker import Faker
 fake = Faker()
 Faker.seed(secrets.randbits(3))
 number_of_records = int(sys.argv[1])
-
+number_of_examinations = int(sys.argv[2])
 # Define max count per number of records for each role
 medical_staff_max = 0.05 * number_of_records
 researcher_max = 0.1 * number_of_records
@@ -21,31 +21,31 @@ doctor_max = 0.35 * number_of_records
 patient_max = 0.5 * number_of_records
 
 # List of all uuids
-list_uid = []
-list_researchers = []
-list_doctors = []
-list_patients = []
-list_staff = []
+
+set_uid = set()
+set_name = set()
+set_researchers = set()
+set_doctors = set()
+set_patients = set()
+set_staff = set()
+set_exam_id = set()
+list_prescriptions = []
+list_diagnosis = []
 
 # Function generates a hashed password of 12 characters
 def generate_password():
     pw = os.urandom(12)
     salt = os.urandom(18)
-    key = pbkdf2_hmac("sha256", pw, salt, 390000)
-    return (
-        "pbkdf2_sha256$390000$"
-        + base64.b64encode(salt).decode()
-        + "$"
-        + base64.b64encode(key).decode()
-    )
-
+    #key = pbkdf2_hmac('sha256', pw, salt, 390000)
+    key = os.urandom(32)
+    return "pbkdf2_sha256$390000$" + base64.b64encode(salt).decode() + "$" + base64.b64encode(key).decode()
 
 # Function generates a unique identifier
 def generate_uid():
     uid = secrets.token_hex(8)
-    while uid in list_uid:
+    while uid in set_uid:
         uid = secrets.token_hex(8)
-    list_uid.append(uid)
+    set_uid.add(uid) 
     return uid
 
 
@@ -119,12 +119,8 @@ def generate_bloodtype():
 
 
 def generate_address():
-    sector = randint(1, 80)
-    delivery = randint(0, 9999)
-
     addr = fake.street_address()
-    return addr, f"{sector:02d}" + f"{delivery:04d}"
-
+    return addr, randint(300000,900000)
 
 def generate_allergies():
     types = [
@@ -145,6 +141,32 @@ def generate_allergies():
     else:
         return random.choice(types)
 
+def generate_race():
+    races = ['Chinese', 'Malay', 'Indian', 'Others']
+    return random.choice(races)
+
+def generate_examtime():
+    start_date = datetime.datetime(2018, 1, 1, randint(0,23), randint(0,59), randint(0,59))
+    end_date = datetime.datetime(2022, 2, 1, randint(0,23), randint(0,59), randint(0,59))
+    time_between_dates = end_date - start_date
+    days_between_dates = time_between_dates.days
+    random_number_of_days = random.randrange(days_between_dates)
+    random_date = start_date + datetime.timedelta(days=random_number_of_days)
+    return random_date
+
+def generate_diagnosis():
+    return random.choice(list_diagnosis), random.choice(list_prescriptions)
+
+with open("prescriptions.txt", mode="r") as file:
+    data = file.readlines()
+    for line in data:
+        list_prescriptions.append(line.rstrip())
+
+with open("diagnosis.csv", mode="r") as file:
+    for line in file:
+        tokens = line.split(',')
+        substr = tokens[0]
+        list_diagnosis.append(substr)
 
 # Generate medicalapp_users
 with open("medicalapp_users.csv", mode="w", newline="\n") as file:
@@ -158,9 +180,13 @@ with open("medicalapp_users.csv", mode="w", newline="\n") as file:
         nric = generate_nric()
         list_nric.append(nric)
         contact = generate_contact()
-        first_name = fake.first_name()
-        last_name = fake.last_name()
-        full_name = first_name + " " + last_name
+        while True:
+            first_name = fake.first_name()
+            last_name = fake.last_name()
+            full_name = first_name + " " + last_name
+            if full_name not in set_name:
+                set_name.add(full_name)
+                break
         user_name = str(first_name + "_" + last_name).lower()
         domain = generate_domain()
         email = user_name + domain
@@ -181,15 +207,15 @@ with open("medicalapp_users.csv", mode="w", newline="\n") as file:
 
 # Seperate uids to different roles
 length_to_split = [medical_staff_max, researcher_max, doctor_max, patient_max]
-for count, uid in enumerate(list_uid):
+for count, uid in enumerate(set_uid):
     if count < medical_staff_max:
-        list_staff.append(uid)
+        set_staff.add(uid)
     elif count < researcher_max:
-        list_researchers.append(uid)
+        set_researchers.add(uid)
     elif count < doctor_max:
-        list_doctors.append(uid)
+        set_doctors.add(uid)
     else:
-        list_patients.append(uid)
+        set_patients.add(uid)
 
 
 # Generate medicalapp_researchers
@@ -197,7 +223,7 @@ with open("medicalapp_researchers.csv", mode="w", newline="\n") as file:
     file_writer = csv.writer(
         file, delimiter=",", quotechar='"', quoting=csv.QUOTE_MINIMAL
     )
-    for x in list_researchers:
+    for x in set_researchers:
         file_writer.writerow([x])
 
 # Generate medicalapp_doctors
@@ -205,7 +231,7 @@ with open("medicalapp_doctors.csv", mode="w", newline="\n") as file:
     file_writer = csv.writer(
         file, delimiter=",", quotechar='"', quoting=csv.QUOTE_MINIMAL
     )
-    for x in list_doctors:
+    for x in set_doctors:
         file_writer.writerow([x])
 
 # Generate medicalapp_patient
@@ -213,7 +239,7 @@ with open("medicalapp_patient.csv", mode="w", newline="\n") as file:
     file_writer = csv.writer(
         file, delimiter=",", quotechar='"', quoting=csv.QUOTE_MINIMAL
     )
-    for x in list_patients:
+    for x in set_patients:
         file_writer.writerow([x])
 
 # Generate medicalapp_staff
@@ -221,7 +247,7 @@ with open("medicalapp_staff.csv", mode="w", newline="\n") as file:
     file_writer = csv.writer(
         file, delimiter=",", quotechar='"', quoting=csv.QUOTE_MINIMAL
     )
-    for x in list_staff:
+    for x in set_staff:
         file_writer.writerow([x])
 
 # Generate medicalapp.healthrecords
@@ -229,14 +255,30 @@ with open("medicalapp_healthrecords.csv", mode="w", newline="\n") as file:
     file_writer = csv.writer(
         file, delimiter=",", quotechar='"', quoting=csv.QUOTE_MINIMAL
     )
-    for id in list_patients:
+    for id in set_patients:
         pid = id
         dob = generate_dob()
+        sex = random.choice(['M', 'F'])
         height = generate_height()
         weight = generate_weight()
         bloodtype = generate_bloodtype()
         allergies = generate_allergies()
+        race = generate_race()
         address, zipcode = generate_address()
-        file_writer.writerow(
-            [pid, dob, height, weight, bloodtype, allergies, zipcode, address]
-        )
+        file_writer.writerow([pid, dob, height, weight, bloodtype, allergies, race, zipcode, address, sex])
+
+with open("medicalapp_examination.csv", mode="w", newline='\n') as file:
+    file_writer = csv.writer(
+        file, delimiter=",", quotechar='"', quoting=csv.QUOTE_MINIMAL
+    )
+    count = 0
+    while count < number_of_examinations:
+        exam_id = secrets.token_hex(6)
+        while exam_id in set_exam_id:
+            exam_id = secrets.token_hex(6)
+        diagnosis, prescription = generate_diagnosis()
+        examtime = generate_examtime()
+        patient_id = random.choice(list(set_patients))
+        doctor_id = random.choice(list(set_doctors))
+        file_writer.writerow([exam_id, prescription, examtime, diagnosis, doctor_id, patient_id])
+        count += 1

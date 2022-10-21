@@ -9,7 +9,7 @@ from django.contrib.auth.models import (
 )
 from django.utils.crypto import get_random_string
 from django.utils.translation import gettext_lazy as _
-
+from django.contrib.postgres.fields import IntegerRangeField, RangeOperators
 
 class CustomAccountManager(BaseUserManager):
     def create_user(self, username, email, password, **other_fields):
@@ -121,13 +121,14 @@ class MedicalStaff(models.Model):
 class HealthRecord(models.Model):
     user = models.OneToOneField(Patient, on_delete=models.CASCADE, primary_key=True)
     dateofbirth = models.DateField()
+    sex = models.CharField(max_length=2)
     height = models.DecimalField(max_digits=5, decimal_places=1)
     weight = models.DecimalField(max_digits=5, decimal_places=1)
     bloodtype = models.CharField(max_length=3)
     allergies = models.CharField(max_length=50)
+    race = models.CharField(max_length=10)
     zipcode = models.CharField(max_length=6)
     address = models.CharField(max_length=100)
-
 
 class Diagnosis(models.Model):
     code = models.CharField(max_length=10, primary_key=True)
@@ -180,3 +181,13 @@ class PendingExamination(models.Model):
 class Crowd(models.Model):
     time_recorded = models.DateTimeField(auto_now_add=True, primary_key=True)
     count = models.IntegerField()
+
+class AnonymizedRecord(models.Model):
+    age_range = IntegerRangeField()
+    height_range = IntegerRangeField()
+    weight_range = IntegerRangeField()
+    allergies = models.CharField(max_length=15)
+    race = models.CharField(max_length=10)
+    zipcode_range = IntegerRangeField()
+    sex = models.CharField(max_length=2)
+    diagnosis = models.CharField(max_length=10)
