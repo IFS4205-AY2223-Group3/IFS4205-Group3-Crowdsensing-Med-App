@@ -1,4 +1,4 @@
-import { Navigate, useNavigate } from "react-router-dom";
+import { Navigate } from "react-router-dom";
 import axios from "axios";
 import https from "https";
 import { LOGIN_URL, LOGOUT_URL } from "../api/constants";
@@ -59,37 +59,9 @@ export function useAuth() {
       };
       setData(auth);
 
-      const responseObject = {
-        statusCode: 200,
-      };
-      return responseObject;
+      return response;
     } catch (error) {
-      // const accessToken = "access_token"; //comment out
-      // const role = "patient";
-      // const name = "Oscar";
-
-      // const auth = {
-      //   accessToken: accessToken,
-      //   userRole: role,
-      //   name: name,
-      // };
-      // var errorCode = 200;
-      // setData(auth); //comment out
-      var errorCode;
-      if (!error?.response) {
-        errorCode = 400;
-      } else if (error.response?.status === 400) {
-        errorCode = 400;
-      } else if (error.response?.status === 401) {
-        errorCode = 401;
-      } else {
-        errorCode = 500;
-      }
-
-      const errorObject = {
-        statusCode: errorCode,
-      };
-      return errorObject;
+      return error.response;
     }
   };
 
@@ -165,8 +137,20 @@ export function AuthProvider({ children }) {
 export function RequireAuth({ children, role }) {
   const accessToken = sessionStorage.getItem("accessToken");
   const userRole = sessionStorage.getItem("userRole");
+  const isVerified = sessionStorage.getItem("isVerified");
 
-  if (accessToken && userRole && userRole === role) {
+  if (accessToken && isVerified && userRole === role) {
+    return children;
+  } else {
+    return <Navigate to="/login" replace />;
+  }
+}
+
+/* This Function checks that user is init authenticated to access verify otp and create auth page*/
+export function RequireInitAuth({ children }) {
+  const accessToken = sessionStorage.getItem("accessToken");
+
+  if (accessToken) {
     return children;
   } else {
     return <Navigate to="/login" replace />;
@@ -179,7 +163,7 @@ export function RequireExam({ children }) {
   const patientName = sessionStorage.getItem("patientName");
   const userRole = sessionStorage.getItem("userRole");
 
-  if (examId && patientName && userRole === "doctor") {
+  if (examId && patientName && userRole === "Doctor") {
     return children;
   } else {
     return <Navigate to="/doctor" replace />;

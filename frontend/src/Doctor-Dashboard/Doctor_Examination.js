@@ -26,7 +26,6 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthProvider";
 import { useState } from "react";
 import PopUp from "../Components/PopUp";
-import Title from "../Components/Title";
 import Examination from "./Components/Examination";
 
 const drawerWidth = 240;
@@ -130,7 +129,7 @@ function DashboardContent() {
   };
 
   const handleSetting = async () => {
-    navigate("/login");
+    navigate("/doctorsetting");
   };
 
   return (

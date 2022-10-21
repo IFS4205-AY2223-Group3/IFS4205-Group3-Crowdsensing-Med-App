@@ -1,5 +1,5 @@
-import binascii
 import secrets
+from unittest.util import _MAX_LENGTH
 
 from django.db import models
 from django.contrib.auth.models import (
@@ -9,6 +9,7 @@ from django.contrib.auth.models import (
 )
 from django.utils.crypto import get_random_string
 from django.utils.translation import gettext_lazy as _
+from django.contrib.postgres.fields import IntegerRangeField, RangeOperators
 
 class CustomAccountManager(BaseUserManager):
     def create_user(self, username, email, password, **other_fields):
@@ -46,19 +47,21 @@ class User(AbstractBaseUser, PermissionsMixin):
     REQUIRED_FIELDS = ("email",)
 
     def save(self, *args, **kwargs):
+        self.username = str(self.username).lower()
         if not self.user_id:
-            self.user_id = get_random_string(16)
+            id = secrets.token_hex(8)
+            while User.objects.filter(user_id=id).count() > 0:
+                id = secrets.token_hex(8)
+            self.user_id = id
         super().save(*args, **kwargs)
 
     objects = CustomAccountManager()
 
+
 class UserToken(models.Model):
     key = models.CharField(("Key"), max_length=40, primary_key=True)
 
-    user = models.OneToOneField(
-        User,
-        on_delete=models.CASCADE, verbose_name="User"
-    )
+    user = models.OneToOneField(User, on_delete=models.CASCADE, verbose_name="User")
     created = models.DateTimeField(_("Created"), auto_now_add=True)
     verified = models.BooleanField()
 
@@ -78,14 +81,25 @@ class UserToken(models.Model):
 
     def generate_key(self):
         return secrets.token_hex(20)
-    
+
     def __str__(self):
         return self.key
-    
+
     def verify(self):
         self.verified = True
         self.save()
-    
+
+
+class RemoveOTPRequest(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE, primary_key=True)
+    key = models.CharField(max_length=30)
+    time_created = models.DateField(auto_now_add=True)
+    attempts = models.IntegerField()
+
+    @classmethod
+    def create(cls, user):
+        request = cls(user=user, key=secrets.token_hex(8), attempts=0)
+        return request
 
 
 class Researcher(models.Model):
@@ -107,11 +121,14 @@ class MedicalStaff(models.Model):
 class HealthRecord(models.Model):
     user = models.OneToOneField(Patient, on_delete=models.CASCADE, primary_key=True)
     dateofbirth = models.DateField()
-    height = models.IntegerField()
-    weight = models.IntegerField()
+    sex = models.CharField(max_length=2)
+    height = models.DecimalField(max_digits=5, decimal_places=1)
+    weight = models.DecimalField(max_digits=5, decimal_places=1)
     bloodtype = models.CharField(max_length=3)
     allergies = models.CharField(max_length=50)
-
+    race = models.CharField(max_length=10)
+    zipcode = models.CharField(max_length=6)
+    address = models.CharField(max_length=100)
 
 class Diagnosis(models.Model):
     code = models.CharField(max_length=10, primary_key=True)
@@ -164,3 +181,13 @@ class PendingExamination(models.Model):
 class Crowd(models.Model):
     time_recorded = models.DateTimeField(auto_now_add=True, primary_key=True)
     count = models.IntegerField()
+
+class AnonymizedRecord(models.Model):
+    age_range = IntegerRangeField()
+    height_range = IntegerRangeField()
+    weight_range = IntegerRangeField()
+    allergies = models.CharField(max_length=15)
+    race = models.CharField(max_length=10)
+    zipcode_range = IntegerRangeField()
+    sex = models.CharField(max_length=2)
+    diagnosis = models.CharField(max_length=10)
