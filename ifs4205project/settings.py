@@ -41,9 +41,7 @@ ALLOWED_HOSTS = ["ifs4205-group3-backend-i.comp.nus.edu.sg"]
 # ALLOWED_HOSTS = ["localhost"]
 
 CORS_ORIGIN_ALLOW_ALL = True
-CORS_ORIGIN_WHITELIST = [
-    "http://172.25.97.106:3000",
-]
+CORS_ORIGIN_WHITELIST = ["http://172.25.97.106:3000"]
 
 CORS_ALLOW_CREDENTIALS = True
 CORS_ALLOW_HEADERS = default_headers + (
@@ -93,9 +91,9 @@ TEMPLATES = [
                 "django.template.context_processors.request",
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
-            ],
+            ]
         },
-    },
+    }
 ]
 
 WSGI_APPLICATION = "ifs4205project.wsgi.application"
@@ -111,22 +109,16 @@ DATABASES = {
         "NAME": get_secret("NAME"),
         "USER": get_secret("USER"),
         "PASSWORD": get_secret("PASSWORD"),
-        "OPTIONS": {
-            "sslmode": "require",
-        },
+        "OPTIONS": {"sslmode": "require"},
     }
 }
 
 REST_FRAMEWORK = {
-    "DEFAULT_AUTHENTICATION_CLASSES": [
-        "backend.authentication.TokenAuth",
-    ],
-    "DEFAULT_RENDERER_CLASSES": [
-        "rest_framework.renderers.JSONRenderer",
-    ],
+    "DEFAULT_AUTHENTICATION_CLASSES": ["backend.authentication.TokenAuth"],
+    "DEFAULT_RENDERER_CLASSES": ["rest_framework.renderers.JSONRenderer"],
     "EXCEPTION_HANDLER": "backend.exceptions.custom_handler",
     "DATETIME_FORMAT": "%a %b %d %Y %H:%M:%S",
-    'TEST_REQUEST_DEFAULT_FORMAT': 'json',
+    "TEST_REQUEST_DEFAULT_FORMAT": "json",
 }
 
 # Password validation
@@ -134,26 +126,25 @@ REST_FRAMEWORK = {
 
 AUTH_PASSWORD_VALIDATORS = [
     {
-        "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator",
+        "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator"
     },
-    {
-        "NAME": "django.contrib.auth.password_validation.MinimumLengthValidator",
-    },
-    {
-        "NAME": "django.contrib.auth.password_validation.CommonPasswordValidator",
-    },
-    {
-        "NAME": "django.contrib.auth.password_validation.NumericPasswordValidator",
-    },
+    {"NAME": "django.contrib.auth.password_validation.MinimumLengthValidator"},
+    {"NAME": "django.contrib.auth.password_validation.CommonPasswordValidator"},
+    {"NAME": "django.contrib.auth.password_validation.NumericPasswordValidator"},
 ]
 
 LOGGING = {
-    'version': 1,
-    'disable_existing_loggers': False,
-    'formatters':{
-        'verbose':{
-            'format': '[{levelname}] [{asctime}] {message}',
-            'style': '{',
+    "version": 1,
+    "disable_existing_loggers": False,
+    "formatters": {
+        "verbose": {"format": "[{levelname}] [{asctime}] {message}", "style": "{"}
+    },
+    "handlers": {
+        "file": {
+            "level": "INFO",
+            "class": "logging.FileHandler",
+            "filename": "backend.log",
+            "formatter": "verbose",
         }
     },
     'handlers': {
@@ -185,12 +176,12 @@ USE_I18N = True
 
 USE_TZ = True
 
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST ='smtp.office365.com'
+EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
+EMAIL_HOST = "smtp.office365.com"
 EMAIL_PORT = 587
-EMAIL_HOST_USER = get_secret('EMAIL_HOST_USER')
-DEFAULT_FROM_EMAIL = get_secret('EMAIL_HOST_USER')
-EMAIL_HOST_PASSWORD = get_secret('EMAIL_HOST_PASSWORD')
+EMAIL_HOST_USER = get_secret("EMAIL_HOST_USER")
+DEFAULT_FROM_EMAIL = get_secret("EMAIL_HOST_USER")
+EMAIL_HOST_PASSWORD = get_secret("EMAIL_HOST_PASSWORD")
 EMAIL_USE_TLS = True
 
 # Static files (CSS, JavaScript, Images)
