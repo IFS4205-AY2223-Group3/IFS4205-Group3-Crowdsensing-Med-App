@@ -118,7 +118,7 @@ function DashboardContent() {
   };
 
   const handleSetting = async () => {
-    navigate("/login");
+    navigate("/patientsetting");
   };
 
   return (
