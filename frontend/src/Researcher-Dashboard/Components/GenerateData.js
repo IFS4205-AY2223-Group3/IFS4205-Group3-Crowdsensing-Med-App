@@ -6,6 +6,8 @@ import axios from "axios";
 import { VIEW_ANON_DATA_URL } from "../../api/constants";
 import { useState, useEffect } from "react";
 import { CSVLink } from "react-csv";
+import { render } from "react-dom";
+import { TablePagination } from "react-pagination-table";
 
 export default function GenerateData() {
   const token = sessionStorage.getItem("accessToken");
@@ -17,6 +19,16 @@ export default function GenerateData() {
   const [buffer, setBuffer] = useState(true);
   const [errMsg, setErrMsg] = useState("");
   const [anonRecords, setAnonyRecords] = useState();
+  const headers = [
+    "Zipcode Range",
+    "Age",
+    "Height",
+    "Weight",
+    "Allergies",
+    "Race",
+    "Sex",
+    "Diagnosis",
+  ];
 
   useEffect(() => {
     axios
@@ -33,13 +45,13 @@ export default function GenerateData() {
           },
         }
       )
-      .then(function (response) {
+      .then(function(response) {
         setAnonyRecords(response.data);
         console.log(response);
         setSuccess(true);
         setBuffer(false);
       })
-      .catch(function (err) {
+      .catch(function(err) {
         setFailure(true);
         setBuffer(false);
         if (!err?.response) {
@@ -73,7 +85,7 @@ export default function GenerateData() {
           </font>{" "}
         </CSVLink>
         <br></br>
-        <table>
+        {/* <table>
           <tr>
             <th>Zipcode Range</th>
             <th>Age Range</th>
@@ -96,7 +108,15 @@ export default function GenerateData() {
               <td>{anonRecords.diagnosis}</td>
             </tr>
           ))}
-        </table>
+        </table> */}
+        <TablePagination
+          headers={headers}
+          data={anonRecords}
+          columns="zipcode_range.age_range.height_range.weight_range.allergies.race.sex.diagnosis"
+          perPageItemCount={50}
+          totalCount={anonRecords.length}
+          arrayOption={[["size", "all", " "]]}
+        />
       </React.Fragment>
     );
   } else if (buffer) {
