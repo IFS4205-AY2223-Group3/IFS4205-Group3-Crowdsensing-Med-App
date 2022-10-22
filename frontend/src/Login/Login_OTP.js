@@ -7,11 +7,6 @@ import Grid from "@mui/material/Grid";
 import Paper from "@mui/material/Paper";
 import Toolbar from "@mui/material/Toolbar";
 import Typography from "@mui/material/Typography";
-import Container from "@mui/material/Container";
-import { useNavigate } from "react-router-dom";
-import { useAuth } from "../context/AuthProvider";
-import { useState } from "react";
-import PopUp from "../Components/PopUp";
 import OTP from "./Components/OTP";
 
 const drawerWidth = 240;
@@ -37,7 +32,6 @@ const AppBar = styled(MuiAppBar, {
 const mdTheme = createTheme();
 
 function DashboardContent() {
-  const [errMsg, setErrMsg] = useState("");
   const [open, setOpen] = React.useState(false);
 
   return (
