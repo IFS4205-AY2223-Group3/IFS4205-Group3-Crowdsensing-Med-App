@@ -4,6 +4,7 @@ import {
   RequireAuth,
   RequireExam,
   RequireInitAuth,
+  RequireResearcher,
 } from "./context/AuthProvider";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { createRoot } from "react-dom/client";
@@ -20,6 +21,9 @@ import Doctor_Assign from "./Doctor-Dashboard/Doctor_Assign";
 import Doctor_View_Records from "./Doctor-Dashboard/Doctor_View_Records";
 import Doctor_Examination from "./Doctor-Dashboard/Doctor_Examination";
 import Doctor_Settings from "./Doctor-Dashboard/Doctor_Settings";
+import Researcher_Home from "./Researcher-Dashboard/Researcher_Home";
+import Researcher_Data from "./Researcher-Dashboard/Researcher_Data";
+import Researcher_Settings from "./Researcher-Dashboard/Researcher_Settings";
 
 const rootElement = document.getElementById("root");
 const root = createRoot(rootElement);
@@ -123,6 +127,33 @@ root.render(
                 <RequireExam>
                   <Doctor_View_Records />
                 </RequireExam>
+              </RequireAuth>
+            }
+          />
+
+          <Route
+            path="researcher"
+            element={
+              <RequireAuth role="Researcher">
+                <Researcher_Home />
+              </RequireAuth>
+            }
+          />
+          <Route
+            path="researchersetting"
+            element={
+              <RequireAuth role="Researcher">
+                <Researcher_Settings />
+              </RequireAuth>
+            }
+          />
+          <Route
+            path="generatedata"
+            element={
+              <RequireAuth role="Researcher">
+                <RequireResearcher>
+                  <Researcher_Data />
+                </RequireResearcher>
               </RequireAuth>
             }
           />

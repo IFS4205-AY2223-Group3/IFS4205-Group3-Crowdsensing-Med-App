@@ -1,10 +1,8 @@
 import * as React from "react";
-import { useRef, useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { useAuth } from "../../context/AuthProvider";
 import styles from "../Login.module.css";
 import loading from "../../imports/loading.gif";
-import ReactDOM from "react-dom";
 import { QRCodeCanvas } from "qrcode.react";
 import Title from "../../Components/Title";
 import { LOGIN_AUTH_URL } from "../../api/constants";
