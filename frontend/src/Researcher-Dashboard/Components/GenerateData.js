@@ -85,30 +85,6 @@ export default function GenerateData() {
           </font>{" "}
         </CSVLink>
         <br></br>
-        {/* <table>
-          <tr>
-            <th>Zipcode Range</th>
-            <th>Age Range</th>
-            <th>Height Range</th>
-            <th>Weight Range</th>
-            <th>Allergies</th>
-            <th>Race</th>
-            <th>Sex</th>
-            <th>Diagnosis</th>
-          </tr>
-          {anonRecords.map((anonRecords) => (
-            <tr>
-              <td>{anonRecords.zipcode_range}</td>
-              <td>{anonRecords.age_range}</td>
-              <td>{anonRecords.height_range}</td>
-              <td>{anonRecords.weight_range}</td>
-              <td>{anonRecords.allergies}</td>
-              <td>{anonRecords.race}</td>
-              <td>{anonRecords.sex}</td>
-              <td>{anonRecords.diagnosis}</td>
-            </tr>
-          ))}
-        </table> */}
         <TablePagination
           headers={headers}
           data={anonRecords}
