@@ -12,7 +12,7 @@ export default function Login() {
   const navigate = useNavigate();
   const [user, setUser] = useState("");
   const [pwd, setPwd] = useState("");
-  const [userRole, setRole] = useState("");
+  const [userRole, setRole] = useState("defaultValue");
   const [errMsg, setErrMsg] = useState("");
   const [isErrPopUp, setIsErrPopUp] = useState(false);
 
@@ -92,7 +92,7 @@ export default function Login() {
               onChange={(e) => setRole(e.target.value)}
               required
             >
-              <option disabled selected value="">
+              <option disabled value="defaultValue">
                 Select Role
               </option>
               <option value="patient">Patient</option>

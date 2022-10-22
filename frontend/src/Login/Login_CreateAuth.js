@@ -80,6 +80,6 @@ function DashboardContent() {
   );
 }
 
-export default function Login_CreateAuth() {
+export default function LoginCreateAuth() {
   return <DashboardContent />;
 }

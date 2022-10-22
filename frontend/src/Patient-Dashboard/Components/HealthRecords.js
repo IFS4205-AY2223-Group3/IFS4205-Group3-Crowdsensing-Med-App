@@ -54,30 +54,32 @@ export default function HealthRecords() {
       <React.Fragment>
         <Title>Health Record</Title>
         <table>
-          <tr>
-            <th>Name</th>
-            <td>{healthRecords.name}</td>
-          </tr>
-          <tr>
-            <th>Date of Birth</th>
-            <td>{healthRecords.dateofbirth}</td>
-          </tr>
-          <tr>
-            <th>Height</th>
-            <td>{healthRecords.height}cm</td>
-          </tr>
-          <tr>
-            <th>Weight</th>
-            <td>{healthRecords.weight}kg</td>
-          </tr>
-          <tr>
-            <th>Blood Type</th>
-            <td>{healthRecords.bloodtype}</td>
-          </tr>
-          <tr>
-            <th>Allergies</th>
-            <td>{healthRecords.allergies}</td>
-          </tr>
+          <tbody>
+            <tr>
+              <th>Name</th>
+              <td>{healthRecords.name}</td>
+            </tr>
+            <tr>
+              <th>Date of Birth</th>
+              <td>{healthRecords.dateofbirth}</td>
+            </tr>
+            <tr>
+              <th>Height</th>
+              <td>{healthRecords.height}cm</td>
+            </tr>
+            <tr>
+              <th>Weight</th>
+              <td>{healthRecords.weight}kg</td>
+            </tr>
+            <tr>
+              <th>Blood Type</th>
+              <td>{healthRecords.bloodtype}</td>
+            </tr>
+            <tr>
+              <th>Allergies</th>
+              <td>{healthRecords.allergies}</td>
+            </tr>
+          </tbody>
         </table>
       </React.Fragment>
     );

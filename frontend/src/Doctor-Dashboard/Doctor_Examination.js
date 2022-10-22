@@ -245,6 +245,6 @@ function DashboardContent() {
   );
 }
 
-export default function Doctor_Examination() {
+export default function DoctorExamination() {
   return <DashboardContent />;
 }
