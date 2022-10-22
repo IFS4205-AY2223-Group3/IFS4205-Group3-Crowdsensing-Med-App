@@ -45,3 +45,5 @@ export const DOCTOR_VIEW_OLD_SESSIONS_URL =
   "http://ifs4205-group3-backend-i.comp.nus.edu.sg/doctorviewoldsessions";
 export const VIEW_COUNT_URL =
   "http://ifs4205-group3-backend-i.comp.nus.edu.sg/iot";
+export const VIEW_ANON_DATA_URL =
+  "http://ifs4205-group3-backend-i.comp.nus.edu.sg/researcherviewrecords";
