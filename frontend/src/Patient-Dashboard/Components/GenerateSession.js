@@ -111,10 +111,8 @@ export default function GenerateSession() {
         </p>
         <br></br>
 
-        <p>
-          <center>
-            <strong>Examination ID:</strong> {examId}
-          </center>
+        <p style={{display:'flex', alignItems: 'center', justifyContent:'center',}}>
+          <strong>Examination ID:</strong> &nbsp;{examId}
         </p>
         <br></br>
         <button onClick={HandleAllow}>Allow</button>
