@@ -18,10 +18,13 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.1/howto/deployment/checklist/
-
-with open(os.path.join(BASE_DIR, "secrets.json")) as secrets_file:
-    secrets = json.loads(secrets_file.read())
-
+try:
+    with open(os.path.join(BASE_DIR, "secrets.json")) as secrets_file:
+        secrets = json.loads(secrets_file.read())
+    PRODUCTION = True
+except OSError as e:
+    PRODUCTION = False
+    secrets = {}
 
 def get_secret(setting, secrets=secrets):
     """Get secret setting or fail with ImproperlyConfigured"""
@@ -32,13 +35,18 @@ def get_secret(setting, secrets=secrets):
 
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = get_secret("SECRET_KEY")
+if PRODUCTION:
+    SECRET_KEY = get_secret("SECRET_KEY")
+else:
+    SECRET_KEY = "+&-a*d+9^o1owr8otsv=zbvs&yjm4&4l!3&(s9#*ab2l#@roq"
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ["ifs4205-group3-backend-i.comp.nus.edu.sg"]
-# ALLOWED_HOSTS = ["localhost"]
+if PRODUCTION:
+    ALLOWED_HOSTS = ["ifs4205-group3-backend-i.comp.nus.edu.sg"]
+else:
+    ALLOWED_HOSTS = ["localhost"]
 
 CORS_ORIGIN_ALLOW_ALL = True
 CORS_ORIGIN_WHITELIST = ["http://172.25.97.106:3000"]
@@ -102,16 +110,27 @@ WSGI_APPLICATION = "ifs4205project.wsgi.application"
 # Database
 # https://docs.djangoproject.com/en/4.1/ref/settings/#databases
 
-DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.postgresql",
-        "HOST": get_secret("HOST"),
-        "NAME": get_secret("NAME"),
-        "USER": get_secret("USER"),
-        "PASSWORD": get_secret("PASSWORD"),
-        "OPTIONS": {"sslmode": "require"},
+if PRODUCTION:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql',
+            'HOST': get_secret('HOST'),
+            'NAME': get_secret('NAME'),
+            'USER': get_secret('USER'),
+            'PASSWORD': get_secret('PASSWORD'),
+            'OPTIONS': {
+                'sslmode':'require',
+            },
+        }
     }
-}
+else:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': 'mydatabase',
+        }
+    }
+
 
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": ["backend.authentication.TokenAuth"],
@@ -179,9 +198,16 @@ USE_TZ = True
 EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
 EMAIL_HOST = "smtp.office365.com"
 EMAIL_PORT = 587
-EMAIL_HOST_USER = get_secret("EMAIL_HOST_USER")
-DEFAULT_FROM_EMAIL = get_secret("EMAIL_HOST_USER")
-EMAIL_HOST_PASSWORD = get_secret("EMAIL_HOST_PASSWORD")
+
+if PRODUCTION:
+    EMAIL_HOST_USER = get_secret("EMAIL_HOST_USER")
+    DEFAULT_FROM_EMAIL = get_secret("EMAIL_HOST_USER")
+    EMAIL_HOST_PASSWORD = get_secret("EMAIL_HOST_PASSWORD")
+else:
+    EMAIL_HOST_USER = "default_user"
+    DEFAULT_FROM_EMAIL = "default"
+    EMAIL_HOST_PASSWORD = "password"
+
 EMAIL_USE_TLS = True
 
 # Static files (CSS, JavaScript, Images)
