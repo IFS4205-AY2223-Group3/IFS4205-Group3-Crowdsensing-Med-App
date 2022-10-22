@@ -35,7 +35,7 @@ export default function AssignDoctor() {
         }
       )
       .then((response) => {
-        const patientName = response?.data?.patientName;
+        const patientName = response.data.patientName;
         const examDetails = {
           examId: examId,
           patientName: patientName,

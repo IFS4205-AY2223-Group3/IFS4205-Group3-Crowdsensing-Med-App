@@ -21,9 +21,9 @@ export function useAuth() {
       });
 
       // Getting response
-      const accessToken = response?.data?.token;
-      const role = response?.data?.role;
-      const name = response?.data?.name;
+      const accessToken = response.data.token;
+      const role = response.data.role;
+      const name = response.data.name;
 
       const auth = {
         accessToken: accessToken,
@@ -48,21 +48,21 @@ export function useAuth() {
           Authorization: tokenString,
         },
       })
-      .then(function (response) {
+      .then(function(response) {
         sessionStorage.clear();
         return response;
       })
-      .catch(function (error) {
+      .catch(function(error) {
         // //local testing
         // var errorCode = 200;
         // sessionStorage.clear();
 
         var errorCode;
-        if (!error?.response) {
+        if (!error.response) {
           errorCode = 400;
-        } else if (error.response?.status === 400) {
+        } else if (error.response.status === 400) {
           errorCode = 400;
-        } else if (error.response?.status === 401) {
+        } else if (error.response.status === 401) {
           errorCode = 401;
         } else {
           errorCode = 500;
