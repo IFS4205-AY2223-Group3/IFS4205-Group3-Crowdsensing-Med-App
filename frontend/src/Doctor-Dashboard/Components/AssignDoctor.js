@@ -1,6 +1,5 @@
 import * as React from "react";
 import Title from "../../Components/Title";
-import styles from "../Doctors.css";
 import axios from "axios";
 import { EXAMINE_URL } from "../../api/constants";
 import { useState } from "react";
