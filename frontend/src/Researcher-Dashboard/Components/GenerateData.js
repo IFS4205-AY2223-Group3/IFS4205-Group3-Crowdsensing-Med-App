@@ -6,7 +6,6 @@ import axios from "axios";
 import { VIEW_ANON_DATA_URL } from "../../api/constants";
 import { useState, useEffect } from "react";
 import { CSVLink } from "react-csv";
-import { render } from "react-dom";
 import { TablePagination } from "react-pagination-table";
 
 export default function GenerateData() {
