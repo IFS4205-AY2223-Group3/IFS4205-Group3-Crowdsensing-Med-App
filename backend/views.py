@@ -228,7 +228,7 @@ class TOTPVerifyView(APIView):
 class Login(ObtainAuthToken):
     def post(self, request, *args, **kwargs):
         try:
-            request.data["username"] = str(request.data["username"]).lower()
+            username = str(request.data["username"]).lower()
             role = get_role(request.data["role"])
         except KeyError:  # missing username / role field
             raise InvalidRequestException()
@@ -243,7 +243,7 @@ class Login(ObtainAuthToken):
                 log_info(
                     [
                         "User",
-                        serializer.data["username"],
+                        username,
                         "/login",
                         "Failure",
                         "Invalid username / password",
