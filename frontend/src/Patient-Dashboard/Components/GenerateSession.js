@@ -28,25 +28,25 @@ export default function GenerateSession() {
           Authorization: tokenString,
         },
       })
-      .then(function (response) {
-        setExamId(response?.data?.examId);
+      .then(function(response) {
+        setExamId(response.data.examId);
         setSuccess(true);
         setBuffer(false);
       })
-      .catch(function (err) {
+      .catch(function(err) {
         setFailure(true);
         setBuffer(false);
-        if (!err?.response) {
+        if (!err.response) {
           setErrMsg("No Server Response");
-        } else if (err.response?.status === 400) {
+        } else if (err.response.status === 400) {
           setErrMsg(err.response.data.message);
-        } else if (err.response?.status === 401) {
+        } else if (err.response.status === 401) {
           setErrMsg(err.response.data.message);
-        } else if (err.response?.status === 403) {
+        } else if (err.response.status === 403) {
           setErrMsg(err.response.data.message);
-        } else if (err.response?.status === 405) {
+        } else if (err.response.status === 405) {
           setErrMsg(err.response.data.message);
-        } else if (err.response?.status === 500) {
+        } else if (err.response.status === 500) {
           setErrMsg(err.response.data.message);
         } else {
           setErrMsg("Server encountered an error, please try again.");
@@ -69,10 +69,10 @@ export default function GenerateSession() {
           },
         }
       )
-      .then(function (response) {
+      .then(function(response) {
         navigate("/patient");
       })
-      .catch(function (allowErr) {
+      .catch(function(allowErr) {
         setAllowErrMsg("Server encountered an error, please try again.");
         setIsErrPopUp(true);
       });

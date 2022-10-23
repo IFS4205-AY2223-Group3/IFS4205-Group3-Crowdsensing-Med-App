@@ -197,6 +197,7 @@ function DashboardContent() {
                     p: 2,
                     display: "flex",
                     flexDirection: "column",
+                    width: 1200,
                   }}
                 >
                   <GenerateData></GenerateData>

@@ -6,6 +6,7 @@ import axios from "axios";
 import { VIEW_ANON_DATA_URL } from "../../api/constants";
 import { useState, useEffect } from "react";
 import { CSVLink } from "react-csv";
+import { TablePagination } from "react-pagination-table";
 
 export default function GenerateData() {
   const token = sessionStorage.getItem("accessToken");
@@ -17,6 +18,16 @@ export default function GenerateData() {
   const [buffer, setBuffer] = useState(true);
   const [errMsg, setErrMsg] = useState("");
   const [anonRecords, setAnonyRecords] = useState();
+  const headers = [
+    "Zipcode Range",
+    "Age",
+    "Height",
+    "Weight",
+    "Allergies",
+    "Race",
+    "Sex",
+    "Diagnosis",
+  ];
 
   useEffect(() => {
     axios
@@ -33,26 +44,26 @@ export default function GenerateData() {
           },
         }
       )
-      .then(function (response) {
+      .then(function(response) {
         setAnonyRecords(response.data);
         console.log(response);
         setSuccess(true);
         setBuffer(false);
       })
-      .catch(function (err) {
+      .catch(function(err) {
         setFailure(true);
         setBuffer(false);
-        if (!err?.response) {
+        if (!err.response) {
           setErrMsg("No Server Response");
-        } else if (err.response?.status === 400) {
+        } else if (err.response.status === 400) {
           setErrMsg(err.response.data.message);
-        } else if (err.response?.status === 401) {
+        } else if (err.response.status === 401) {
           setErrMsg(err.response.data.message);
-        } else if (err.response?.status === 403) {
+        } else if (err.response.status === 403) {
           setErrMsg(err.response.data.message);
-        } else if (err.response?.status === 405) {
+        } else if (err.response.status === 405) {
           setErrMsg(err.response.data.message);
-        } else if (err.response?.status === 500) {
+        } else if (err.response.status === 500) {
           setErrMsg(err.response.data.message);
         } else {
           setErrMsg("Server encountered an error, please try again.");
@@ -73,30 +84,14 @@ export default function GenerateData() {
           </font>{" "}
         </CSVLink>
         <br></br>
-        <table>
-          <tr>
-            <th>Zipcode Range</th>
-            <th>Age Range</th>
-            <th>Height Range</th>
-            <th>Weight Range</th>
-            <th>Allergies</th>
-            <th>Race</th>
-            <th>Sex</th>
-            <th>Diagnosis</th>
-          </tr>
-          {anonRecords.map((anonRecords) => (
-            <tr>
-              <td>{anonRecords.zipcode_range}</td>
-              <td>{anonRecords.age_range}</td>
-              <td>{anonRecords.height_range}</td>
-              <td>{anonRecords.weight_range}</td>
-              <td>{anonRecords.allergies}</td>
-              <td>{anonRecords.race}</td>
-              <td>{anonRecords.sex}</td>
-              <td>{anonRecords.diagnosis}</td>
-            </tr>
-          ))}
-        </table>
+        <TablePagination
+          headers={headers}
+          data={anonRecords}
+          columns="zipcode_range.age_range.height_range.weight_range.allergies.race.sex.diagnosis"
+          perPageItemCount={50}
+          totalCount={anonRecords.length}
+          arrayOption={[["size", "all", " "]]}
+        />
       </React.Fragment>
     );
   } else if (buffer) {
