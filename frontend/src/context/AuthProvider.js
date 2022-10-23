@@ -4,8 +4,6 @@ import { LOGIN_URL, LOGOUT_URL } from "../api/constants";
 import React, { useState, useEffect } from "react";
 
 const Context = React.createContext();
-const ca_text = '-----BEGIN CERTIFICATE-----'
-+ 'MIIDRzCCAi+gAwIBAgIUOrt6SnF4rrFMcVA6tJPPZ7R9CoIwDQYJKoZIhvcNAQEL'
 
 export function useAuth() {
   const setData = ({ accessToken, userRole, name }) => {
