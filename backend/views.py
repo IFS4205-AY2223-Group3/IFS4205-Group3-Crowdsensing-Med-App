@@ -315,7 +315,7 @@ class AssignPendingExam(APIView):
     parser_classes = [JSONParser]
     permission_classes = (IsAuthenticated, IsDoctor)
 
-    # assign doctor to a session (done by doctors)
+    # assign a doctor to a session (done by doctors)
     @csrf_exempt
     def post(self, request):
         try:
