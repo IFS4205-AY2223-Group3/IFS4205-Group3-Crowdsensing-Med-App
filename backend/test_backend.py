@@ -160,27 +160,13 @@ class PatientTest(APITestCase):
         ).data
         self.assertEqual(response.data, expected_data)
 
-    def test_submit_examination(self):
-        pending_exam = PendingExamination.objects.create_exam(self.patient)
-        pending_exam.approved = True
-        pending_exam.doctor = self.user
-        pending_exam.save()
-
-        diagnosis = Diagnosis.objects.create(code="abc", description="def")
-        exam_id = pending_exam.exam_id
-
-        data = {"code": "abc", "prescription": "panadol"}
-
-        response = self.client.post("/submitexamination", data)
+    def test_allow_session(self):
+        generate_session = self.client.get("/generatesession")
+        pending_exam = PendingExamination.objects.get(patient=self.user)
+        data = {"examId": pending_exam.exam_id}
+        response = self.client.post("/allowsession", data)
 
         expected_response = status.HTTP_200_OK
-        self.assertEqual(response.status_code, expected_response)
-
-        submitted_exam = Examination.objects.get(exam_id=exam_id)
-        self.assertEqual(submitted_exam.doctor, self.user)
-        self.assertEqual(submitted_exam.patient, self.patient)
-        self.assertEqual(submitted_exam.diagnosis.code, "abc")
-        self.assertEqual(submitted_exam.prescription, "panadol")
 
 class DoctorTest(APITestCase):
     def setUp(self):
