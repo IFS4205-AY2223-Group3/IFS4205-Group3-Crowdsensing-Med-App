@@ -167,6 +167,7 @@ class PatientTest(APITestCase):
         response = self.client.post("/allowsession", data)
 
         expected_response = status.HTTP_200_OK
+        self.assertEqual(response.status_code, expected_response)
 
 class DoctorTest(APITestCase):
     def setUp(self):
