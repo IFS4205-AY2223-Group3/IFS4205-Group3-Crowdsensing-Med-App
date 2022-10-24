@@ -102,7 +102,7 @@ class Detector:  # object detection class
                 },
                 verify=False,
             )
-            total_seconds = Constants.TOTAL_TIME  # timer
+            total_seconds = Constants.TOTAL_TIME  # set timer
             while total_seconds > 0:
                 time.sleep(1)
                 print("1 second passed")
