@@ -9,21 +9,21 @@ import {
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { createRoot } from "react-dom/client";
 import "./index.css";
-import Login_Home from "./Login/Login_Home";
-import Login_CreateAuth from "./Login/Login_CreateAuth";
-import Login_OTP from "./Login/Login_OTP";
-import Patient_Home from "./Patient-Dashboard/Patient_Home";
-import Patient_Records from "./Patient-Dashboard/Patient_Records";
-import Patient_Session from "./Patient-Dashboard/Patient_Session";
-import Patient_Settings from "./Patient-Dashboard/Patient_Settings";
-import Doctor_Home from "./Doctor-Dashboard/Doctor_Home";
-import Doctor_Assign from "./Doctor-Dashboard/Doctor_Assign";
-import Doctor_View_Records from "./Doctor-Dashboard/Doctor_View_Records";
-import Doctor_Examination from "./Doctor-Dashboard/Doctor_Examination";
-import Doctor_Settings from "./Doctor-Dashboard/Doctor_Settings";
-import Researcher_Home from "./Researcher-Dashboard/Researcher_Home";
-import Researcher_Data from "./Researcher-Dashboard/Researcher_Data";
-import Researcher_Settings from "./Researcher-Dashboard/Researcher_Settings";
+import LoginHome from "./Login/Login_Home";
+import LoginCreateAuth from "./Login/Login_CreateAuth";
+import LoginOTP from "./Login/Login_OTP";
+import PatientHome from "./Patient-Dashboard/Patient_Home";
+import PatientRecords from "./Patient-Dashboard/Patient_Records";
+import PatientSession from "./Patient-Dashboard/Patient_Session";
+import PatientSettings from "./Patient-Dashboard/Patient_Settings";
+import DoctorHome from "./Doctor-Dashboard/Doctor_Home";
+import DoctorAssign from "./Doctor-Dashboard/Doctor_Assign";
+import DoctorViewRecords from "./Doctor-Dashboard/Doctor_View_Records";
+import DoctorExamination from "./Doctor-Dashboard/Doctor_Examination";
+import DoctorSettings from "./Doctor-Dashboard/Doctor_Settings";
+import ResearcherHome from "./Researcher-Dashboard/Researcher_Home";
+import ResearcherData from "./Researcher-Dashboard/Researcher_Data";
+import ResearcherSettings from "./Researcher-Dashboard/Researcher_Settings";
 
 const rootElement = document.getElementById("root");
 const root = createRoot(rootElement);
@@ -33,13 +33,13 @@ root.render(
     <AuthProvider>
       <BrowserRouter>
         <Routes>
-          <Route index element={<Login_Home />} />
-          <Route path="login" element={<Login_Home />} />
+          <Route index element={<LoginHome />} />
+          <Route path="login" element={<LoginHome />} />
           <Route
             path="createauth"
             element={
               <RequireInitAuth>
-                <Login_CreateAuth />
+                <LoginCreateAuth />
               </RequireInitAuth>
             }
           />
@@ -47,7 +47,7 @@ root.render(
             path="verifyotp"
             element={
               <RequireInitAuth>
-                <Login_OTP />{" "}
+                <LoginOTP />{" "}
               </RequireInitAuth>
             }
           />
@@ -56,7 +56,7 @@ root.render(
             path="patient"
             element={
               <RequireAuth role="Patient">
-                <Patient_Home />
+                <PatientHome />
               </RequireAuth>
             }
           />
@@ -65,7 +65,7 @@ root.render(
             path="patientsetting"
             element={
               <RequireAuth role="Patient">
-                <Patient_Settings />
+                <PatientSettings />
               </RequireAuth>
             }
           />
@@ -73,7 +73,7 @@ root.render(
             path="generatesession"
             element={
               <RequireAuth role="Patient">
-                <Patient_Session />
+                <PatientSession />
               </RequireAuth>
             }
           />
@@ -81,7 +81,7 @@ root.render(
             path="healthrecords"
             element={
               <RequireAuth role="Patient">
-                <Patient_Records />
+                <PatientRecords />
               </RequireAuth>
             }
           />
@@ -89,7 +89,7 @@ root.render(
             path="doctor"
             element={
               <RequireAuth role="Doctor">
-                <Doctor_Home />
+                <DoctorHome />
               </RequireAuth>
             }
           />
@@ -98,7 +98,7 @@ root.render(
             path="assigndoctor"
             element={
               <RequireAuth role="Doctor">
-                <Doctor_Assign />
+                <DoctorAssign />
               </RequireAuth>
             }
           />
@@ -106,7 +106,7 @@ root.render(
             path="doctorsetting"
             element={
               <RequireAuth role="Doctor">
-                <Doctor_Settings />
+                <DoctorSettings />
               </RequireAuth>
             }
           />
@@ -115,7 +115,7 @@ root.render(
             element={
               <RequireAuth role="Doctor">
                 <RequireExam>
-                  <Doctor_Examination />
+                  <DoctorExamination />
                 </RequireExam>
               </RequireAuth>
             }
@@ -125,7 +125,7 @@ root.render(
             element={
               <RequireAuth role="Doctor">
                 <RequireExam>
-                  <Doctor_View_Records />
+                  <DoctorViewRecords />
                 </RequireExam>
               </RequireAuth>
             }
@@ -135,7 +135,7 @@ root.render(
             path="researcher"
             element={
               <RequireAuth role="Researcher">
-                <Researcher_Home />
+                <ResearcherHome />
               </RequireAuth>
             }
           />
@@ -143,7 +143,7 @@ root.render(
             path="researchersetting"
             element={
               <RequireAuth role="Researcher">
-                <Researcher_Settings />
+                <ResearcherSettings />
               </RequireAuth>
             }
           />
@@ -152,7 +152,7 @@ root.render(
             element={
               <RequireAuth role="Researcher">
                 <RequireResearcher>
-                  <Researcher_Data />
+                  <ResearcherData />
                 </RequireResearcher>
               </RequireAuth>
             }
