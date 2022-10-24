@@ -59,10 +59,12 @@ class CrowdDataSerializer(serializers.ModelSerializer):
         model = Crowd
         fields = ["time_recorded", "count"]
 
+
 class DiagnosisSerializer(serializers.ModelSerializer):
     class Meta:
         model = Diagnosis
         fields = ["code", "description"]
+
 
 class AnonymizedRecordSerializer(serializers.Serializer):
     zipcode_range = serializers.CharField(max_length=15)
@@ -72,4 +74,4 @@ class AnonymizedRecordSerializer(serializers.Serializer):
     allergies = serializers.CharField(max_length=10)
     race = serializers.CharField(max_length=10)
     sex = serializers.CharField(max_length=2)
-    diagnosis = serializers.CharField(max_length=10)  
+    diagnosis = serializers.CharField(max_length=10)
