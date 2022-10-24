@@ -537,7 +537,7 @@ class DoctorViewOldSessions(APIView):
 # PATIENT API
 
 
-class CreateSession(APIView):
+class GenerateSession(APIView):
     parser_classes = [JSONParser]
     permission_classes = (IsAuthenticated,)
 
