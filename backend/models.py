@@ -11,6 +11,7 @@ from django.utils.crypto import get_random_string
 from django.utils.translation import gettext_lazy as _
 from django.contrib.postgres.fields import IntegerRangeField, RangeOperators
 
+
 class CustomAccountManager(BaseUserManager):
     def create_user(self, username, email, password, **other_fields):
         if not email:
@@ -130,6 +131,7 @@ class HealthRecord(models.Model):
     zipcode = models.CharField(max_length=6)
     address = models.CharField(max_length=100)
 
+
 class Diagnosis(models.Model):
     code = models.CharField(max_length=10, primary_key=True)
     description = models.TextField()
@@ -181,6 +183,7 @@ class PendingExamination(models.Model):
 class Crowd(models.Model):
     time_recorded = models.DateTimeField(auto_now_add=True, primary_key=True)
     count = models.IntegerField()
+
 
 class AnonymizedRecord(models.Model):
     age_range = IntegerRangeField()

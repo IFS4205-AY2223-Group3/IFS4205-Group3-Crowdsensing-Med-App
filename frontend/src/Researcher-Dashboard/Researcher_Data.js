@@ -197,6 +197,7 @@ function DashboardContent() {
                     p: 2,
                     display: "flex",
                     flexDirection: "column",
+                    width: 1200,
                   }}
                 >
                   <GenerateData></GenerateData>
@@ -210,6 +211,6 @@ function DashboardContent() {
   );
 }
 
-export default function Researcher_Data() {
+export default function ResearcherData() {
   return <DashboardContent />;
 }

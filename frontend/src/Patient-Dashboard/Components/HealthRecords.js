@@ -23,25 +23,25 @@ export default function HealthRecords() {
           Authorization: tokenString,
         },
       })
-      .then(function (response) {
+      .then(function(response) {
         setHealthRecords(response.data.healthRecords);
         setSuccess(true);
         setBuffer(false);
       })
-      .catch(function (err) {
+      .catch(function(err) {
         setFailure(true);
         setBuffer(false);
-        if (!err?.response) {
+        if (!err.response) {
           setErrMsg("No Server Response");
-        } else if (err.response?.status === 400) {
+        } else if (err.response.status === 400) {
           setErrMsg(err.response.data.message);
-        } else if (err.response?.status === 401) {
+        } else if (err.response.status === 401) {
           setErrMsg(err.response.data.message);
-        } else if (err.response?.status === 403) {
+        } else if (err.response.status === 403) {
           setErrMsg(err.response.data.message);
-        } else if (err.response?.status === 405) {
+        } else if (err.response.status === 405) {
           setErrMsg(err.response.data.message);
-        } else if (err.response?.status === 500) {
+        } else if (err.response.status === 500) {
           setErrMsg(err.response.data.message);
         } else {
           setErrMsg("Server encountered an error, please try again.");
@@ -54,30 +54,32 @@ export default function HealthRecords() {
       <React.Fragment>
         <Title>Health Record</Title>
         <table>
-          <tr>
-            <th>Name</th>
-            <td>{healthRecords.name}</td>
-          </tr>
-          <tr>
-            <th>Date of Birth</th>
-            <td>{healthRecords.dateofbirth}</td>
-          </tr>
-          <tr>
-            <th>Height</th>
-            <td>{healthRecords.height}cm</td>
-          </tr>
-          <tr>
-            <th>Weight</th>
-            <td>{healthRecords.weight}kg</td>
-          </tr>
-          <tr>
-            <th>Blood Type</th>
-            <td>{healthRecords.bloodtype}</td>
-          </tr>
-          <tr>
-            <th>Allergies</th>
-            <td>{healthRecords.allergies}</td>
-          </tr>
+          <tbody>
+            <tr>
+              <th>Name</th>
+              <td>{healthRecords.name}</td>
+            </tr>
+            <tr>
+              <th>Date of Birth</th>
+              <td>{healthRecords.dateofbirth}</td>
+            </tr>
+            <tr>
+              <th>Height</th>
+              <td>{healthRecords.height}cm</td>
+            </tr>
+            <tr>
+              <th>Weight</th>
+              <td>{healthRecords.weight}kg</td>
+            </tr>
+            <tr>
+              <th>Blood Type</th>
+              <td>{healthRecords.bloodtype}</td>
+            </tr>
+            <tr>
+              <th>Allergies</th>
+              <td>{healthRecords.allergies}</td>
+            </tr>
+          </tbody>
         </table>
       </React.Fragment>
     );

@@ -234,6 +234,6 @@ function DashboardContent() {
   );
 }
 
-export default function Doctor_Assign() {
+export default function DoctorAssign() {
   return <DashboardContent />;
 }

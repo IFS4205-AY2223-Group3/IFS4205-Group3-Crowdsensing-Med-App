@@ -225,6 +225,6 @@ function DashboardContent() {
   );
 }
 
-export default function Patient_Records() {
+export default function PatientRecords() {
   return <DashboardContent />;
 }

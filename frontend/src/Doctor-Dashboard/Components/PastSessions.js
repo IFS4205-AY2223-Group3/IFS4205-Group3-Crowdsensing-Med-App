@@ -23,25 +23,25 @@ export default function PastSessions() {
           Authorization: tokenString,
         },
       })
-      .then(function (response) {
+      .then(function(response) {
         setExamRecords(response.data.examRecords);
         setSuccess(true);
         setBuffer(false);
       })
-      .catch(function (err) {
+      .catch(function(err) {
         setFailure(true);
         setBuffer(false);
-        if (!err?.response) {
+        if (!err.response) {
           setErrMsg("No Server Response");
-        } else if (err.response?.status === 400) {
+        } else if (err.response.status === 400) {
           setErrMsg(err.response.data.message);
-        } else if (err.response?.status === 401) {
+        } else if (err.response.status === 401) {
           setErrMsg(err.response.data.message);
-        } else if (err.response?.status === 403) {
+        } else if (err.response.status === 403) {
           setErrMsg(err.response.data.message);
-        } else if (err.response?.status === 405) {
+        } else if (err.response.status === 405) {
           setErrMsg(err.response.data.message);
-        } else if (err.response?.status === 500) {
+        } else if (err.response.status === 500) {
           setErrMsg(err.response.data.message);
         } else {
           setErrMsg("Server encountered an error, please try again.");
@@ -54,20 +54,24 @@ export default function PastSessions() {
       <React.Fragment>
         <Title>Past Sessions</Title>
         <table>
-          <tr>
-            <th>Date Time</th>
-            <th>Patient</th>
-            <th>Prescription</th>
-            <th>Diagnosis</th>
-          </tr>
-          {examRecords.map((examRecords) => (
+          <thead>
             <tr>
-              <td>{examRecords.examtime}</td>
-              <td>{examRecords.patient}</td>
-              <td>{examRecords.diagnosis}</td>
-              <td>{examRecords.prescription}</td>
+              <th>Date Time</th>
+              <th>Patient</th>
+              <th>Prescription</th>
+              <th>Diagnosis</th>
             </tr>
-          ))}
+          </thead>
+          <tbody>
+            {examRecords.map((examRecord, id) => (
+              <tr key={id}>
+                <td>{examRecord.examtime}</td>
+                <td>{examRecord.patient}</td>
+                <td>{examRecord.diagnosis}</td>
+                <td>{examRecord.prescription}</td>
+              </tr>
+            ))}
+          </tbody>
         </table>
       </React.Fragment>
     );
