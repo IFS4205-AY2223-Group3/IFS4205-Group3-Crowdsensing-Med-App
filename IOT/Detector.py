@@ -11,7 +11,7 @@ import Constants
 np.random.seed(Constants.SEED_NUMBER)
 
 
-class Detector:  #object detection class
+class Detector:  # object detection class
     def __init__(self, videopath, configpath, modelpath, classespath):
         self.videopath = videopath
         self.configpath = configpath
