@@ -1,0 +1,15 @@
+name: Bandit
+
+on: [push, pull_request]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - uses: jpetrucciani/bandit-check@master
+      with:
+        path: './backend'
+        bandit_flags: '-x ./backend/test_backend.py'
+

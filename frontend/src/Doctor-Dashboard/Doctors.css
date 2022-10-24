@@ -1,0 +1,12 @@
+table,
+th,
+td {
+  border: 0pt solid;
+  /* font-style:italic; */
+  border-collapse: collapse;
+}
+th,
+td {
+  padding: 5px;
+  border-bottom: 1px solid rgb(199, 198, 198);
+}

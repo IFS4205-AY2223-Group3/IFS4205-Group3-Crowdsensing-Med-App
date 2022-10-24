@@ -1,17 +1,29 @@
 import React from "react";
-import { AuthProvider, RequireAuth } from "./context/AuthProvider";
+import {
+  AuthProvider,
+  RequireAuth,
+  RequireExam,
+  RequireInitAuth,
+  RequireResearcher,
+} from "./context/AuthProvider";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { createRoot } from "react-dom/client";
 import "./index.css";
-import Login from "./Login/Login";
-import Patient_Dashboard from "./Patient/Patient_Dashboard";
-import Doctor_Dashboard from "./Doctor/Doctor_Dashboard";
-import Examine from "./Doctor/Examine";
-import Submit_Examination from "./Doctor/Submit_Examination";
-import Doctor_View_Records from "./Doctor/Doctor_View_Records";
-import Generate_Session from "./Patient/Generate_Session";
-import View_Records from "./Patient/View_Records";
-import Allow_Session from "./Patient/Allow_Session";
+import LoginHome from "./Login/Login_Home";
+import LoginCreateAuth from "./Login/Login_CreateAuth";
+import LoginOTP from "./Login/Login_OTP";
+import PatientHome from "./Patient-Dashboard/Patient_Home";
+import PatientRecords from "./Patient-Dashboard/Patient_Records";
+import PatientSession from "./Patient-Dashboard/Patient_Session";
+import PatientSettings from "./Patient-Dashboard/Patient_Settings";
+import DoctorHome from "./Doctor-Dashboard/Doctor_Home";
+import DoctorAssign from "./Doctor-Dashboard/Doctor_Assign";
+import DoctorViewRecords from "./Doctor-Dashboard/Doctor_View_Records";
+import DoctorExamination from "./Doctor-Dashboard/Doctor_Examination";
+import DoctorSettings from "./Doctor-Dashboard/Doctor_Settings";
+import ResearcherHome from "./Researcher-Dashboard/Researcher_Home";
+import ResearcherData from "./Researcher-Dashboard/Researcher_Data";
+import ResearcherSettings from "./Researcher-Dashboard/Researcher_Settings";
 
 const rootElement = document.getElementById("root");
 const root = createRoot(rootElement);
@@ -21,69 +33,127 @@ root.render(
     <AuthProvider>
       <BrowserRouter>
         <Routes>
-          <Route index element={<Login />} />
-          <Route path="login" element={<Login />} />
+          <Route index element={<LoginHome />} />
+          <Route path="login" element={<LoginHome />} />
+          <Route
+            path="createauth"
+            element={
+              <RequireInitAuth>
+                <LoginCreateAuth />
+              </RequireInitAuth>
+            }
+          />
+          <Route
+            path="verifyotp"
+            element={
+              <RequireInitAuth>
+                <LoginOTP />{" "}
+              </RequireInitAuth>
+            }
+          />
+
           <Route
             path="patient"
             element={
-              <RequireAuth role="patient">
-                <Patient_Dashboard />
+              <RequireAuth role="Patient">
+                <PatientHome />
+              </RequireAuth>
+            }
+          />
+
+          <Route
+            path="patientsetting"
+            element={
+              <RequireAuth role="Patient">
+                <PatientSettings />
               </RequireAuth>
             }
           />
           <Route
             path="generatesession"
             element={
-              <RequireAuth role="patient">
-                <Generate_Session />
+              <RequireAuth role="Patient">
+                <PatientSession />
               </RequireAuth>
             }
           />
           <Route
-            path="patientviewrecords"
+            path="healthrecords"
             element={
-              <RequireAuth role="patient">
-                <View_Records />
-              </RequireAuth>
-            }
-          />
-          <Route
-            path="allowsession"
-            element={
-              <RequireAuth role="patient">
-                <Allow_Session />
+              <RequireAuth role="Patient">
+                <PatientRecords />
               </RequireAuth>
             }
           />
           <Route
             path="doctor"
             element={
-              <RequireAuth role="doctor">
-                <Doctor_Dashboard />
+              <RequireAuth role="Doctor">
+                <DoctorHome />
+              </RequireAuth>
+            }
+          />
+
+          <Route
+            path="assigndoctor"
+            element={
+              <RequireAuth role="Doctor">
+                <DoctorAssign />
               </RequireAuth>
             }
           />
           <Route
-            path="assigndoctor"
+            path="doctorsetting"
             element={
-              <RequireAuth role="doctor">
-                <Examine />
+              <RequireAuth role="Doctor">
+                <DoctorSettings />
               </RequireAuth>
             }
           />
           <Route
             path="submitexamination"
             element={
-              <RequireAuth role="doctor">
-                <Submit_Examination />
+              <RequireAuth role="Doctor">
+                <RequireExam>
+                  <DoctorExamination />
+                </RequireExam>
               </RequireAuth>
             }
           />
           <Route
             path="doctorviewrecords"
             element={
-              <RequireAuth role="doctor">
-                <Doctor_View_Records />
+              <RequireAuth role="Doctor">
+                <RequireExam>
+                  <DoctorViewRecords />
+                </RequireExam>
+              </RequireAuth>
+            }
+          />
+
+          <Route
+            path="researcher"
+            element={
+              <RequireAuth role="Researcher">
+                <ResearcherHome />
+              </RequireAuth>
+            }
+          />
+          <Route
+            path="researchersetting"
+            element={
+              <RequireAuth role="Researcher">
+                <ResearcherSettings />
+              </RequireAuth>
+            }
+          />
+          <Route
+            path="generatedata"
+            element={
+              <RequireAuth role="Researcher">
+                <RequireResearcher>
+                  <ResearcherData />
+                </RequireResearcher>
               </RequireAuth>
             }
           />
