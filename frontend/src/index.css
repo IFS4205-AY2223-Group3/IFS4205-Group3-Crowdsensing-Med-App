@@ -4,13 +4,13 @@ body {
 }
 
 html {
-  font-family: 'Nunito', sans-serif;
+  font-family: "Nunito", sans-serif;
   font-size: 22px;
   color: #fff;
 }
 
 code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
+  font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New",
     monospace;
 }
 
@@ -34,28 +34,27 @@ form {
 }
 
 h1 {
-  font-family: 'Calibri', sans-serif;
+  font-family: "Calibri", sans-serif;
   font-size: 33x;
-  color:black
-
+  color: black;
 }
 
-select{
-  font-family: 'Nunito', sans-serif;
+select {
+  font-family: "Nunito", sans-serif;
   font-size: 22px;
   padding: 0.25rem;
   border-radius: 0.5rem;
 }
 
 p {
-  font-family: 'Nunito', sans-serif;
+  font-family: "Nunito", sans-serif;
   font-size: 32px;
-  color:black
+  color: black;
 }
 
 #root {
-  height:100vh;
-  width:100vw; 
+  height: 100vh;
+  width: 100vw;
 }
 
 * {
@@ -79,6 +78,35 @@ p {
 
 .close_button {
   display: block;
+  width: 100%;
   margin-left: auto;
   margin-right: auto;
+  background-color: grey;
 }
+
+/* button,
+textarea {
+  font-family: 'Nunito', sans-serif;
+  font-size: 22px;
+  padding: 0.25rem;
+  border-radius: 0.5rem;
+}
+
+button {
+  padding: 0.5rem;
+  background-color: rgb(18, 43, 113);
+  cursor: pointer;
+}
+
+button:hover {
+  background-color: rgb(122, 238, 5);
+}
+
+.back_button {
+  padding: 0.5rem;
+  background-color: rgb(198, 202, 195);
+}
+
+.back_button:hover {
+  background-color: rgb(186, 192, 182);
+} */

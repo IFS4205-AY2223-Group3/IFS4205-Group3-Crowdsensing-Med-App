@@ -5,8 +5,10 @@ import time
 import json
 import datetime
 import requests
+from imutils.video import WebcamVideoStream
+import Constants
 
-np.random.seed(20)
+np.random.seed(Constants.SEED_NUMBER)
 
 
 class Detector:  # object detection class
@@ -35,16 +37,12 @@ class Detector:  # object detection class
         )
 
     def onVideo(self):
-        cap = cv2.VideoCapture(self.videopath)
-
-        if cap.isOpened() == False:
-            print("Error opening file...")
-            return
+        cap = WebcamVideoStream(src=0).start()
 
         isLoop = True
 
         while isLoop:  # frames successfully captured
-            (success, image) = cap.read()
+            image = cap.read()
 
             classLabelIDs, confidences, bboxs = self.net.detect(
                 image, confThreshold=0.5
@@ -94,18 +92,17 @@ class Detector:  # object detection class
             print(formatted_time)
             data = {"time_recorded": formatted_time, "count": count}
             data_json = json.dumps(data)
-            print(data_json)
-            header = {"Accept": "application/json", "Content-Type": "application/json"}
-            header_json = json.dumps(header)
             post_request = requests.post(
-                url="http://ifs4205-group3-backend-i.comp.nus.edu.sg:8000/iot",
+                url=Constants.URL,
                 data=data_json,
                 headers={
-                    "Accept": "application/json",
-                    "Content-Type": "application/json",
+                    "Accept": Constants.HEADER_ACCEPT,
+                    "Content-Type": Constants.HEADER_CONTENT_TYPE,
+                    "Authorization": Constants.API_TOKEN,
                 },
+                verify=False,
             )
-            total_seconds = 10  # timer
+            total_seconds = Constants.TOTAL_TIME  # timer
             while total_seconds > 0:
                 time.sleep(1)
                 print("1 second passed")
