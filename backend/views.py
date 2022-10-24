@@ -564,15 +564,15 @@ class GenerateSession(APIView):
             session = PendingExamination.objects.create_exam(patient_obj)
             # Returns error if backend produces an existing exam_id
             if not session:
-            log_info(
-                [
-                    "Patient",
-                    patient_obj.user.username,
-                    "/generatesession",
-                    "Failure",
-                    "Existing exam_id",
-                ]
-            )
+                log_info(
+                    [
+                        "Patient",
+                        patient_obj.user.username,
+                        "/generatesession",
+                        "Failure",
+                        "Existing exam_id",
+                    ]
+                )
                 return Response(
                     {"message": "Server encountered an error, please try again."},
                     status=status.HTTP_500_INTERNAL_SERVER_ERROR,
