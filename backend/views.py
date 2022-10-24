@@ -595,6 +595,15 @@ class PatientViewRecords(APIView):
         data = {}
         # Checks if user is a patient
         if not patient_obj:
+            log_info(
+                [
+                    "Patient",
+                    user_obj.user.username,
+                    "/patientviewrecords",
+                    "Failure",
+                    "Unauthorised",
+                ]
+            )
             return Response(
                 {"message": "Action forbidden."}, status=status.HTTP_403_FORBIDDEN
             )
@@ -610,6 +619,7 @@ class PatientViewRecords(APIView):
             ).data
         except Examination.DoesNotExist:
             data["examRecords"] = {}
+            log_info(["Patient", request.user.username, "/patientviewrecords", "Success"])
         return Response(data, status=status.HTTP_200_OK)
 
 
@@ -621,6 +631,15 @@ class AllowSession(APIView):
         user_obj = request.auth.user
         patient_obj = get_patient_object(user_obj)
         if not patient_obj:
+            log_info(
+                [
+                    "Patient",
+                    user_obj.user.username,
+                    "/allowsession",
+                    "Failure",
+                    "Unauthorised",
+                ]
+            )
             return Response(
                 {"message": "Action forbidden."}, status=status.HTTP_403_FORBIDDEN
             )
@@ -630,6 +649,15 @@ class AllowSession(APIView):
             exam_id=exam_id, patient=patient_obj
         )
         if not session:
+            log_info(
+                [
+                    "Patient",
+                    user_obj.user.username,
+                    "/allowsession",
+                    "Failure",
+                    "No pending session",
+                ]
+            )
             return Response(
                 {"message": "There was an error. No session exists."},
                 status=status.HTTP_400_BAD_REQUEST,
@@ -637,6 +665,7 @@ class AllowSession(APIView):
         else:
             session.update(approved=True)
             data["message"] = "success"
+            log_info(["Patient", request.user.username, "/allowsession", "Success"])
         return Response(data, status=status.HTTP_200_OK)
 
 
