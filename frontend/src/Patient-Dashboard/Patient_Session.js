@@ -237,6 +237,6 @@ function DashboardContent() {
   );
 }
 
-export default function Patient_Session() {
+export default function PatientSession() {
   return <DashboardContent />;
 }

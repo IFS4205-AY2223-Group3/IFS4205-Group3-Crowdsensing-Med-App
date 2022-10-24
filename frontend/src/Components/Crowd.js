@@ -59,7 +59,7 @@ export default function Crowd() {
         <Typography color="text.primary" sx={{ flex: 5 }}>
           Generating...
         </Typography>{" "}
-        <img src={loading} />
+        <img src={loading} alt="load-crowd" />
       </React.Fragment>
     );
   } else if (failure) {
