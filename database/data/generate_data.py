@@ -36,16 +36,22 @@ list_diagnosis = []
 def generate_password():
     pw = os.urandom(12)
     salt = os.urandom(18)
-    #key = pbkdf2_hmac('sha256', pw, salt, 390000)
+    # key = pbkdf2_hmac('sha256', pw, salt, 390000)
     key = os.urandom(32)
-    return "pbkdf2_sha256$390000$" + base64.b64encode(salt).decode() + "$" + base64.b64encode(key).decode()
+    return (
+        "pbkdf2_sha256$390000$"
+        + base64.b64encode(salt).decode()
+        + "$"
+        + base64.b64encode(key).decode()
+    )
+
 
 # Function generates a unique identifier
 def generate_uid():
     uid = secrets.token_hex(8)
     while uid in set_uid:
         uid = secrets.token_hex(8)
-    set_uid.add(uid) 
+    set_uid.add(uid)
     return uid
 
 
@@ -120,7 +126,8 @@ def generate_bloodtype():
 
 def generate_address():
     addr = fake.street_address()
-    return addr, randint(300000,900000)
+    return addr, randint(300000, 900000)
+
 
 def generate_allergies():
     types = [
@@ -141,21 +148,29 @@ def generate_allergies():
     else:
         return random.choice(types)
 
+
 def generate_race():
-    races = ['Chinese', 'Malay', 'Indian', 'Others']
+    races = ["Chinese", "Malay", "Indian", "Others"]
     return random.choice(races)
 
+
 def generate_examtime():
-    start_date = datetime.datetime(2018, 1, 1, randint(0,23), randint(0,59), randint(0,59))
-    end_date = datetime.datetime(2022, 2, 1, randint(0,23), randint(0,59), randint(0,59))
+    start_date = datetime.datetime(
+        2018, 1, 1, randint(0, 23), randint(0, 59), randint(0, 59)
+    )
+    end_date = datetime.datetime(
+        2022, 2, 1, randint(0, 23), randint(0, 59), randint(0, 59)
+    )
     time_between_dates = end_date - start_date
     days_between_dates = time_between_dates.days
     random_number_of_days = random.randrange(days_between_dates)
     random_date = start_date + datetime.timedelta(days=random_number_of_days)
     return random_date
 
+
 def generate_diagnosis():
     return random.choice(list_diagnosis), random.choice(list_prescriptions)
+
 
 with open("prescriptions.txt", mode="r") as file:
     data = file.readlines()
@@ -164,7 +179,7 @@ with open("prescriptions.txt", mode="r") as file:
 
 with open("diagnosis.csv", mode="r") as file:
     for line in file:
-        tokens = line.split(',')
+        tokens = line.split(",")
         substr = tokens[0]
         list_diagnosis.append(substr)
 
@@ -258,16 +273,29 @@ with open("medicalapp_healthrecords.csv", mode="w", newline="\n") as file:
     for id in set_patients:
         pid = id
         dob = generate_dob()
-        sex = random.choice(['M', 'F'])
+        sex = random.choice(["M", "F"])
         height = generate_height()
         weight = generate_weight()
         bloodtype = generate_bloodtype()
         allergies = generate_allergies()
         race = generate_race()
         address, zipcode = generate_address()
-        file_writer.writerow([pid, dob, height, weight, bloodtype, allergies, race, zipcode, address, sex])
+        file_writer.writerow(
+            [
+                pid,
+                dob,
+                height,
+                weight,
+                bloodtype,
+                allergies,
+                race,
+                zipcode,
+                address,
+                sex,
+            ]
+        )
 
-with open("medicalapp_examination.csv", mode="w", newline='\n') as file:
+with open("medicalapp_examination.csv", mode="w", newline="\n") as file:
     file_writer = csv.writer(
         file, delimiter=",", quotechar='"', quoting=csv.QUOTE_MINIMAL
     )
@@ -280,5 +308,7 @@ with open("medicalapp_examination.csv", mode="w", newline='\n') as file:
         examtime = generate_examtime()
         patient_id = random.choice(list(set_patients))
         doctor_id = random.choice(list(set_doctors))
-        file_writer.writerow([exam_id, prescription, examtime, diagnosis, doctor_id, patient_id])
+        file_writer.writerow(
+            [exam_id, prescription, examtime, diagnosis, doctor_id, patient_id]
+        )
         count += 1
