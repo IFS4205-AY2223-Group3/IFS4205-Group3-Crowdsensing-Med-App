@@ -91,6 +91,96 @@ class DoctorLoginTest(TestCase):
         expected_response = status.HTTP_403_FORBIDDEN
         self.assertEqual(response.status_code, expected_response)
 
+class PatientTest(APITestCase):
+    def setUp(self):
+        self.factory = APIRequestFactory()
+        self.client = APIClient()
+
+        doctor = User.objects.create_user(
+            username="doctor", password="doctor", email="doctor@example.com"
+        )
+        patient = User.objects.create_user(
+            username="patient", password="patient", email="patient@example.com"
+        )
+        token = UserToken.objects.create(user=patient)
+        doctor.save()
+        patient.save()
+        token.verify()
+
+        self.client.credentials(HTTP_AUTHORIZATION="Token " + token.key)
+
+        self.user = Patient.objects.create(user=patient)
+        self.doctor = Doctor.objects.create(user=doctor)
+
+        HealthRecord.objects.create(
+            user=self.user,
+            dateofbirth="1998-03-03",
+            height=170,
+            weight=60,
+            bloodtype="A+",
+            allergies="None",
+        )
+
+        self.diagnosis = Diagnosis.objects.create(
+            code="A009",
+            description="Chloera unspecified"
+        )
+
+        Examination.objects.create(
+            exam_id="8S9EDJS83S",
+            doctor=self.doctor,
+            patient=self.user,
+            diagnosis=self.diagnosis,
+            prescription="150mg panadol"      
+        )
+
+    def test_generate_session(self):
+        response = self.client.get("/generatesession")
+        expected_response = status.HTTP_200_OK
+        self.assertEqual(response.status_code, expected_response)
+
+        exam = PendingExamination.objects.get(patient=self.user)
+        serialized_id = PatientSessionIdSerializer(
+            PendingExamination.objects.get(patient=self.user)
+        )
+        expected_data = serialized_id.data
+        self.assertEqual(response.data, expected_data)
+
+    def test_patient_view_records(self):
+        response = self.client.get("/patientviewrecords")
+        expected_response = status.HTTP_200_OK
+        self.assertEqual(response.status_code, expected_response)
+
+        records = HealthRecord.objects.get(user_id=self.user)
+        expected_data = {}
+        expected_data["healthRecords"] = PatientRecordsSerializer(records).data
+        past_sessions = Examination.objects.filter(patient=self.user)
+        expected_data["examRecords"] = PatientPastSessionSerializer(
+            past_sessions, many=True
+        ).data
+        self.assertEqual(response.data, expected_data)
+
+    def test_submit_examination(self):
+        pending_exam = PendingExamination.objects.create_exam(self.patient)
+        pending_exam.approved = True
+        pending_exam.doctor = self.user
+        pending_exam.save()
+
+        diagnosis = Diagnosis.objects.create(code="abc", description="def")
+        exam_id = pending_exam.exam_id
+
+        data = {"code": "abc", "prescription": "panadol"}
+
+        response = self.client.post("/submitexamination", data)
+
+        expected_response = status.HTTP_200_OK
+        self.assertEqual(response.status_code, expected_response)
+
+        submitted_exam = Examination.objects.get(exam_id=exam_id)
+        self.assertEqual(submitted_exam.doctor, self.user)
+        self.assertEqual(submitted_exam.patient, self.patient)
+        self.assertEqual(submitted_exam.diagnosis.code, "abc")
+        self.assertEqual(submitted_exam.prescription, "panadol")
 
 class DoctorTest(APITestCase):
     def setUp(self):
@@ -103,11 +193,11 @@ class DoctorTest(APITestCase):
         patient = User.objects.create_user(
             username="patient", password="patient", email="patient@example.com"
         )
-
+        token = UserToken.objects.create(user=doctor)
         doctor.save()
         patient.save()
+        token.verify()
 
-        token = UserToken.objects.create(user=doctor, verified=True)
         self.client.credentials(HTTP_AUTHORIZATION="Token " + token.key)
 
         self.user = Doctor.objects.create(user=doctor)
