@@ -633,6 +633,7 @@ def get_patient_object(user):
 #######################################################################################################################
 # IOT API
 
+
 class CrowdView(APIView):
     parser_classes = [JSONParser]
 
@@ -656,8 +657,10 @@ class CrowdView(APIView):
             )
         return Response({"count": serializer.data}, status=status.HTTP_200_OK)
 
+
 #######################################################################################################################
 # RESEARCHER API
+
 
 class ResearcherView(APIView):
     permission_classes = (IsAuthenticated, IsResearcher)
@@ -668,32 +671,38 @@ class ResearcherView(APIView):
 
     def post(self, request):
         try:
-            search_key = request.data['key']
-            value = request.data['value']
+            search_key = request.data["key"]
+            value = request.data["value"]
             verify_search_key(search_key)
         except KeyError:
             raise InvalidRequestException()
-        
+
         try:
-            if search_key == 'diagnosis':
+            if search_key == "diagnosis":
                 records = AnonymizedRecord.objects.filter(diagnosis=value)
             else:
                 value = int(value)
-                if search_key == 'zipcode':
-                    records = AnonymizedRecord.objects.filter(zipcode_range__contains=value)
-                elif search_key == 'age':
+                if search_key == "zipcode":
+                    records = AnonymizedRecord.objects.filter(
+                        zipcode_range__contains=value
+                    )
+                elif search_key == "age":
                     records = AnonymizedRecord.objects.filter(age_range__contains=value)
-                elif search_key == 'height':
-                    records = AnonymizedRecord.objects.filter(height_range__contains=value)
-                elif search_key == 'weight':
-                    records = AnonymizedRecord.objects.filter(weight_range__contains=value)
+                elif search_key == "height":
+                    records = AnonymizedRecord.objects.filter(
+                        height_range__contains=value
+                    )
+                elif search_key == "weight":
+                    records = AnonymizedRecord.objects.filter(
+                        weight_range__contains=value
+                    )
             serializer = AnonymizedRecordSerializer(records, many=True)
             return Response(serializer.data, status=status.HTTP_200_OK)
         except ValueError:
             raise InvalidRequestException()
-        
+
+
 def verify_search_key(s):
-    accepted_values = {'zipcode', 'age', 'height', 'weight', 'diagnosis'}
+    accepted_values = {"zipcode", "age", "height", "weight", "diagnosis"}
     if str(s).lower() not in accepted_values:
         raise KeyError
-    

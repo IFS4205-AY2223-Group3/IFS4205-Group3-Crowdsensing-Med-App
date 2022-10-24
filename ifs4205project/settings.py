@@ -26,6 +26,7 @@ except OSError as e:
     PRODUCTION = False
     secrets = {}
 
+
 def get_secret(setting, secrets=secrets):
     """Get secret setting or fail with ImproperlyConfigured"""
     try:
@@ -112,23 +113,18 @@ WSGI_APPLICATION = "ifs4205project.wsgi.application"
 
 if PRODUCTION:
     DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.postgresql',
-            'HOST': get_secret('HOST'),
-            'NAME': get_secret('NAME'),
-            'USER': get_secret('USER'),
-            'PASSWORD': get_secret('PASSWORD'),
-            'OPTIONS': {
-                'sslmode':'require',
-            },
+        "default": {
+            "ENGINE": "django.db.backends.postgresql",
+            "HOST": get_secret("HOST"),
+            "NAME": get_secret("NAME"),
+            "USER": get_secret("USER"),
+            "PASSWORD": get_secret("PASSWORD"),
+            "OPTIONS": {"sslmode": "require"},
         }
     }
 else:
     DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.sqlite3',
-            'NAME': 'mydatabase',
-        }
+        "default": {"ENGINE": "django.db.backends.sqlite3", "NAME": "mydatabase"}
     }
 
 
@@ -166,21 +162,15 @@ LOGGING = {
             "formatter": "verbose",
         }
     },
-    'handlers': {
-        'file': {
-            'level': 'INFO',
-            'class':'logging.FileHandler',
-            'filename': os.path.join(BASE_DIR, 'backend.log'),
-            'formatter':'verbose'
-        },
+    "handlers": {
+        "file": {
+            "level": "INFO",
+            "class": "logging.FileHandler",
+            "filename": os.path.join(BASE_DIR, "backend.log"),
+            "formatter": "verbose",
+        }
     },
-    'loggers': {
-        'backend': {
-            'handlers': ['file'],
-            'level': 'INFO',
-            'propagate': True,
-        },
-    },
+    "loggers": {"backend": {"handlers": ["file"], "level": "INFO", "propagate": True}},
 }
 
 
