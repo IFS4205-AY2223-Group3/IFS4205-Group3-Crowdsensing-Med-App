@@ -84,7 +84,7 @@ export default function Examination() {
           id="notes"
           autoComplete="off"
         />
-        <button class={styles.back_button} onClick={handleViewRecords}>
+        <button className={styles.back_button} onClick={handleViewRecords}>
           View {patientName} Records
         </button>
 

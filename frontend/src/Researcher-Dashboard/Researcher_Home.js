@@ -231,6 +231,6 @@ function DashboardContent() {
   );
 }
 
-export default function Researcher_Home() {
+export default function ResearcherHome() {
   return <DashboardContent />;
 }
