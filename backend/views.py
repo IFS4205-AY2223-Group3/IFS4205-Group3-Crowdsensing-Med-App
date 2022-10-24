@@ -545,16 +545,34 @@ class CreateSession(APIView):
         user_obj = request.auth.user
         patient_obj = get_patient_object(user_obj)
         if not patient_obj:
+            log_info(
+                [
+                    "Patient",
+                    user_obj.user.username,
+                    "/generatesession",
+                    "Failure",
+                    "Unauthorised",
+                ]
+            )
             return Response(
                 {"message": "Action forbidden."}, status=status.HTTP_403_FORBIDDEN
             )
-        # Checks if patient has an existing pending session
+        # Checks if patient has an existing pending examination
         try:
             existing_session = PendingExamination.objects.get(pk=patient_obj)
         except ObjectDoesNotExist:
             session = PendingExamination.objects.create_exam(patient_obj)
-            # Returns error if backend produces an existing session_id
+            # Returns error if backend produces an existing exam_id
             if not session:
+            log_info(
+                [
+                    "Patient",
+                    patient_obj.user.username,
+                    "/generatesession",
+                    "Failure",
+                    "Existing exam_id",
+                ]
+            )
                 return Response(
                     {"message": "Server encountered an error, please try again."},
                     status=status.HTTP_500_INTERNAL_SERVER_ERROR,
@@ -563,6 +581,7 @@ class CreateSession(APIView):
                 existing_session = session
         data = {}
         data = PatientSessionIdSerializer(existing_session).data
+        log_info(["Patient", request.user.username, "/generatesession", "Success", "exam_id = " + existing_session.exam_id])
         return Response(data, status=status.HTTP_200_OK)
 
 
