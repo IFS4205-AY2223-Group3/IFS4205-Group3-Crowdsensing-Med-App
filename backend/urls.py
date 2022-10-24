@@ -5,7 +5,7 @@ app_name = "backend"
 urlpatterns = [
     path("login", views.Login.as_view(), name="login"),
     path("logout", views.Logout.as_view()),
-    path("generatesession", views.CreateSession.as_view()),
+    path("generatesession", views.GenerateSession.as_view()),
     path("patientviewrecords", views.PatientViewRecords.as_view()),
     path("allowsession", views.AllowSession.as_view()),
     path("assigndoctor", views.AssignPendingExam.as_view()),
