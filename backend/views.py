@@ -646,6 +646,7 @@ def get_patient_object(user):
 #######################################################################################################################
 # IOT API
 
+
 class CrowdView(APIView):
     parser_classes = [JSONParser]
 
@@ -669,8 +670,10 @@ class CrowdView(APIView):
             )
         return Response({"count": serializer.data}, status=status.HTTP_200_OK)
 
+
 #######################################################################################################################
 # RESEARCHER API
+
 
 class ResearcherView(APIView):
     permission_classes = (IsAuthenticated, IsResearcher)
@@ -768,4 +771,3 @@ def verify_search_keys(s):
         return q
     except ValueError as e:
         raise KeyError
-    

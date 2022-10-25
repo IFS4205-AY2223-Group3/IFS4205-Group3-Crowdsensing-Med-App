@@ -234,6 +234,6 @@ function DashboardContent() {
   );
 }
 
-export default function Doctor_View_Records() {
+export default function DoctorViewRecords() {
   return <DashboardContent />;
 }
