@@ -152,11 +152,17 @@ class TOTPDeleteView(APIView):
                 if device != None:
                     device.delete()
                     remove_request.delete()
+                    log_info(
+                        ["OTP", user.username, "/deleteotp", "Success", "Device removed"]
+                    )
                     return Response(
                         {"message": "Device successfully removed."},
                         status=status.HTTP_200_OK,
                     )
                 else:
+                    log_info(
+                        ["OTP", user.username, "/deleteotp", "Failure", "No confirmed device"]
+                    )
                     return Response(
                         {"message": "You do not have a registered device."},
                         status=status.HTTP_404_NOT_FOUND,
@@ -165,6 +171,9 @@ class TOTPDeleteView(APIView):
                 remove_request.attempts += 1
                 if remove_request.attempts >= 5:
                     remove_request.delete()
+                    log_info(
+                        ["OTP", user.username, "/deleteotp", "Failure", "Exceeded 5 attempts to verify OTP"]
+                    )
                     return Response(
                         {
                             "message": "You have exceeded the number of attempts to remove the authenticator, please make a new request"
@@ -173,6 +182,9 @@ class TOTPDeleteView(APIView):
                     )
                 else:
                     remove_request.save()
+                    log_info(
+                        ["OTP", user.username, "/deleteotp", "Failure", "Incorrect OTP, attempts left: " + str(5-remove_request.attempts)]
+                    )
                     return Response(
                         {"message": "Invalid OTP, please try again."},
                         status=status.HTTP_403_FORBIDDEN,
@@ -281,7 +293,7 @@ class Login(ObtainAuthToken):
             }
 
             update_last_login(None, user)
-            log_info(["User", user.username, "/login", "Successful"])
+            log_info(["User", user.username, "/login", "Success"])
             return Response(data, status=status.HTTP_200_OK)
         raise InvalidLoginException()
 
@@ -290,7 +302,7 @@ class Logout(APIView):
     permission_classes = (IsAuthenticated,)
 
     def get(self, request, *args, **kwargs):
-        log_info(["User", request.user.username, "/logout", "Successful"])
+        log_info(["User", request.user.username, "/logout", "Success"])
         request.auth.delete()
         return Response({"message": SUCCESS_MESSAGE}, status=status.HTTP_200_OK)
 
@@ -441,7 +453,7 @@ class DoctorGetRecords(APIView):
                     "Doctor",
                     doctor.user.username,
                     "/doctorviewrecords",
-                    "Successful",
+                    "Success",
                     "Retrieved records of patient " + patient.user.user_id,
                 ]
             )
