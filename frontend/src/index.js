@@ -153,9 +153,9 @@ root.render(
             path="generatedata"
             element={
               <RequireAuth role="Researcher">
-                <RequireResearcher>
-                  <ResearcherData />
-                </RequireResearcher>
+                {/* <RequireResearcher> */}
+                <ResearcherData />
+                {/* </RequireResearcher> */}
               </RequireAuth>
             }
           />
