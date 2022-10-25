@@ -97,7 +97,7 @@ export default function Login() {
               </option>
               <option value="patient">Patient</option>
               <option value="doctor">Doctor</option>
-              <option value="medicalStaff">Medical Helper</option>
+              <option value="medicalStaff">Staff</option>
               <option value="researcher">Researcher</option>
             </select>
             <button>Sign In</button>
