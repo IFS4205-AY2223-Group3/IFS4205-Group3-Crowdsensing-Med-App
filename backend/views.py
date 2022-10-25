@@ -5,6 +5,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.contrib.auth.models import update_last_login
 from django.core.mail import send_mail
 from django.contrib.postgres.fields import IntegerRangeField, RangeOperators
+from django.db.models import Q
 
 from rest_framework import status
 from rest_framework.views import APIView
@@ -662,38 +663,97 @@ class CrowdView(APIView):
 class ResearcherView(APIView):
     permission_classes = (IsAuthenticated, IsResearcher)
 
-    def get(self, request):
-        serializer = DiagnosisSerializer(Diagnosis.objects.all(), many=True)
-        return Response(serializer.data, status=status.HTTP_200_OK)
-
     def post(self, request):
         try:
-            search_key = request.data['key']
-            value = request.data['value']
-            verify_search_key(search_key)
+            q = verify_search_keys(request.data)
         except KeyError:
+            log_info(
+                [
+                    "Researcher",
+                    request.user.username,
+                    "/researcherviewrecords",
+                    "Failure",
+                    "Invalid request"
+                ]
+            )
             raise InvalidRequestException()
         
-        try:
-            if search_key == 'diagnosis':
-                records = AnonymizedRecord.objects.filter(diagnosis=value)
+        records = AnonymizedRecord.objects.all()
+        for i in q:
+            records = records.filter(i)
+        serializer = AnonymizedRecordSerializer(records, many=True)
+        log_info(
+                [
+                    "Researcher",
+                    request.user.username,
+                    "/researcherviewrecords",
+                    "Success",
+                    "Retrieved " + str(records.count()) + " anonymized records"
+                ]
+            )
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+       
+def verify_search_keys(s):
+    race_values = {'Chinese', 'Malay', 'Indian', 'Others'}
+    q = []
+    try:
+        if s['zipcode'] != '*':
+            s['zipcode'] = int(s['zipcode'])
+            if not (100000 <= s['zipcode'] <= 900000):
+                raise KeyError
+            q.append(Q(zipcode_range__contains=s['zipcode']))
+        
+        if s['age'] != '*':
+            s['age'] = int(s['age'])
+            if not (6 <= s['age'] <= 100):
+                raise KeyError
+            q.append(Q(age_range__contains=s['age']))
+        
+        if s['height'] != '*':
+            s['height'] = int(s['height'])
+            if not (130 <= s['height'] <= 209):
+                raise KeyError
+            q.append(Q(height_range__contains=s['height']))
+
+        if s['weight'] != '*':
+            s['weight'] = int(s['weight'])
+            if not (40 <= s['weight'] <= 119):
+                raise KeyError
+            q.append(Q(weight_range__contains=s['weight']))
+
+        if s['allergies'] != '*':
+            if str(s['allergies']).upper() == 'Y':
+                s['allergies'] = 'Have allergies'
+            elif str(s['allergies']).upper() == 'N':
+                s['allergies'] = 'No allergy'
             else:
-                value = int(value)
-                if search_key == 'zipcode':
-                    records = AnonymizedRecord.objects.filter(zipcode_range__contains=value)
-                elif search_key == 'age':
-                    records = AnonymizedRecord.objects.filter(age_range__contains=value)
-                elif search_key == 'height':
-                    records = AnonymizedRecord.objects.filter(height_range__contains=value)
-                elif search_key == 'weight':
-                    records = AnonymizedRecord.objects.filter(weight_range__contains=value)
-            serializer = AnonymizedRecordSerializer(records, many=True)
-            return Response(serializer.data, status=status.HTTP_200_OK)
-        except ValueError:
-            raise InvalidRequestException()
+                raise KeyError
+            q.append(Q(allergies=s['allergies']))
         
-def verify_search_key(s):
-    accepted_values = {'zipcode', 'age', 'height', 'weight', 'diagnosis'}
-    if str(s).lower() not in accepted_values:
+        if s['sex'] != '*':
+            s['sex'] = str(s['sex']).upper()
+            if s['sex'] != 'M' and s['sex'] != 'F':
+                raise KeyError
+            else:
+                q.append(Q(sex=s['sex']))
+
+        if s['race'] == '*':
+            pass
+        elif str(s['race']).capitalize() in race_values:
+            q.append(Q(race=str(s['race']).capitalize()))
+        else: 
+            raise KeyError
+
+        if s['diagnosis'] == '*':
+            pass
+        elif Diagnosis.objects.filter(code=s['diagnosis']).exists():
+            q.append(Q(diagnosis=s['diagnosis']))
+        else:
+            raise KeyError
+        
+        return q
+    except ValueError as e:
         raise KeyError
     
