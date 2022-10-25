@@ -48,11 +48,11 @@ export function useAuth() {
           Authorization: tokenString,
         },
       })
-      .then(function(response) {
+      .then(function (response) {
         sessionStorage.clear();
         return response;
       })
-      .catch(function(error) {
+      .catch(function (error) {
         // //local testing
         // var errorCode = 200;
         // sessionStorage.clear();
@@ -143,11 +143,27 @@ export function RequireExam({ children }) {
 
 /* This Function checks that the researcher is authenticated to access generate data */
 export function RequireResearcher({ children }) {
-  const key = sessionStorage.getItem("key");
-  const value = sessionStorage.getItem("value");
+  const age = sessionStorage.getItem("age", age);
+  const height = sessionStorage.getItem("height", height);
+  const weight = sessionStorage.getItem("weight", weight);
+  const allergies = sessionStorage.getItem("allergies", allergies);
+  const race = sessionStorage.getItem("race", race);
+  const sex = sessionStorage.getItem("sex", sex);
+  const diagnosis = sessionStorage.getItem("diagnosis", diagnosis);
+  const zipcode = sessionStorage.getItem("zipcode", zipcode);
   const userRole = sessionStorage.getItem("userRole");
 
-  if (key && value && userRole === "Researcher") {
+  if (
+    age &&
+    height &&
+    weight &&
+    allergies &&
+    race &&
+    sex &&
+    diagnosis &&
+    zipcode &&
+    userRole === "Researcher"
+  ) {
     return children;
   } else {
     return <Navigate to="/researcher" replace />;
