@@ -140,32 +140,3 @@ export function RequireExam({ children }) {
     return <Navigate to="/doctor" replace />;
   }
 }
-
-/* This Function checks that the researcher is authenticated to access generate data */
-export function RequireResearcher({ children }) {
-  const age = sessionStorage.getItem("age", age);
-  const height = sessionStorage.getItem("height", height);
-  const weight = sessionStorage.getItem("weight", weight);
-  const allergies = sessionStorage.getItem("allergies", allergies);
-  const race = sessionStorage.getItem("race", race);
-  const sex = sessionStorage.getItem("sex", sex);
-  const diagnosis = sessionStorage.getItem("diagnosis", diagnosis);
-  const zipcode = sessionStorage.getItem("zipcode", zipcode);
-  const userRole = sessionStorage.getItem("userRole");
-
-  if (
-    age &&
-    height &&
-    weight &&
-    allergies &&
-    race &&
-    sex &&
-    diagnosis &&
-    zipcode &&
-    userRole === "Researcher"
-  ) {
-    return children;
-  } else {
-    return <Navigate to="/researcher" replace />;
-  }
-}
