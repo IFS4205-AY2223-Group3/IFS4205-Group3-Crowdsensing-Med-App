@@ -54,20 +54,24 @@ export default function PastSessions() {
       <React.Fragment>
         <Title>Past Sessions</Title>
         <table>
-          <tr>
-            <th>Date Time</th>
-            <th>Doctor Name</th>
-            <th>Prescription</th>
-            <th>Diagnosis</th>
-          </tr>
-          {examRecords.map((examRecords) => (
+          <thead>
             <tr>
-              <td>{examRecords.examtime}</td>
-              <td>{examRecords.doctor}</td>
-              <td>{examRecords.diagnosis}</td>
-              <td>{examRecords.prescription}</td>
+              <th>Date Time</th>
+              <th>Doctor Name</th>
+              <th>Prescription</th>
+              <th>Diagnosis</th>
             </tr>
-          ))}
+          </thead>
+          <tbody>
+            {examRecords.map((examRecord, id) => (
+              <tr key={id}>
+                <td>{examRecord.examtime}</td>
+                <td>{examRecord.doctor}</td>
+                <td>{examRecord.diagnosis}</td>
+                <td>{examRecord.prescription}</td>
+              </tr>
+            ))}
+          </tbody>
         </table>
       </React.Fragment>
     );

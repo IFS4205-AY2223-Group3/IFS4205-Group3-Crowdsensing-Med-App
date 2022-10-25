@@ -12,6 +12,7 @@ class IsDoctor(permissions.BasePermission):
         except Doctor.DoesNotExist:
             return False
 
+
 class IsResearcher(permissions.BasePermission):
     message = "This resource can only be accessed by researchers."
 
@@ -22,6 +23,7 @@ class IsResearcher(permissions.BasePermission):
         except Researcher.DoesNotExist:
             return False
 
+
 class IsPatient(permissions.BasePermission):
     message = "This resource can only be accessed by patients."
 
@@ -31,6 +33,7 @@ class IsPatient(permissions.BasePermission):
             return True
         except Patient.DoesNotExist:
             return False
+
 
 class IsVerified(permissions.BasePermission):
     message = "OTP not verified!"

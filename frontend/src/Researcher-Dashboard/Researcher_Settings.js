@@ -211,6 +211,6 @@ function DashboardContent() {
   );
 }
 
-export default function Researcher_Settings() {
+export default function ResearcherSettings() {
   return <DashboardContent />;
 }
