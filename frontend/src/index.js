@@ -24,6 +24,8 @@ import DoctorSettings from "./Doctor-Dashboard/Doctor_Settings";
 import ResearcherHome from "./Researcher-Dashboard/Researcher_Home";
 import ResearcherData from "./Researcher-Dashboard/Researcher_Data";
 import ResearcherSettings from "./Researcher-Dashboard/Researcher_Settings";
+import StaffHome from "./Staff-Dashboard/Staff_Home";
+import StaffSettings from "./Staff-Dashboard/Staff_Settings";
 
 const rootElement = document.getElementById("root");
 const root = createRoot(rootElement);
@@ -154,6 +156,22 @@ root.render(
                 <RequireResearcher>
                   <ResearcherData />
                 </RequireResearcher>
+              </RequireAuth>
+            }
+          />
+          <Route
+            path="staff"
+            element={
+              <RequireAuth role="MedicalStaff">
+                <StaffHome />
+              </RequireAuth>
+            }
+          />
+          <Route
+            path="staffsetting"
+            element={
+              <RequireAuth role="MedicalStaff">
+                <StaffSettings />
               </RequireAuth>
             }
           />
