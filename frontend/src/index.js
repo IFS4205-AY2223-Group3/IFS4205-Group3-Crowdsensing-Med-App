@@ -4,7 +4,6 @@ import {
   RequireAuth,
   RequireExam,
   RequireInitAuth,
-  RequireResearcher,
 } from "./context/AuthProvider";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { createRoot } from "react-dom/client";
@@ -153,9 +152,7 @@ root.render(
             path="generatedata"
             element={
               <RequireAuth role="Researcher">
-                {/* <RequireResearcher> */}
                 <ResearcherData />
-                {/* </RequireResearcher> */}
               </RequireAuth>
             }
           />
