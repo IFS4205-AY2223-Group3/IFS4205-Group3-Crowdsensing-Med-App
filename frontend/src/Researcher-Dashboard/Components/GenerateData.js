@@ -11,8 +11,14 @@ import { TablePagination } from "react-pagination-table";
 export default function GenerateData() {
   const token = sessionStorage.getItem("accessToken");
   const tokenString = " Token " + token;
-  const key = sessionStorage.getItem("key");
-  const value = sessionStorage.getItem("value");
+  const age = sessionStorage.getItem("age");
+  const height = sessionStorage.getItem("height");
+  const weight = sessionStorage.getItem("weight");
+  const allergies = sessionStorage.getItem("allergies");
+  const race = sessionStorage.getItem("race");
+  const sex = sessionStorage.getItem("sex");
+  const diagnosis = sessionStorage.getItem("diagnosis");
+  const zipcode = sessionStorage.getItem("zipcode");
   const [success, setSuccess] = useState(false);
   const [failure, setFailure] = useState(false);
   const [buffer, setBuffer] = useState(true);
@@ -34,8 +40,14 @@ export default function GenerateData() {
       .post(
         VIEW_ANON_DATA_URL,
         {
-          key: key,
-          value: value,
+          age: age,
+          height: height,
+          weight: weight,
+          zipcode: zipcode,
+          allergies: allergies,
+          sex: sex,
+          diagnosis: diagnosis,
+          race: race,
         },
         {
           headers: {
@@ -44,13 +56,13 @@ export default function GenerateData() {
           },
         }
       )
-      .then(function(response) {
+      .then(function (response) {
         setAnonyRecords(response.data);
         console.log(response);
         setSuccess(true);
         setBuffer(false);
       })
-      .catch(function(err) {
+      .catch(function (err) {
         setFailure(true);
         setBuffer(false);
         if (!err.response) {
@@ -69,15 +81,23 @@ export default function GenerateData() {
           setErrMsg("Server encountered an error, please try again.");
         }
       });
-  }, [tokenString]);
+  }, [
+    age,
+    allergies,
+    diagnosis,
+    height,
+    race,
+    weight,
+    zipcode,
+    sex,
+    tokenString,
+  ]);
 
   if (success) {
     return (
       <React.Fragment>
         <Title>K-Anonymity Record</Title>
         <br></br>
-        <b>Key Chosen: {key}</b>
-        <b>Value: {value}</b>
         <CSVLink data={anonRecords} filename={"anon_records.csv"}>
           <font size="5" color="black">
             Click to Download CSV
