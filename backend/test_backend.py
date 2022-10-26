@@ -5,6 +5,8 @@ from rest_framework.test import APIRequestFactory, APITestCase, APIClient
 from backend.models import *
 from backend.serializers import *
 
+SUCCESS_MESSAGE = "success"
+
 # Create your tests here.
 class PatientLoginTest(TestCase):
     def setUp(self):
@@ -381,5 +383,40 @@ class ResearcherTest(APITestCase):
         records = AnonymizedRecord.objects.all().filter(age_range="[41,65)")
         serializer = AnonymizedRecordSerializer(records, many=True)
         expected_message = serializer.data
+        self.assertEqual(response.status_code, expected_response)
+        self.assertEqual(response.data, expected_message)
+
+
+class IOTTest(APITestCase):
+    def setUp(self):
+        self.factory = APIRequestFactory()
+        self.client = APIClient()
+
+        self.user = User.objects.create_user(
+            username="test", password="test", email="test@example.com"
+        )
+        token = UserToken.objects.create(user=self.user)
+        self.user.save()
+        token.verify()
+
+        self.client.credentials(HTTP_AUTHORIZATION="Token " + token.key)
+        count = Crowd.objects.create(count="5")
+
+    def test_iot_get(self):
+        response = self.client.get("/iot")
+        expected_response = status.HTTP_200_OK
+
+        crowd = Crowd.objects.latest("time_recorded")
+        serializer = CrowdDataSerializer(crowd)
+        expected_message = {"count": serializer.data}
+        self.assertEqual(response.status_code, expected_response)
+        self.assertEqual(response.data, expected_message)
+
+    def test_iot_post(self):
+        data = {"count": 5}
+        response = self.client.post("/iot", data)
+        expected_response = status.HTTP_200_OK
+
+        expected_message = {"message": SUCCESS_MESSAGE}
         self.assertEqual(response.status_code, expected_response)
         self.assertEqual(response.data, expected_message)
