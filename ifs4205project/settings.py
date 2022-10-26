@@ -42,7 +42,7 @@ else:
     SECRET_KEY = "+&-a*d+9^o1owr8otsv=zbvs&yjm4&4l!3&(s9#*ab2l#@roq"
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 if PRODUCTION:
     ALLOWED_HOSTS = ["ifs4205-group3-backend-i.comp.nus.edu.sg"]
