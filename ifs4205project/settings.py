@@ -12,7 +12,7 @@ from corsheaders.defaults import default_headers
 import os
 import json
 
-# Build paths inside the project like this: BASE_DIR / 'subdir'. test
+# Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 
