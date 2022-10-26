@@ -260,3 +260,126 @@ class DoctorTest(APITestCase):
         self.assertEqual(submitted_exam.patient, self.patient)
         self.assertEqual(submitted_exam.diagnosis.code, "abc")
         self.assertEqual(submitted_exam.prescription, "panadol")
+
+
+class OTPTest(APITestCase):
+    def setUp(self):
+        self.factory = APIRequestFactory()
+        self.client = APIClient()
+
+        self.user = User.objects.create_user(
+            username="patient", password="patient", email="patient@example.com"
+        )
+        token = UserToken.objects.create(user=self.user)
+        self.user.save()
+        token.verify()
+
+        self.client.credentials(HTTP_AUTHORIZATION="Token " + token.key)
+
+        self.patient = Patient.objects.create(user=self.user)
+
+    def test_create_otp(self):
+        response = self.client.get("/createotp")
+
+        expected_response = status.HTTP_201_CREATED
+        self.assertEqual(response.status_code, expected_response)
+
+    def test_delete_otp_no_device(self):
+        response = self.client.get("/deleteotp")
+        expected_response = status.HTTP_404_NOT_FOUND
+        self.assertEqual(response.status_code, expected_response)
+
+    def test_verify_otp_fail(self):
+        data = {"otp": "random"}
+        response = self.client.post("/verifyotp", data)
+
+        expected_response = status.HTTP_400_BAD_REQUEST
+        self.assertEqual(response.status_code, expected_response)
+
+
+class ResearcherTest(APITestCase):
+    def setUp(self):
+        self.factory = APIRequestFactory()
+        self.client = APIClient()
+
+        self.user = User.objects.create_user(
+            username="researcher", password="research", email="research@example.com"
+        )
+        token = UserToken.objects.create(user=self.user)
+        self.user.save()
+        token.verify()
+
+        self.client.credentials(HTTP_AUTHORIZATION="Token " + token.key)
+
+        self.researcher = Researcher.objects.create(user=self.user)
+        records1 = AnonymizedRecord.objects.create(
+            age_range="[41,65)",
+            height_range="[130,170)",
+            weight_range="[40,80)",
+            allergies="Have allergies",
+            race="Chinese",
+            zipcode_range="[100000,400000)",
+            sex="M",
+            diagnosis="T24611D",
+        )
+        records2 = AnonymizedRecord.objects.create(
+            age_range="[41,65)",
+            height_range="[130,170)",
+            weight_range="[40,80)",
+            allergies="Have allergies",
+            race="Chinese",
+            zipcode_range="[100000,400000)",
+            sex="M",
+            diagnosis="T24611D",
+        )
+        records3 = AnonymizedRecord.objects.create(
+            age_range="[41,61)",
+            height_range="[130,170)",
+            weight_range="[40,80)",
+            allergies="Have allergies",
+            race="Chinese",
+            zipcode_range="[100000,400000)",
+            sex="M",
+            diagnosis="T24611D",
+        )
+
+    def test_researcher_view_records_all(self):
+        data = {
+            "age": "*",
+            "height": "*",
+            "weight": "*",
+            "allergies": "*",
+            "race": "*",
+            "sex": "*",
+            "zipcode": "*",
+            "diagnosis": "*",
+        }
+        response = self.client.post("/researcherviewrecords", data)
+        expected_response = status.HTTP_200_OK
+
+        records = AnonymizedRecord.objects.all()
+        serializer = AnonymizedRecordSerializer(records, many=True)
+        expected_message = serializer.data
+
+        self.assertEqual(response.status_code, expected_response)
+        self.assertEqual(response.data, expected_message)
+
+    def test_researcher_view_records_multiple(self):
+        data = {
+            "age": "63",
+            "height": "140",
+            "weight": "65",
+            "allergies": "*",
+            "race": "Chinese",
+            "sex": "*",
+            "zipcode": "*",
+            "diagnosis": "*",
+        }
+        response = self.client.post("/researcherviewrecords", data)
+        expected_response = status.HTTP_200_OK
+
+        records = AnonymizedRecord.objects.all().filter(age_range="[41,65)")
+        serializer = AnonymizedRecordSerializer(records, many=True)
+        expected_message = serializer.data
+        self.assertEqual(response.status_code, expected_response)
+        self.assertEqual(response.data, expected_message)
