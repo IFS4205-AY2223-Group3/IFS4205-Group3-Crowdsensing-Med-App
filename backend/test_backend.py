@@ -91,6 +91,7 @@ class DoctorLoginTest(TestCase):
         expected_response = status.HTTP_403_FORBIDDEN
         self.assertEqual(response.status_code, expected_response)
 
+
 class PatientTest(APITestCase):
     def setUp(self):
         self.factory = APIRequestFactory()
@@ -122,8 +123,7 @@ class PatientTest(APITestCase):
         )
 
         self.diagnosis = Diagnosis.objects.create(
-            code="A009",
-            description="Chloera unspecified"
+            code="A009", description="Chloera unspecified"
         )
 
         Examination.objects.create(
@@ -131,7 +131,7 @@ class PatientTest(APITestCase):
             doctor=self.doctor,
             patient=self.user,
             diagnosis=self.diagnosis,
-            prescription="150mg panadol"      
+            prescription="150mg panadol",
         )
 
     def test_generate_session(self):
@@ -168,6 +168,7 @@ class PatientTest(APITestCase):
 
         expected_response = status.HTTP_200_OK
         self.assertEqual(response.status_code, expected_response)
+
 
 class DoctorTest(APITestCase):
     def setUp(self):
