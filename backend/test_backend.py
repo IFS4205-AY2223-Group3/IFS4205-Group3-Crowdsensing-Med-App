@@ -5,6 +5,7 @@ from rest_framework.test import APIRequestFactory, APITestCase, APIClient
 from backend.models import *
 from backend.serializers import *
 
+GENERIC_ERROR_MESSAGE = "There was an error, please try again."
 SUCCESS_MESSAGE = "success"
 
 # Create your tests here.
@@ -420,3 +421,51 @@ class IOTTest(APITestCase):
         expected_message = {"message": SUCCESS_MESSAGE}
         self.assertEqual(response.status_code, expected_response)
         self.assertEqual(response.data, expected_message)
+
+
+class UnauthorisedAccessTest(APITestCase):
+    def setUp(self):
+        self.factory = APIRequestFactory()
+        self.client = APIClient()
+
+        self.user = User.objects.create_user(
+            username="user", password="pass", email="pass@example.com"
+        )
+        token = UserToken.objects.create(user=self.user)
+        self.user.save()
+        token.verify()
+
+        self.client.credentials(HTTP_AUTHORIZATION="Token " + token.key)
+
+    def test_iot_get(self):
+        response = self.client.get("/iot")
+        expected_response = status.HTTP_400_BAD_REQUEST
+
+        self.assertEqual(response.status_code, expected_response)
+
+    def test_patient_view_records(self):
+        response = self.client.get("/patientviewrecords")
+        expected_response = status.HTTP_403_FORBIDDEN
+
+        self.assertEqual(response.status_code, expected_response)
+
+    def test_doctor_view_old_sessions(self):
+        response = self.client.get("/doctorviewoldsessions")
+        expected_response = status.HTTP_403_FORBIDDEN
+
+        self.assertEqual(response.status_code, expected_response)
+
+    def test_researcher_post(self):
+        data = {
+            "age": "63",
+            "height": "140",
+            "weight": "65",
+            "allergies": "*",
+            "race": "Chinese",
+            "sex": "*",
+            "zipcode": "*",
+            "diagnosis": "*",
+        }
+        response = self.client.post("/researcherviewrecords", data)
+        expected_response = status.HTTP_403_FORBIDDEN
+        self.assertEqual(response.status_code, expected_response)
