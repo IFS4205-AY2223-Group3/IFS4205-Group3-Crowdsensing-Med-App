@@ -176,6 +176,7 @@ class PendingExamination(models.Model):
     doctor = models.OneToOneField(Doctor, on_delete=models.CASCADE, null=True)
     exam_id = models.CharField(max_length=10, unique=True)
     approved = models.BooleanField(default=False)
+    time_created = models.DateTimeField(auto_now_add=True)
 
     objects = PendingExamManager()
 
