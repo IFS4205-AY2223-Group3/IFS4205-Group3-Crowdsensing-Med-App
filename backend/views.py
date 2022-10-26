@@ -550,7 +550,7 @@ class DoctorViewOldSessions(APIView):
 # PATIENT API
 
 
-class CreateSession(APIView):
+class GenerateSession(APIView):
     parser_classes = [JSONParser]
     permission_classes = (IsAuthenticated,)
 
@@ -558,16 +558,34 @@ class CreateSession(APIView):
         user_obj = request.auth.user
         patient_obj = get_patient_object(user_obj)
         if not patient_obj:
+            log_info(
+                [
+                    "Patient",
+                    user_obj.user.username,
+                    "/generatesession",
+                    "Failure",
+                    "Unauthorised",
+                ]
+            )
             return Response(
                 {"message": "Action forbidden."}, status=status.HTTP_403_FORBIDDEN
             )
-        # Checks if patient has an existing pending session
+        # Checks if patient has an existing pending examination
         try:
             existing_session = PendingExamination.objects.get(pk=patient_obj)
         except ObjectDoesNotExist:
             session = PendingExamination.objects.create_exam(patient_obj)
-            # Returns error if backend produces an existing session_id
+            # Returns error if backend produces an existing exam_id
             if not session:
+                log_info(
+                    [
+                        "Patient",
+                        patient_obj.user.username,
+                        "/generatesession",
+                        "Failure",
+                        "Existing exam_id",
+                    ]
+                )
                 return Response(
                     {"message": "Server encountered an error, please try again."},
                     status=status.HTTP_500_INTERNAL_SERVER_ERROR,
@@ -576,6 +594,7 @@ class CreateSession(APIView):
                 existing_session = session
         data = {}
         data = PatientSessionIdSerializer(existing_session).data
+        log_info(["Patient", request.user.username, "/generatesession", "Success", "exam_id = " + existing_session.exam_id])
         return Response(data, status=status.HTTP_200_OK)
 
 
@@ -589,6 +608,15 @@ class PatientViewRecords(APIView):
         data = {}
         # Checks if user is a patient
         if not patient_obj:
+            log_info(
+                [
+                    "Patient",
+                    user_obj.user.username,
+                    "/patientviewrecords",
+                    "Failure",
+                    "Unauthorised",
+                ]
+            )
             return Response(
                 {"message": "Action forbidden."}, status=status.HTTP_403_FORBIDDEN
             )
@@ -604,6 +632,7 @@ class PatientViewRecords(APIView):
             ).data
         except Examination.DoesNotExist:
             data["examRecords"] = {}
+            log_info(["Patient", request.user.username, "/patientviewrecords", "Success"])
         return Response(data, status=status.HTTP_200_OK)
 
 
@@ -615,6 +644,15 @@ class AllowSession(APIView):
         user_obj = request.auth.user
         patient_obj = get_patient_object(user_obj)
         if not patient_obj:
+            log_info(
+                [
+                    "Patient",
+                    user_obj.user.username,
+                    "/allowsession",
+                    "Failure",
+                    "Unauthorised",
+                ]
+            )
             return Response(
                 {"message": "Action forbidden."}, status=status.HTTP_403_FORBIDDEN
             )
@@ -624,6 +662,15 @@ class AllowSession(APIView):
             exam_id=exam_id, patient=patient_obj
         )
         if not session:
+            log_info(
+                [
+                    "Patient",
+                    user_obj.user.username,
+                    "/allowsession",
+                    "Failure",
+                    "No pending session",
+                ]
+            )
             return Response(
                 {"message": "There was an error. No session exists."},
                 status=status.HTTP_400_BAD_REQUEST,
@@ -631,6 +678,7 @@ class AllowSession(APIView):
         else:
             session.update(approved=True)
             data["message"] = "success"
+            log_info(["Patient", request.user.username, "/allowsession", "Success"])
         return Response(data, status=status.HTTP_200_OK)
 
 
