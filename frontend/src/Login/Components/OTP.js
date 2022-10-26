@@ -1,5 +1,5 @@
 import * as React from "react";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import Title from "../../Components/Title";
 import { LOGIN_OTP_URL } from "../../api/constants";
 import axios from "axios";
@@ -17,7 +17,6 @@ export default function OTP() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log(otp);
     axios
       .post(
         LOGIN_OTP_URL,
@@ -40,7 +39,7 @@ export default function OTP() {
           navigate("/doctor");
         } else if (role === "Researcher") {
           navigate("/researcher");
-        } else if (role === "Staff") {
+        } else if (role === "MedicalStaff") {
           navigate("/staff");
         } else {
           navigate("");

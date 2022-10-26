@@ -42,7 +42,7 @@ else:
     SECRET_KEY = "+&-a*d+9^o1owr8otsv=zbvs&yjm4&4l!3&(s9#*ab2l#@roq"
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 if PRODUCTION:
     ALLOWED_HOSTS = ["ifs4205-group3-backend.comp.nus.edu.sg"]
@@ -117,6 +117,7 @@ if PRODUCTION:
             "ENGINE": "django.db.backends.postgresql",
             "HOST": get_secret("HOST"),
             "NAME": get_secret("NAME"),
+            "PORT": get_secret("PORT"),
             "USER": get_secret("USER"),
             "PASSWORD": get_secret("PASSWORD"),
             "OPTIONS": {"sslmode": "require"},
@@ -131,6 +132,7 @@ else:
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": ["backend.authentication.TokenAuth"],
     "DEFAULT_RENDERER_CLASSES": ["rest_framework.renderers.JSONRenderer"],
+    "DEFAULT_PERMISSION_CLASSES": ["rest_framework.permissions.IsAuthenticated"],
     "EXCEPTION_HANDLER": "backend.exceptions.custom_handler",
     "DATETIME_FORMAT": "%a %b %d %Y %H:%M:%S",
     "TEST_REQUEST_DEFAULT_FORMAT": "json",

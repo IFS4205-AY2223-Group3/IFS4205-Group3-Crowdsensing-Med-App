@@ -48,11 +48,11 @@ export function useAuth() {
           Authorization: tokenString,
         },
       })
-      .then(function(response) {
+      .then(function (response) {
         sessionStorage.clear();
         return response;
       })
-      .catch(function(error) {
+      .catch(function (error) {
         // //local testing
         // var errorCode = 200;
         // sessionStorage.clear();
@@ -138,18 +138,5 @@ export function RequireExam({ children }) {
     return children;
   } else {
     return <Navigate to="/doctor" replace />;
-  }
-}
-
-/* This Function checks that the researcher is authenticated to access generate data */
-export function RequireResearcher({ children }) {
-  const key = sessionStorage.getItem("key");
-  const value = sessionStorage.getItem("value");
-  const userRole = sessionStorage.getItem("userRole");
-
-  if (key && value && userRole === "Researcher") {
-    return children;
-  } else {
-    return <Navigate to="/researcher" replace />;
   }
 }
