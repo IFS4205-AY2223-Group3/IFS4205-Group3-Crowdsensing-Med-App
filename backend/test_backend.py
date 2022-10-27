@@ -395,7 +395,7 @@ class IOTTest(APITestCase):
         self.client = APIClient()
 
         self.user = User.objects.create_user(
-            username="test", password="test", email="test@example.com"
+            username="iot", password="test", email="test@example.com"
         )
         token = UserToken.objects.create(user=self.user)
         self.user.save()
