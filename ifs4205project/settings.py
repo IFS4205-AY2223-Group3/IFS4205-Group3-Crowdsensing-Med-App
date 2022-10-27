@@ -45,7 +45,7 @@ else:
 DEBUG = False
 
 if PRODUCTION:
-    ALLOWED_HOSTS = ["ifs4205-group3-backend-i.comp.nus.edu.sg"]
+    ALLOWED_HOSTS = ["ifs4205-group3-backend.comp.nus.edu.sg"]
 else:
     ALLOWED_HOSTS = ["localhost"]
 
