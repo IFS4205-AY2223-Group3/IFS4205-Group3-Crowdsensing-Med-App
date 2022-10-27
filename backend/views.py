@@ -732,6 +732,11 @@ class CrowdView(APIView):
 
     def post(self, request):
         if request.user.is_authenticated:
+            if request.user != User.objects.get(username="iot"):
+                return Response(
+                    {"message": "You do not have permission to access this resource."},
+                    status=status.HTTP_401_UNAUTHORIZED,
+                )
             serialized_data = CrowdSerializer(data=request.data)
             if serialized_data.is_valid():
                 serialized_data.save()
