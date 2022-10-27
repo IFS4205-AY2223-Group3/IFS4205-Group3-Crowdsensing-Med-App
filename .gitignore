@@ -5,3 +5,4 @@ venv/
 backend/migrations/*
 backend.log
 database/data/*.csv
+IOT/Constants.py
