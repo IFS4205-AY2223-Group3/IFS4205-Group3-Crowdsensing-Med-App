@@ -736,7 +736,7 @@ class CrowdView(APIView):
         iot_token = UserToken.objects.get(user=iot)
         try:
             secret = request.data["secret"]
-            r = request.data["r"]
+            r = request.data["key"]
 
             m = hashlib.sha256((iot_token.key + r).encode()).hexdigest()
             if m != secret:
@@ -747,12 +747,9 @@ class CrowdView(APIView):
             serialized_data = CrowdSerializer(data=data)
             if serialized_data.is_valid():
                 serialized_data.save()
-                log_info(["IOT", request.user.username, "/iot", "Success"])
+                log_info(["IOT", "/iot", "Success"])
                 return Response({"message": SUCCESS_MESSAGE}, status=status.HTTP_200_OK)
             else:
-                log_info(
-                    ["IOT", request.user.username, "/iot", "Failure", "Invalid data"]
-                )
                 return Response(
                     {"message": GENERIC_ERROR_MESSAGE},
                     status=status.HTTP_400_BAD_REQUEST,
