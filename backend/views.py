@@ -731,13 +731,29 @@ class CrowdView(APIView):
     permission_classes = [AllowAny]
 
     def post(self, request):
-        serialized_data = CrowdSerializer(data=request.data)
-        if serialized_data.is_valid():
-            serialized_data.save()
-            return Response({"message": SUCCESS_MESSAGE}, status=status.HTTP_200_OK)
+        if request.user.is_authenticated:
+            if request.user != User.objects.get(username="iot"):
+                return Response(
+                    {"message": "You do not have permission to access this resource."},
+                    status=status.HTTP_401_UNAUTHORIZED,
+                )
+            serialized_data = CrowdSerializer(data=request.data)
+            if serialized_data.is_valid():
+                serialized_data.save()
+                log_info(["IOT", request.user.username, "/iot", "Success"])
+                return Response({"message": SUCCESS_MESSAGE}, status=status.HTTP_200_OK)
+            else:
+                log_info(
+                    ["IOT", request.user.username, "/iot", "Failure", "Invalid data"]
+                )
+                return Response(
+                    {"message": GENERIC_ERROR_MESSAGE},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
         else:
             return Response(
-                {"message": GENERIC_ERROR_MESSAGE}, status=status.HTTP_400_BAD_REQUEST
+                {"message": "You have to be logged in to access this resource."},
+                status=status.HTTP_401_UNAUTHORIZED,
             )
 
     def get(self, request):
