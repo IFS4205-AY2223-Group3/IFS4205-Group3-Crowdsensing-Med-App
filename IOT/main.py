@@ -1,5 +1,4 @@
 from Detector import *
-import os
 
 
 def main():
