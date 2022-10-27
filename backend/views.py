@@ -23,6 +23,7 @@ from rest_framework.serializers import ValidationError
 from django_otp import devices_for_user
 from django_otp.plugins.otp_totp.models import TOTPDevice
 
+import hashlib
 import logging
 
 logger = logging.getLogger(__name__)
@@ -731,30 +732,30 @@ class CrowdView(APIView):
     permission_classes = [AllowAny]
 
     def post(self, request):
-        if request.user.is_authenticated:
-            if request.user != User.objects.get(username="iot"):
-                return Response(
-                    {"message": "You do not have permission to access this resource."},
-                    status=status.HTTP_401_UNAUTHORIZED,
-                )
-            serialized_data = CrowdSerializer(data=request.data)
+        iot = User.objects.get(username="iot")
+        iot_token = UserToken.objects.get(user=iot)
+        try:
+            secret = request.data["secret"]
+            r = request.data["key"]
+
+            m = hashlib.sha256((iot_token.key + r).encode()).hexdigest()
+            if m != secret:
+                raise ValueError
+
+            data = {"count": int(request.data["count"])}
+
+            serialized_data = CrowdSerializer(data=data)
             if serialized_data.is_valid():
                 serialized_data.save()
-                log_info(["IOT", request.user.username, "/iot", "Success"])
+                log_info(["IOT", "/iot", "Success"])
                 return Response({"message": SUCCESS_MESSAGE}, status=status.HTTP_200_OK)
             else:
-                log_info(
-                    ["IOT", request.user.username, "/iot", "Failure", "Invalid data"]
-                )
                 return Response(
                     {"message": GENERIC_ERROR_MESSAGE},
                     status=status.HTTP_400_BAD_REQUEST,
                 )
-        else:
-            return Response(
-                {"message": "You have to be logged in to access this resource."},
-                status=status.HTTP_401_UNAUTHORIZED,
-            )
+        except (KeyError, ValueError) as e:
+            raise InvalidRequestException()
 
     def get(self, request):
         try:
