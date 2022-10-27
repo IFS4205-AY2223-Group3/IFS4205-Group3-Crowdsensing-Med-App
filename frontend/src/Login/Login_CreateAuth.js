@@ -68,7 +68,14 @@ function DashboardContent() {
         >
           <Toolbar />
           <Grid container spacing={3}>
-            <Paper sx={{ p: 2, display: "flex", flexDirection: "column" }}>
+            <Paper
+              sx={{
+                p: 2,
+                display: "flex",
+                flexDirection: "column",
+                overflow: "auto",
+              }}
+            >
               <CreateAuthenticator></CreateAuthenticator>
             </Paper>
           </Grid>

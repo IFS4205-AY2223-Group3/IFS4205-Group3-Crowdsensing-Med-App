@@ -213,7 +213,14 @@ function DashboardContent() {
             <Grid container spacing={3}>
               {/* Recent Sessions */}
               <Grid item xs={12}>
-                <Paper sx={{ p: 2, display: "flex", flexDirection: "column" }}>
+                <Paper
+                  sx={{
+                    p: 2,
+                    display: "flex",
+                    flexDirection: "column",
+                    overflow: "auto",
+                  }}
+                >
                   <HealthRecords />
                 </Paper>
               </Grid>
