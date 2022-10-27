@@ -728,6 +728,7 @@ def get_patient_object(user):
 
 class CrowdView(APIView):
     parser_classes = [JSONParser]
+    permission_classes = [AllowAny]
 
     def post(self, request):
         serialized_data = CrowdSerializer(data=request.data)
