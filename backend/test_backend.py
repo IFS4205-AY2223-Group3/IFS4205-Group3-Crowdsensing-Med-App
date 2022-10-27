@@ -313,6 +313,7 @@ class ResearcherTest(APITestCase):
         token.verify()
 
         self.client.credentials(HTTP_AUTHORIZATION="Token " + token.key)
+        self.diagnosis = Diagnosis.objects.create(code="T24611D", description="huh")
 
         self.researcher = Researcher.objects.create(user=self.user)
         records1 = AnonymizedRecord.objects.create(
@@ -367,25 +368,25 @@ class ResearcherTest(APITestCase):
         self.assertEqual(response.status_code, expected_response)
         self.assertEqual(response.data, expected_message)
 
-    # def test_researcher_view_records_multiple(self):
-    #     data = {
-    #         "age": "63",
-    #         "height": "140",
-    #         "weight": "65",
-    #         "allergies": "*",
-    #         "race": "Chinese",
-    #         "sex": "*",
-    #         "zipcode": "*",
-    #         "diagnosis": "*",
-    #     }
-    #     response = self.client.post("/researcherviewrecords", data)
-    #     expected_response = status.HTTP_200_OK
+    def test_researcher_view_records_multiple(self):
+        data = {
+            "age": "63",
+            "height": "140",
+            "weight": "65",
+            "allergies": "*",
+            "race": "Chinese",
+            "sex": "*",
+            "zipcode": "*",
+            "diagnosis": "T24611D",
+        }
+        response = self.client.post("/researcherviewrecords", data)
+        expected_response = status.HTTP_200_OK
 
-    #     records = AnonymizedRecord.objects.all().filter(age_range="[41,65)")
-    #     serializer = AnonymizedRecordSerializer(records, many=True)
-    #     expected_message = serializer.data
-    #     self.assertEqual(response.status_code, expected_response)
-    #     self.assertEqual(response.data, expected_message)
+        records = AnonymizedRecord.objects.all().filter(age_range="[41,65)")
+        serializer = AnonymizedRecordSerializer(records, many=True)
+        expected_message = serializer.data
+        self.assertEqual(response.status_code, expected_response)
+        self.assertEqual(response.data, expected_message)
 
 
 class IOTTest(APITestCase):
