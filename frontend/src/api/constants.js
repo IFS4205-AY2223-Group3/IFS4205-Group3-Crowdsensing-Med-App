@@ -3,7 +3,7 @@ export const LOGIN_URL =
 export const LOGIN_AUTH_URL =
   "https://ifs4205-group3-backend.comp.nus.edu.sg/createotp";
 export const LOGIN_OTP_URL =
-  "http://ifs4205-group3-backend.comp.nus.edu.sg/verifyotp";
+  "https://ifs4205-group3-backend.comp.nus.edu.sg/verifyotp";
 export const LOGOUT_URL =
   "https://ifs4205-group3-backend.comp.nus.edu.sg/logout";
 export const CHANGE_OTP_URL =
