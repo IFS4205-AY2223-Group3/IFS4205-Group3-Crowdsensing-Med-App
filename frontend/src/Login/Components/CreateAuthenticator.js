@@ -26,12 +26,12 @@ export default function Create_Authenticator() {
           Authorization: tokenString,
         },
       })
-      .then(function(response) {
+      .then(function (response) {
         setQrString(response.data.message);
         setSuccess(true);
         setBuffer(false);
       })
-      .catch(function(err) {
+      .catch(function (err) {
         setFailure(true);
         setBuffer(false);
         if (!err.response) {
