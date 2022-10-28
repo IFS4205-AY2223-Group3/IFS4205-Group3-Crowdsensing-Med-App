@@ -6,6 +6,7 @@ PATIENT_ROLE = "patient"
 DOCTOR_ROLE = "doctor"
 RESEARCHER_ROLE = "researcher"
 
+
 class IsNotExpired(permissions.BasePermission):
     message = "Your token has expired, please log in again."
 
@@ -18,17 +19,13 @@ class IsNotExpired(permissions.BasePermission):
         return False
 
 
-
 class IsDoctor(permissions.BasePermission):
     message = "This resource can only be accessed by doctors."
 
     def has_permission(self, request, view):
         try:
-            token = request.META.get("HTTP_AUTHORIZATION")[6:]
-            user_token = UserToken.objects.get(key=token)
-            if user_token.role == DOCTOR_ROLE:
-                return True
-            return False
+            user_token = UserToken.objects.get(key=request.auth)
+            return user_token.role == DOCTOR_ROLE
         except UserToken.DoesNotExist:
             return False
 
@@ -38,11 +35,8 @@ class IsResearcher(permissions.BasePermission):
 
     def has_permission(self, request, view):
         try:
-            token = request.META.get("HTTP_AUTHORIZATION")[6:]
-            user_token = UserToken.objects.get(key=token)
-            if user_token.role == RESEARCHER_ROLE:
-                return True
-            return False
+            user_token = UserToken.objects.get(key=request.auth)
+            return user_token.role == RESEARCHER_ROLE
         except UserToken.DoesNotExist:
             return False
 
@@ -52,11 +46,8 @@ class IsPatient(permissions.BasePermission):
 
     def has_permission(self, request, view):
         try:
-            token = request.META.get("HTTP_AUTHORIZATION")[6:]
-            user_token = UserToken.objects.get(key=token)
-            if user_token.role == PATIENT_ROLE:
-                return True
-            return False
+            user_token = UserToken.objects.get(key=request.auth)
+            return user_token.role == PATIENT_ROLE
         except UserToken.DoesNotExist:
             return False
 
