@@ -23,12 +23,12 @@ export default function HealthRecords() {
           Authorization: tokenString,
         },
       })
-      .then(function(response) {
+      .then(function (response) {
         setHealthRecords(response.data.healthRecords);
         setSuccess(true);
         setBuffer(false);
       })
-      .catch(function(err) {
+      .catch(function (err) {
         setFailure(true);
         setBuffer(false);
         if (!err.response) {
@@ -52,7 +52,7 @@ export default function HealthRecords() {
   if (success) {
     return (
       <React.Fragment>
-        <Title>Health Record</Title>
+        <Title>General Records</Title>
         <table>
           <tbody>
             <tr>
@@ -63,6 +63,24 @@ export default function HealthRecords() {
               <th>Date of Birth</th>
               <td>{healthRecords.dateofbirth}</td>
             </tr>
+            <tr>
+              <th>Race</th>
+              <td>{healthRecords.race}</td>
+            </tr>
+            <tr>
+              <th>Address</th>
+              <td>{healthRecords.address}</td>
+            </tr>
+            <tr>
+              <th>Zipcode</th>
+              <td>{healthRecords.zipcode}</td>
+            </tr>
+          </tbody>
+        </table>
+        <br></br>
+        <Title>Health Records</Title>
+        <table>
+          <tbody>
             <tr>
               <th>Height</th>
               <td>{healthRecords.height}cm</td>

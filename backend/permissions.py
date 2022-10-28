@@ -1,9 +1,22 @@
 from rest_framework import permissions
+from datetime import datetime
 from backend.models import Doctor, Researcher, Patient, UserToken
 
 PATIENT_ROLE = "patient"
 DOCTOR_ROLE = "doctor"
 RESEARCHER_ROLE = "researcher"
+
+class IsNotExpired(permissions.BasePermission):
+    message = "Your token has expired, please log in again."
+
+    def has_permission(self, request, view):
+        if request.user.is_authenticated:
+            diff = datetime.now(request.auth.created.tzinfo) - request.auth.created
+            if diff.total_seconds() / 60 < 1440:
+                return True
+            return False
+        return False
+
 
 
 class IsDoctor(permissions.BasePermission):

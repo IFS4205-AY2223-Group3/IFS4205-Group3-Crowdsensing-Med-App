@@ -4,6 +4,8 @@ from rest_framework import status
 from rest_framework.test import APIRequestFactory, APITestCase, APIClient
 from backend.models import *
 from backend.serializers import *
+import os
+import hashlib
 
 GENERIC_ERROR_MESSAGE = "There was an error, please try again."
 SUCCESS_MESSAGE = "success"
@@ -403,11 +405,12 @@ class IOTTest(APITestCase):
         self.user = User.objects.create_user(
             username="iot", password="test", email="test@example.com"
         )
-        token = UserToken.objects.create(user=self.user)
-        self.user.save()
-        token.verify()
 
-        self.client.credentials(HTTP_AUTHORIZATION="Token " + token.key)
+        self.token = UserToken.objects.create(user=self.user)
+        self.user.save()
+        self.token.verify()
+
+        # self.client.credentials(HTTP_AUTHORIZATION="Token " + token.key)
         count = Crowd.objects.create(count="5")
 
     def test_iot_get(self):
@@ -421,7 +424,9 @@ class IOTTest(APITestCase):
         self.assertEqual(response.data, expected_message)
 
     def test_iot_post(self):
-        data = {"count": 5}
+        r = os.urandom(32).hex()
+        secret = hashlib.sha256((self.token.key + r).encode()).hexdigest()
+        data = {"count": 5, "key": r, "secret": secret}
         response = self.client.post("/iot", data)
         expected_response = status.HTTP_200_OK
 
