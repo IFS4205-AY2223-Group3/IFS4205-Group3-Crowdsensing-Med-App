@@ -11,8 +11,7 @@ class IsDoctor(permissions.BasePermission):
 
     def has_permission(self, request, view):
         try:
-            token = request.META.get("HTTP_AUTHORIZATION")[6:]
-            user_token = UserToken.objects.get(key=token)
+            user_token = UserToken.objects.get(key=request.auth)
             if user_token.role == DOCTOR_ROLE:
                 return True
             return False
@@ -25,8 +24,7 @@ class IsResearcher(permissions.BasePermission):
 
     def has_permission(self, request, view):
         try:
-            token = request.META.get("HTTP_AUTHORIZATION")[6:]
-            user_token = UserToken.objects.get(key=token)
+            user_token = UserToken.objects.get(key=request.auth)
             if user_token.role == RESEARCHER_ROLE:
                 return True
             return False
@@ -39,8 +37,7 @@ class IsPatient(permissions.BasePermission):
 
     def has_permission(self, request, view):
         try:
-            token = request.META.get("HTTP_AUTHORIZATION")[6:]
-            user_token = UserToken.objects.get(key=token)
+            user_token = UserToken.objects.get(key=request.auth)
             if user_token.role == PATIENT_ROLE:
                 return True
             return False
