@@ -7,6 +7,8 @@ import datetime
 import requests
 from imutils.video import WebcamVideoStream
 import Constants
+import os
+import hashlib
 
 np.random.seed(Constants.SEED_NUMBER)
 
@@ -90,7 +92,17 @@ class Detector:  # object detection class
             formatted_time = curr_time.strftime("%Y-%m-%d %H:%M:%S") + "+8"
             print(count)
             print(formatted_time)
-            data = {"time_recorded": formatted_time, "count": count}
+            seed = os.urandom(32)
+            seed_hex = seed.hex()
+            string = Constants.API_TOKEN + seed_hex
+            hash = hashlib.sha256(string.encode())
+            hash_hex = hash.hexdigest()
+            data = {
+                "time_recorded": formatted_time,
+                "count": count,
+                "secret": hash_hex,
+                "key": seed_hex,
+            }
             data_json = json.dumps(data)
             post_request = requests.post(
                 url=Constants.URL,
@@ -98,20 +110,17 @@ class Detector:  # object detection class
                 headers={
                     "Accept": Constants.HEADER_ACCEPT,
                     "Content-Type": Constants.HEADER_CONTENT_TYPE,
-                    "Authorization": Constants.API_TOKEN,
                 },
-                verify=False,
+                verify=True,
             )
             total_seconds = Constants.TOTAL_TIME  # timer
             while total_seconds > 0:
                 time.sleep(1)
-                print("1 second passed")
                 total_seconds -= 1
                 key = cv2.waitKey(1) & 0xFF
                 if key == ord("q"):
                     isLoop = False
                     break
-            print("10 second passed")
 
             key = cv2.waitKey(1) & 0xFF
             if key == ord("q"):
