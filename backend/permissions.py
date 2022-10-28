@@ -1,5 +1,9 @@
 from rest_framework import permissions
-from backend.models import Doctor, Researcher, Patient
+from backend.models import Doctor, Researcher, Patient, UserToken
+
+PATIENT_ROLE = "patient"
+DOCTOR_ROLE = "doctor"
+RESEARCHER_ROLE = "researcher"
 
 
 class IsDoctor(permissions.BasePermission):
@@ -7,9 +11,12 @@ class IsDoctor(permissions.BasePermission):
 
     def has_permission(self, request, view):
         try:
-            Doctor.objects.get(user=request.auth.user)
-            return True
-        except Doctor.DoesNotExist:
+            token = request.META.get("HTTP_AUTHORIZATION")[6:]
+            user_token = UserToken.objects.get(key=token)
+            if role == DOCTOR_ROLE:
+                return True
+            return False
+        except UserToken.DoesNotExist:
             return False
 
 
@@ -18,9 +25,12 @@ class IsResearcher(permissions.BasePermission):
 
     def has_permission(self, request, view):
         try:
-            Researcher.objects.get(user=request.auth.user)
-            return True
-        except Researcher.DoesNotExist:
+            token = request.META.get("HTTP_AUTHORIZATION")[6:]
+            user_token = UserToken.objects.get(key=token)
+            if role == RESEARCHER_ROLE:
+                return True
+            return False
+        except UserToken.DoesNotExist:
             return False
 
 
@@ -29,9 +39,12 @@ class IsPatient(permissions.BasePermission):
 
     def has_permission(self, request, view):
         try:
-            Patient.objects.get(user=request.auth.user)
-            return True
-        except Patient.DoesNotExist:
+            token = request.META.get("HTTP_AUTHORIZATION")[6:]
+            user_token = UserToken.objects.get(key=token)
+            if user_token.role == PATIENT_ROLE:
+                return True
+            return False
+        except UserToken.DoesNotExist:
             return False
 
 
