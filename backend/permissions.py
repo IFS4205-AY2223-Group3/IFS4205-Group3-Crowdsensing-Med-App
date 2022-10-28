@@ -13,7 +13,7 @@ class IsDoctor(permissions.BasePermission):
         try:
             token = request.META.get("HTTP_AUTHORIZATION")[6:]
             user_token = UserToken.objects.get(key=token)
-            if role == DOCTOR_ROLE:
+            if user_token.role == DOCTOR_ROLE:
                 return True
             return False
         except UserToken.DoesNotExist:
@@ -27,7 +27,7 @@ class IsResearcher(permissions.BasePermission):
         try:
             token = request.META.get("HTTP_AUTHORIZATION")[6:]
             user_token = UserToken.objects.get(key=token)
-            if role == RESEARCHER_ROLE:
+            if user_token.role == RESEARCHER_ROLE:
                 return True
             return False
         except UserToken.DoesNotExist:
