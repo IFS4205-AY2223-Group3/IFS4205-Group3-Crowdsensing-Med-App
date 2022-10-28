@@ -63,6 +63,7 @@ class UserToken(models.Model):
     key = models.CharField(("Key"), max_length=40, primary_key=True)
 
     user = models.OneToOneField(User, on_delete=models.CASCADE, verbose_name="User")
+    role = models.CharField(max_length=30)
     created = models.DateTimeField(_("Created"), auto_now_add=True)
     verified = models.BooleanField()
 
