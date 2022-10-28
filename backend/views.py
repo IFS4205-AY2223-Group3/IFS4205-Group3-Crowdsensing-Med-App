@@ -4,7 +4,6 @@ from django.views.decorators.csrf import csrf_exempt
 from django.core.exceptions import ObjectDoesNotExist
 from django.contrib.auth.models import update_last_login
 from django.core.mail import send_mail
-from django.contrib.postgres.fields import IntegerRangeField, RangeOperators
 from django.db.models import Q
 
 from rest_framework import status
