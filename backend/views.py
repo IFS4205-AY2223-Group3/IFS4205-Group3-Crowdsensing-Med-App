@@ -4,13 +4,13 @@ from django.views.decorators.csrf import csrf_exempt
 from django.core.exceptions import ObjectDoesNotExist
 from django.contrib.auth.models import update_last_login
 from django.core.mail import send_mail
-from django.contrib.postgres.fields import IntegerRangeField, RangeOperators
+from django.db.models import Q
 
 from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.parsers import JSONParser
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import AllowAny
 from rest_framework.authtoken.views import ObtainAuthToken
 
 from backend.models import *
@@ -22,6 +22,7 @@ from rest_framework.serializers import ValidationError
 from django_otp import devices_for_user
 from django_otp.plugins.otp_totp.models import TOTPDevice
 
+import hashlib
 import logging
 
 logger = logging.getLogger(__name__)
@@ -55,7 +56,7 @@ def get_user_totp_device(self, user, confirmed=None):
 
 
 class TOTPCreateView(APIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsNotExpired]
 
     def get(self, request, *args, **kwargs):
         user = request.user
@@ -85,7 +86,7 @@ class TOTPCreateView(APIView):
 
 
 class TOTPDeleteView(APIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsNotExpired]
 
     def get(self, request, *args, **kwargs):
         user = request.user
@@ -151,11 +152,29 @@ class TOTPDeleteView(APIView):
                 if device != None:
                     device.delete()
                     remove_request.delete()
+                    log_info(
+                        [
+                            "OTP",
+                            user.username,
+                            "/deleteotp",
+                            "Success",
+                            "Device removed",
+                        ]
+                    )
                     return Response(
                         {"message": "Device successfully removed."},
                         status=status.HTTP_200_OK,
                     )
                 else:
+                    log_info(
+                        [
+                            "OTP",
+                            user.username,
+                            "/deleteotp",
+                            "Failure",
+                            "No confirmed device",
+                        ]
+                    )
                     return Response(
                         {"message": "You do not have a registered device."},
                         status=status.HTTP_404_NOT_FOUND,
@@ -164,6 +183,15 @@ class TOTPDeleteView(APIView):
                 remove_request.attempts += 1
                 if remove_request.attempts >= 5:
                     remove_request.delete()
+                    log_info(
+                        [
+                            "OTP",
+                            user.username,
+                            "/deleteotp",
+                            "Failure",
+                            "Exceeded 5 attempts to verify OTP",
+                        ]
+                    )
                     return Response(
                         {
                             "message": "You have exceeded the number of attempts to remove the authenticator, please make a new request"
@@ -172,6 +200,16 @@ class TOTPDeleteView(APIView):
                     )
                 else:
                     remove_request.save()
+                    log_info(
+                        [
+                            "OTP",
+                            user.username,
+                            "/deleteotp",
+                            "Failure",
+                            "Incorrect OTP, attempts left: "
+                            + str(5 - remove_request.attempts),
+                        ]
+                    )
                     return Response(
                         {"message": "Invalid OTP, please try again."},
                         status=status.HTTP_403_FORBIDDEN,
@@ -183,7 +221,7 @@ class TOTPDeleteView(APIView):
 
 
 class TOTPVerifyView(APIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsNotExpired]
 
     def post(self, request, *args, **kwargs):
         try:
@@ -226,6 +264,8 @@ class TOTPVerifyView(APIView):
 
 
 class Login(ObtainAuthToken):
+    permission_classes = [AllowAny]
+
     def post(self, request, *args, **kwargs):
         try:
             username = str(request.data["username"]).lower()
@@ -280,16 +320,14 @@ class Login(ObtainAuthToken):
             }
 
             update_last_login(None, user)
-            log_info(["User", user.username, "/login", "Successful"])
+            log_info(["User", user.username, "/login", "Success"])
             return Response(data, status=status.HTTP_200_OK)
         raise InvalidLoginException()
 
 
 class Logout(APIView):
-    permission_classes = (IsAuthenticated,)
-
     def get(self, request, *args, **kwargs):
-        log_info(["User", request.user.username, "/logout", "Successful"])
+        log_info(["User", request.user.username, "/logout", "Success"])
         request.auth.delete()
         return Response({"message": SUCCESS_MESSAGE}, status=status.HTTP_200_OK)
 
@@ -313,8 +351,7 @@ def get_role(user_role):
 
 class AssignPendingExam(APIView):
     parser_classes = [JSONParser]
-    permission_classes = (IsAuthenticated, IsDoctor)
-
+    permission_classes = [IsVerified, IsNotExpired, IsDoctor]
     # assign doctor to a session (done by doctors)
     @csrf_exempt
     def post(self, request):
@@ -411,12 +448,10 @@ class AssignPendingExam(APIView):
 
 class DoctorGetRecords(APIView):
     parser_classes = [JSONParser]
-    permission_classes = (IsAuthenticated, IsDoctor)
+    permission_classes = [IsVerified, IsNotExpired, IsDoctor]
 
-    # get examinations (done by doctors)
     def get(self, request):
         try:
-            # check if doctor is assigned to patient
             doctor = Doctor.objects.get(user=request.auth.user)
             pendingexam = PendingExamination.objects.get(doctor=doctor)
             patient = pendingexam.patient
@@ -440,7 +475,7 @@ class DoctorGetRecords(APIView):
                     "Doctor",
                     doctor.user.username,
                     "/doctorviewrecords",
-                    "Successful",
+                    "Success",
                     "Retrieved records of patient " + patient.user.user_id,
                 ]
             )
@@ -460,9 +495,8 @@ class DoctorGetRecords(APIView):
 
 class AddExamination(APIView):
     parser_classes = [JSONParser]
-    permission_classes = (IsAuthenticated, IsDoctor)
+    permission_classes = [IsVerified, IsNotExpired, IsDoctor]
 
-    # store new examination result (done by doctors)
     def post(self, request):
         try:
             doctor = Doctor.objects.get(user=request.auth.user)
@@ -517,7 +551,7 @@ class AddExamination(APIView):
 
 class DoctorViewOldSessions(APIView):
     parser_classes = [JSONParser]
-    permission_classes = (IsAuthenticated, IsDoctor)
+    permission_classes = [IsVerified, IsNotExpired, IsDoctor]
 
     def get(self, request):
         data = {}
@@ -537,24 +571,42 @@ class DoctorViewOldSessions(APIView):
 # PATIENT API
 
 
-class CreateSession(APIView):
+class GenerateSession(APIView):
     parser_classes = [JSONParser]
-    permission_classes = (IsAuthenticated,)
+    permission_classes = [IsVerified, IsNotExpired, IsPatient]
 
     def get(self, request):
         user_obj = request.auth.user
         patient_obj = get_patient_object(user_obj)
         if not patient_obj:
+            log_info(
+                [
+                    "Patient",
+                    user_obj.user.username,
+                    "/generatesession",
+                    "Failure",
+                    "Unauthorised",
+                ]
+            )
             return Response(
                 {"message": "Action forbidden."}, status=status.HTTP_403_FORBIDDEN
             )
-        # Checks if patient has an existing pending session
+        # Checks if patient has an existing pending examination
         try:
             existing_session = PendingExamination.objects.get(pk=patient_obj)
         except ObjectDoesNotExist:
             session = PendingExamination.objects.create_exam(patient_obj)
-            # Returns error if backend produces an existing session_id
+            # Returns error if backend produces an existing exam_id
             if not session:
+                log_info(
+                    [
+                        "Patient",
+                        patient_obj.user.username,
+                        "/generatesession",
+                        "Failure",
+                        "Existing exam_id",
+                    ]
+                )
                 return Response(
                     {"message": "Server encountered an error, please try again."},
                     status=status.HTTP_500_INTERNAL_SERVER_ERROR,
@@ -563,12 +615,21 @@ class CreateSession(APIView):
                 existing_session = session
         data = {}
         data = PatientSessionIdSerializer(existing_session).data
+        log_info(
+            [
+                "Patient",
+                request.user.username,
+                "/generatesession",
+                "Success",
+                "exam_id = " + existing_session.exam_id,
+            ]
+        )
         return Response(data, status=status.HTTP_200_OK)
 
 
 class PatientViewRecords(APIView):
     parser_classes = [JSONParser]
-    permission_classes = (IsAuthenticated, IsVerified)
+    permission_classes = [IsVerified, IsNotExpired, IsPatient]
 
     def get(self, request):
         user_obj = request.auth.user
@@ -576,6 +637,15 @@ class PatientViewRecords(APIView):
         data = {}
         # Checks if user is a patient
         if not patient_obj:
+            log_info(
+                [
+                    "Patient",
+                    user_obj.user.username,
+                    "/patientviewrecords",
+                    "Failure",
+                    "Unauthorised",
+                ]
+            )
             return Response(
                 {"message": "Action forbidden."}, status=status.HTTP_403_FORBIDDEN
             )
@@ -591,17 +661,29 @@ class PatientViewRecords(APIView):
             ).data
         except Examination.DoesNotExist:
             data["examRecords"] = {}
+            log_info(
+                ["Patient", request.user.username, "/patientviewrecords", "Success"]
+            )
         return Response(data, status=status.HTTP_200_OK)
 
 
 class AllowSession(APIView):
     parser_classes = [JSONParser]
-    permission_classes = (IsAuthenticated,)
+    permission_classes = [IsVerified, IsNotExpired, IsPatient]
 
     def post(self, request):
         user_obj = request.auth.user
         patient_obj = get_patient_object(user_obj)
         if not patient_obj:
+            log_info(
+                [
+                    "Patient",
+                    user_obj.user.username,
+                    "/allowsession",
+                    "Failure",
+                    "Unauthorised",
+                ]
+            )
             return Response(
                 {"message": "Action forbidden."}, status=status.HTTP_403_FORBIDDEN
             )
@@ -611,6 +693,15 @@ class AllowSession(APIView):
             exam_id=exam_id, patient=patient_obj
         )
         if not session:
+            log_info(
+                [
+                    "Patient",
+                    user_obj.user.username,
+                    "/allowsession",
+                    "Failure",
+                    "No pending session",
+                ]
+            )
             return Response(
                 {"message": "There was an error. No session exists."},
                 status=status.HTTP_400_BAD_REQUEST,
@@ -618,6 +709,7 @@ class AllowSession(APIView):
         else:
             session.update(approved=True)
             data["message"] = "success"
+            log_info(["Patient", request.user.username, "/allowsession", "Success"])
         return Response(data, status=status.HTTP_200_OK)
 
 
@@ -636,16 +728,33 @@ def get_patient_object(user):
 
 class CrowdView(APIView):
     parser_classes = [JSONParser]
+    permission_classes = [AllowAny]
 
     def post(self, request):
-        serialized_data = CrowdSerializer(data=request.data)
-        if serialized_data.is_valid():
-            serialized_data.save()
-            return Response({"message": SUCCESS_MESSAGE}, status=status.HTTP_200_OK)
-        else:
-            return Response(
-                {"message": GENERIC_ERROR_MESSAGE}, status=status.HTTP_400_BAD_REQUEST
-            )
+        iot = User.objects.get(username="iot")
+        iot_token = UserToken.objects.get(user=iot)
+        try:
+            secret = request.data["secret"]
+            r = request.data["key"]
+
+            m = hashlib.sha256((iot_token.key + r).encode()).hexdigest()
+            if m != secret:
+                raise ValueError
+
+            data = {"count": int(request.data["count"])}
+
+            serialized_data = CrowdSerializer(data=data)
+            if serialized_data.is_valid():
+                serialized_data.save()
+                log_info(["IOT", "/iot", "Success"])
+                return Response({"message": SUCCESS_MESSAGE}, status=status.HTTP_200_OK)
+            else:
+                return Response(
+                    {"message": GENERIC_ERROR_MESSAGE},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+        except (KeyError, ValueError) as e:
+            raise InvalidRequestException()
 
     def get(self, request):
         try:
@@ -663,46 +772,97 @@ class CrowdView(APIView):
 
 
 class ResearcherView(APIView):
-    permission_classes = (IsAuthenticated, IsResearcher)
-
-    def get(self, request):
-        serializer = DiagnosisSerializer(Diagnosis.objects.all(), many=True)
-        return Response(serializer.data, status=status.HTTP_200_OK)
+    permission_classes = [IsVerified, IsNotExpired, IsResearcher]
 
     def post(self, request):
         try:
-            search_key = request.data["key"]
-            value = request.data["value"]
-            verify_search_key(search_key)
+            q = verify_search_keys(request.data)
         except KeyError:
+            log_info(
+                [
+                    "Researcher",
+                    request.user.username,
+                    "/researcherviewrecords",
+                    "Failure",
+                    "Invalid request",
+                ]
+            )
             raise InvalidRequestException()
 
-        try:
-            if search_key == "diagnosis":
-                records = AnonymizedRecord.objects.filter(diagnosis=value)
+        records = AnonymizedRecord.objects.all()
+        for i in q:
+            records = records.filter(i)
+        serializer = AnonymizedRecordSerializer(records, many=True)
+        log_info(
+            [
+                "Researcher",
+                request.user.username,
+                "/researcherviewrecords",
+                "Success",
+                "Retrieved " + str(records.count()) + " anonymized records",
+            ]
+        )
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+def verify_search_keys(s):
+    race_values = {"Chinese", "Malay", "Indian", "Others"}
+    q = []
+    try:
+        if s["zipcode"] != "*":
+            s["zipcode"] = int(s["zipcode"])
+            if not (100000 <= s["zipcode"] <= 900000):
+                raise KeyError
+            q.append(Q(zipcode_range__contains=s["zipcode"]))
+
+        if s["age"] != "*":
+            s["age"] = int(s["age"])
+            if not (6 <= s["age"] <= 100):
+                raise KeyError
+            q.append(Q(age_range__contains=s["age"]))
+
+        if s["height"] != "*":
+            s["height"] = int(s["height"])
+            if not (130 <= s["height"] <= 209):
+                raise KeyError
+            q.append(Q(height_range__contains=s["height"]))
+
+        if s["weight"] != "*":
+            s["weight"] = int(s["weight"])
+            if not (40 <= s["weight"] <= 119):
+                raise KeyError
+            q.append(Q(weight_range__contains=s["weight"]))
+
+        if s["allergies"] != "*":
+            if str(s["allergies"]).upper() == "Y":
+                s["allergies"] = "Have allergies"
+            elif str(s["allergies"]).upper() == "N":
+                s["allergies"] = "No allergy"
             else:
-                value = int(value)
-                if search_key == "zipcode":
-                    records = AnonymizedRecord.objects.filter(
-                        zipcode_range__contains=value
-                    )
-                elif search_key == "age":
-                    records = AnonymizedRecord.objects.filter(age_range__contains=value)
-                elif search_key == "height":
-                    records = AnonymizedRecord.objects.filter(
-                        height_range__contains=value
-                    )
-                elif search_key == "weight":
-                    records = AnonymizedRecord.objects.filter(
-                        weight_range__contains=value
-                    )
-            serializer = AnonymizedRecordSerializer(records, many=True)
-            return Response(serializer.data, status=status.HTTP_200_OK)
-        except ValueError:
-            raise InvalidRequestException()
+                raise KeyError
+            q.append(Q(allergies=s["allergies"]))
 
+        if s["sex"] != "*":
+            s["sex"] = str(s["sex"]).upper()
+            if s["sex"] != "M" and s["sex"] != "F":
+                raise KeyError
+            else:
+                q.append(Q(sex=s["sex"]))
 
-def verify_search_key(s):
-    accepted_values = {"zipcode", "age", "height", "weight", "diagnosis"}
-    if str(s).lower() not in accepted_values:
+        if s["race"] == "*":
+            pass
+        elif str(s["race"]).capitalize() in race_values:
+            q.append(Q(race=str(s["race"]).capitalize()))
+        else:
+            raise KeyError
+
+        if s["diagnosis"] == "*":
+            pass
+        elif Diagnosis.objects.filter(code=s["diagnosis"]).exists():
+            q.append(Q(diagnosis=s["diagnosis"]))
+        else:
+            raise KeyError
+
+        return q
+    except ValueError as e:
         raise KeyError

@@ -7,7 +7,7 @@ import Toolbar from "@mui/material/Toolbar";
 import Grid from "@mui/material/Grid";
 import Paper from "@mui/material/Paper";
 import Typography from "@mui/material/Typography";
-import Create_Authenticator from "./Components/Create_Authenticator";
+import CreateAuthenticator from "./Components/CreateAuthenticator";
 
 const drawerWidth = 240;
 
@@ -32,7 +32,7 @@ const AppBar = styled(MuiAppBar, {
 const mdTheme = createTheme();
 
 function DashboardContent() {
-  const [open, setOpen] = React.useState(false);
+  const open = React.useState(false);
 
   return (
     <ThemeProvider theme={mdTheme}>
@@ -71,7 +71,7 @@ function DashboardContent() {
           <Toolbar />
           <Grid container spacing={3}>
             <Paper sx={{ p: 2, display: "flex", flexDirection: "column" }}>
-              <Create_Authenticator></Create_Authenticator>
+              <CreateAuthenticator></CreateAuthenticator>
             </Paper>
           </Grid>
         </Box>
