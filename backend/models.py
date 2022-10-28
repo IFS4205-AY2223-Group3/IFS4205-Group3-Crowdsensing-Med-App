@@ -60,7 +60,7 @@ class User(AbstractBaseUser, PermissionsMixin):
 
 
 class UserToken(models.Model):
-    key = models.CharField(("Key"), max_length=40, primary_key=True)
+    key = models.CharField(("Key"), max_length=64, primary_key=True)
 
     user = models.OneToOneField(User, on_delete=models.CASCADE, verbose_name="User")
     role = models.CharField(max_length=30)
@@ -82,7 +82,7 @@ class UserToken(models.Model):
         return super(UserToken, self).save(*args, **kwargs)
 
     def generate_key(self):
-        return secrets.token_hex(20)
+        return secrets.token_hex(32)
 
     def __str__(self):
         return self.key

@@ -4,7 +4,6 @@ from django.views.decorators.csrf import csrf_exempt
 from django.core.exceptions import ObjectDoesNotExist
 from django.contrib.auth.models import update_last_login
 from django.core.mail import send_mail
-from django.contrib.postgres.fields import IntegerRangeField, RangeOperators
 from django.db.models import Q
 
 from rest_framework import status
@@ -23,6 +22,7 @@ from rest_framework.serializers import ValidationError
 from django_otp import devices_for_user
 from django_otp.plugins.otp_totp.models import TOTPDevice
 
+import hashlib
 import logging
 
 logger = logging.getLogger(__name__)
@@ -56,6 +56,8 @@ def get_user_totp_device(self, user, confirmed=None):
 
 
 class TOTPCreateView(APIView):
+    permission_classes = [IsNotExpired]
+
     def get(self, request, *args, **kwargs):
         user = request.user
         device = get_user_totp_device(self, user)
@@ -84,6 +86,8 @@ class TOTPCreateView(APIView):
 
 
 class TOTPDeleteView(APIView):
+    permission_classes = [IsNotExpired]
+
     def get(self, request, *args, **kwargs):
         user = request.user
         device = get_user_totp_device(self, user, True)
@@ -217,6 +221,8 @@ class TOTPDeleteView(APIView):
 
 
 class TOTPVerifyView(APIView):
+    permission_classes = [IsNotExpired]
+
     def post(self, request, *args, **kwargs):
         try:
             otp = request.data["otp"]
@@ -347,7 +353,7 @@ def get_role(user_role):
 
 class AssignPendingExam(APIView):
     parser_classes = [JSONParser]
-    permission_classes = [IsVerified, IsDoctor]
+    permission_classes = [IsVerified, IsNotExpired, IsDoctor]
     # assign doctor to a session (done by doctors)
     @csrf_exempt
     def post(self, request):
@@ -444,7 +450,7 @@ class AssignPendingExam(APIView):
 
 class DoctorGetRecords(APIView):
     parser_classes = [JSONParser]
-    permission_classes = [IsVerified, IsDoctor]
+    permission_classes = [IsVerified, IsNotExpired, IsDoctor]
 
     def get(self, request):
         try:
@@ -491,7 +497,7 @@ class DoctorGetRecords(APIView):
 
 class AddExamination(APIView):
     parser_classes = [JSONParser]
-    permission_classes = [IsVerified, IsDoctor]
+    permission_classes = [IsVerified, IsNotExpired, IsDoctor]
 
     def post(self, request):
         try:
@@ -547,7 +553,7 @@ class AddExamination(APIView):
 
 class DoctorViewOldSessions(APIView):
     parser_classes = [JSONParser]
-    permission_classes = [IsVerified, IsDoctor]
+    permission_classes = [IsVerified, IsNotExpired, IsDoctor]
 
     def get(self, request):
         data = {}
@@ -569,7 +575,7 @@ class DoctorViewOldSessions(APIView):
 
 class GenerateSession(APIView):
     parser_classes = [JSONParser]
-    permission_classes = [IsVerified, IsPatient]
+    permission_classes = [IsVerified, IsNotExpired, IsPatient]
 
     def get(self, request):
         user_obj = request.auth.user
@@ -625,7 +631,7 @@ class GenerateSession(APIView):
 
 class PatientViewRecords(APIView):
     parser_classes = [JSONParser]
-    permission_classes = [IsVerified, IsPatient]
+    permission_classes = [IsVerified, IsNotExpired, IsPatient]
 
     def get(self, request):
         user_obj = request.auth.user
@@ -665,7 +671,7 @@ class PatientViewRecords(APIView):
 
 class AllowSession(APIView):
     parser_classes = [JSONParser]
-    permission_classes = [IsVerified, IsPatient]
+    permission_classes = [IsVerified, IsNotExpired, IsPatient]
 
     def post(self, request):
         user_obj = request.auth.user
@@ -724,16 +730,33 @@ def get_patient_object(user):
 
 class CrowdView(APIView):
     parser_classes = [JSONParser]
+    permission_classes = [AllowAny]
 
     def post(self, request):
-        serialized_data = CrowdSerializer(data=request.data)
-        if serialized_data.is_valid():
-            serialized_data.save()
-            return Response({"message": SUCCESS_MESSAGE}, status=status.HTTP_200_OK)
-        else:
-            return Response(
-                {"message": GENERIC_ERROR_MESSAGE}, status=status.HTTP_400_BAD_REQUEST
-            )
+        iot = User.objects.get(username="iot")
+        iot_token = UserToken.objects.get(user=iot)
+        try:
+            secret = request.data["secret"]
+            r = request.data["key"]
+
+            m = hashlib.sha256((iot_token.key + r).encode()).hexdigest()
+            if m != secret:
+                raise ValueError
+
+            data = {"count": int(request.data["count"])}
+
+            serialized_data = CrowdSerializer(data=data)
+            if serialized_data.is_valid():
+                serialized_data.save()
+                log_info(["IOT", "/iot", "Success"])
+                return Response({"message": SUCCESS_MESSAGE}, status=status.HTTP_200_OK)
+            else:
+                return Response(
+                    {"message": GENERIC_ERROR_MESSAGE},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+        except (KeyError, ValueError) as e:
+            raise InvalidRequestException()
 
     def get(self, request):
         try:
@@ -751,7 +774,7 @@ class CrowdView(APIView):
 
 
 class ResearcherView(APIView):
-    permission_classes = [IsVerified, IsResearcher]
+    permission_classes = [IsVerified, IsNotExpired, IsResearcher]
 
     def post(self, request):
         try:

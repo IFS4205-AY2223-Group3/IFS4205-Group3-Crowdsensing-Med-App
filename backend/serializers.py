@@ -27,7 +27,18 @@ class PatientRecordsSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = HealthRecord
-        fields = ["name", "dateofbirth", "height", "weight", "bloodtype", "allergies"]
+        fields = [
+            "name",
+            "dateofbirth",
+            "height",
+            "weight",
+            "bloodtype",
+            "allergies",
+            "sex",
+            "race",
+            "zipcode",
+            "address",
+        ]
 
 
 class PatientPastSessionSerializer(serializers.ModelSerializer):
