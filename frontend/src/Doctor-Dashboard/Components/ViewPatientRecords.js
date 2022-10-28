@@ -25,13 +25,13 @@ export default function ViewPatientRecords() {
           Authorization: tokenString,
         },
       })
-      .then(function(response) {
+      .then(function (response) {
         setHealthRecords(response.data.healthRecords);
         setExamRecords(response.data.examRecords);
         setSuccess(true);
         setBuffer(false);
       })
-      .catch(function(err) {
+      .catch(function (err) {
         setFailure(true);
         setBuffer(false);
         if (!err.response) {
@@ -55,35 +55,57 @@ export default function ViewPatientRecords() {
   if (success) {
     return (
       <React.Fragment>
-        <Title>{patientName}'s Health Records</Title>
+        <Title>Viewing {patientName} Records</Title>
+
+        <Title>General Records</Title>
         <table>
-          <tr>
-            <th>Name</th>
-            <td>{healthRecords.name}</td>
-          </tr>
-          <tr>
-            <th>Date of Birth</th>
-            <td>{healthRecords.dateofbirth}</td>
-          </tr>
-          <tr>
-            <th>Height</th>
-            <td>{healthRecords.height}cm</td>
-          </tr>
-          <tr>
-            <th>Weight</th>
-            <td>{healthRecords.weight}kg</td>
-          </tr>
-          <tr>
-            <th>Blood Type</th>
-            <td>{healthRecords.bloodtype}</td>
-          </tr>
-          <tr>
-            <th>Allergies</th>
-            <td>{healthRecords.allergies}</td>
-          </tr>
+          <tbody>
+            <tr>
+              <th>Name</th>
+              <td>{healthRecords.name}</td>
+            </tr>
+            <tr>
+              <th>Date of Birth</th>
+              <td>{healthRecords.dateofbirth}</td>
+            </tr>
+            <tr>
+              <th>Race</th>
+              <td>{healthRecords.race}</td>
+            </tr>
+            <tr>
+              <th>Address</th>
+              <td>{healthRecords.address}</td>
+            </tr>
+            <tr>
+              <th>Zipcode</th>
+              <td>{healthRecords.zipcode}</td>
+            </tr>
+          </tbody>
         </table>
         <br></br>
-        <Title>{patientName}'s Past Sessions</Title>
+        <Title>Health Records</Title>
+        <table>
+          <tbody>
+            <tr>
+              <th>Height</th>
+              <td>{healthRecords.height}cm</td>
+            </tr>
+            <tr>
+              <th>Weight</th>
+              <td>{healthRecords.weight}kg</td>
+            </tr>
+            <tr>
+              <th>Blood Type</th>
+              <td>{healthRecords.bloodtype}</td>
+            </tr>
+            <tr>
+              <th>Allergies</th>
+              <td>{healthRecords.allergies}</td>
+            </tr>
+          </tbody>
+        </table>
+        <br></br>
+        <Title>Past Sessions</Title>
         <table>
           <tr>
             <th>Date Time</th>

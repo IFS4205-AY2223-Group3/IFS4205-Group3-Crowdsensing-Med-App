@@ -54,7 +54,14 @@ export default function Examination() {
   return (
     <React.Fragment>
       <Title>Examination Mode</Title>
-      <b>You are examining {patientName}</b>
+      <Title>You are examining {patientName}</Title>
+      <br></br>
+      <a href="https://icd.who.int/browse10/2019/en">
+        <font size="5" color="blue">
+          Visit ICD-10 Codes
+        </font>{" "}
+      </a>
+
       {isErrPopUp ? <PopUp toggle={togglePopUp} msg={errMsg} /> : null}
       <form onSubmit={handleSubmit}>
         <label htmlFor="prescription">Prescription:</label>
@@ -84,10 +91,10 @@ export default function Examination() {
           id="notes"
           autoComplete="off"
         />
+
         <button className={styles.back_button} onClick={handleViewRecords}>
           View {patientName} Records
         </button>
-
         <button>Submit</button>
       </form>
     </React.Fragment>
