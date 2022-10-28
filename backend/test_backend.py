@@ -109,7 +109,9 @@ class PatientTest(APITestCase):
         token = UserToken.objects.create(user=patient)
         doctor.save()
         patient.save()
+        token.role = "patient"
         token.verify()
+        token.save()
 
         self.client.credentials(HTTP_AUTHORIZATION="Token " + token.key)
 
@@ -187,7 +189,9 @@ class DoctorTest(APITestCase):
         token = UserToken.objects.create(user=doctor)
         doctor.save()
         patient.save()
+        token.role = "doctor"
         token.verify()
+        token.save()
 
         self.client.credentials(HTTP_AUTHORIZATION="Token " + token.key)
 
@@ -310,7 +314,9 @@ class ResearcherTest(APITestCase):
         )
         token = UserToken.objects.create(user=self.user)
         self.user.save()
+        token.role = "researcher"
         token.verify()
+        token.save()
 
         self.client.credentials(HTTP_AUTHORIZATION="Token " + token.key)
         self.diagnosis = Diagnosis.objects.create(code="T24611D", description="huh")
