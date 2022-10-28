@@ -24,8 +24,7 @@ class IsDoctor(permissions.BasePermission):
 
     def has_permission(self, request, view):
         try:
-            user_token = UserToken.objects.get(key=request.auth)
-            return user_token.role == DOCTOR_ROLE
+            return request.auth.role == DOCTOR_ROLE
         except UserToken.DoesNotExist:
             return False
 
@@ -35,8 +34,7 @@ class IsResearcher(permissions.BasePermission):
 
     def has_permission(self, request, view):
         try:
-            user_token = UserToken.objects.get(key=request.auth)
-            return user_token.role == RESEARCHER_ROLE
+            return request.auth.role == RESEARCHER_ROLE
         except UserToken.DoesNotExist:
             return False
 
@@ -46,8 +44,7 @@ class IsPatient(permissions.BasePermission):
 
     def has_permission(self, request, view):
         try:
-            user_token = UserToken.objects.get(key=request.auth)
-            return user_token.role == PATIENT_ROLE
+            return request.auth.role == PATIENT_ROLE
         except UserToken.DoesNotExist:
             return False
 
