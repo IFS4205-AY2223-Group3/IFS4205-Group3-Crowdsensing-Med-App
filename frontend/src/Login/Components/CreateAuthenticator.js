@@ -8,7 +8,7 @@ import Title from "../../Components/Title";
 import { LOGIN_AUTH_URL } from "../../api/constants";
 import axios from "axios";
 
-export default function Create_Authenticator() {
+export default function CreateAuthenticator() {
   const token = sessionStorage.getItem("accessToken");
   const tokenString = " Token " + token;
   const [success, setSuccess] = useState(false);
@@ -75,18 +75,22 @@ export default function Create_Authenticator() {
     );
   } else if (buffer) {
     return (
-      <div className={styles.buttons_container}>
-        <Title>Generating...</Title>
-        <img className={styles.loading} src={loading} alt="loading..." />
-      </div>
+      <React.Fragment>
+        <div className={styles.buttons_container}>
+          <Title>Generating...</Title>
+          <img className={styles.loading} src={loading} alt="loading..." />
+        </div>
+      </React.Fragment>
     );
   } else if (failure) {
     return (
-      <div className={styles.buttons_container}>
-        <section>
-          <Title>{errMsg}</Title>
-        </section>
-      </div>
+      <React.Fragment>
+        <div className={styles.buttons_container}>
+          <section>
+            <Title>{errMsg}</Title>
+          </section>
+        </div>
+      </React.Fragment>
     );
   }
 }
