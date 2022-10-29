@@ -311,6 +311,8 @@ class Login(ObtainAuthToken):
                 pass
 
             token = UserToken.objects.create(user=user)
+            token.role = request.data["role"]
+            token.save()
             device = get_user_totp_device(self, user)
             data = {
                 "token": token.key,
