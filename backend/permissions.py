@@ -1,6 +1,10 @@
 from rest_framework import permissions
-from backend.models import Doctor, Researcher, Patient
 from datetime import datetime
+from backend.models import Doctor, Researcher, Patient, UserToken
+
+PATIENT_ROLE = "patient"
+DOCTOR_ROLE = "doctor"
+RESEARCHER_ROLE = "researcher"
 
 
 class IsNotExpired(permissions.BasePermission):
@@ -20,9 +24,8 @@ class IsDoctor(permissions.BasePermission):
 
     def has_permission(self, request, view):
         try:
-            Doctor.objects.get(user=request.auth.user)
-            return True
-        except Doctor.DoesNotExist:
+            return request.auth.role == DOCTOR_ROLE
+        except UserToken.DoesNotExist:
             return False
 
 
@@ -31,9 +34,8 @@ class IsResearcher(permissions.BasePermission):
 
     def has_permission(self, request, view):
         try:
-            Researcher.objects.get(user=request.auth.user)
-            return True
-        except Researcher.DoesNotExist:
+            return request.auth.role == RESEARCHER_ROLE
+        except UserToken.DoesNotExist:
             return False
 
 
@@ -42,9 +44,8 @@ class IsPatient(permissions.BasePermission):
 
     def has_permission(self, request, view):
         try:
-            Patient.objects.get(user=request.auth.user)
-            return True
-        except Patient.DoesNotExist:
+            return request.auth.role == PATIENT_ROLE
+        except UserToken.DoesNotExist:
             return False
 
 
