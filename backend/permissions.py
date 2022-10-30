@@ -23,36 +23,27 @@ class IsDoctor(permissions.BasePermission):
     message = "This resource can only be accessed by doctors."
 
     def has_permission(self, request, view):
-        try:
-            return request.auth.role == DOCTOR_ROLE
-        except UserToken.DoesNotExist:
-            return False
+        return request.user.is_authenticated and request.auth.role == DOCTOR_ROLE
 
 
 class IsResearcher(permissions.BasePermission):
     message = "This resource can only be accessed by researchers."
 
     def has_permission(self, request, view):
-        try:
-            return request.auth.role == RESEARCHER_ROLE
-        except UserToken.DoesNotExist:
-            return False
+        return request.user.is_authenticated and request.auth.role == RESEARCHER_ROLE
 
 
 class IsPatient(permissions.BasePermission):
     message = "This resource can only be accessed by patients."
 
     def has_permission(self, request, view):
-        try:
-            return request.auth.role == PATIENT_ROLE
-        except UserToken.DoesNotExist:
-            return False
+        return request.user.is_authenticated and request.auth.role == PATIENT_ROLE
 
 
 class IsVerified(permissions.BasePermission):
     message = "OTP not verified!"
 
     def has_permission(self, request, view):
-        if request.auth.user is not None:
+        if request.user.is_authenticated:
             return request.auth.verified
         return False
