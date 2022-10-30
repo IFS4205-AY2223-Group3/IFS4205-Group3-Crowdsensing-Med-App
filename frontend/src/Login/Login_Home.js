@@ -40,7 +40,6 @@ function DashboardContent() {
                 : theme.palette.grey[900],
             flexGrow: 1,
             height: "100vh",
-            overflow: "auto",
           }}
         >
           <Toolbar />
@@ -51,7 +50,6 @@ function DashboardContent() {
                 p: 2,
                 display: "flex",
                 flexDirection: "column",
-                overflow: "auto",
               }}
             >
               <Login></Login>
