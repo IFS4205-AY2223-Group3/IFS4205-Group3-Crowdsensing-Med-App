@@ -230,6 +230,7 @@ function DashboardContent() {
                     display: "flex",
                     flexDirection: "column",
                     height: 240,
+                    overflow: "auto",
                   }}
                 >
                   <Chart />
@@ -250,7 +251,14 @@ function DashboardContent() {
               </Grid>
               {/* Recent Sessions */}
               <Grid item xs={12}>
-                <Paper sx={{ p: 2, display: "flex", flexDirection: "column" }}>
+                <Paper
+                  sx={{
+                    p: 2,
+                    display: "flex",
+                    flexDirection: "column",
+                    overflow: "auto",
+                  }}
+                >
                   <PastSessions />
                 </Paper>
               </Grid>
