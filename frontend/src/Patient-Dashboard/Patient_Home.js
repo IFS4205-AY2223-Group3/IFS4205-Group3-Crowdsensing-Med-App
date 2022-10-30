@@ -236,7 +236,6 @@ function DashboardContent() {
                     display: "flex",
                     flexDirection: "column",
                     height: 240,
-                    overflow: "auto",
                   }}
                 >
                   <Crowd />
