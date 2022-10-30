@@ -61,4 +61,17 @@ python -m pip install django-cors-headers
 python -m pip install django-otp
 ```
 
+7. Make migrations in the database
+
+```bash
+python manage.py makemigrations
+python manage.py migrate
+```
+
+8. Start the server
+
+```bash
+python manage.py runserver
+```
+
 &nbsp;
