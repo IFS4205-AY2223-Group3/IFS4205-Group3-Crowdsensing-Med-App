@@ -87,12 +87,9 @@ class Detector:  # object detection class
                         )
                         count += 1
 
-            cv2.imshow("Result", image)
             curr_time = datetime.datetime.now()
             formatted_time = curr_time.strftime("%Y-%m-%d %H:%M:%S") + "+8"
-            print(count)
-            print(formatted_time)
-            seed = os.urandom(32)
+            seed = os.urandom(32)  # calculate hash
             seed_hex = seed.hex()
             string = Constants.API_TOKEN + seed_hex
             hash = hashlib.sha256(string.encode())
@@ -104,7 +101,7 @@ class Detector:  # object detection class
                 "key": seed_hex,
             }
             data_json = json.dumps(data)
-            post_request = requests.post(
+            post_request = requests.post(  # send POST request
                 url=Constants.URL,
                 data=data_json,
                 headers={
