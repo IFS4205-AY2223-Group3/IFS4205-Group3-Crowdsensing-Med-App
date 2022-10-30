@@ -49,15 +49,15 @@ if PRODUCTION:
 else:
     ALLOWED_HOSTS = ["localhost"]
 
-CORS_ORIGIN_ALLOW_ALL = True
-CORS_ORIGIN_WHITELIST = ["http://172.25.97.106:3000"]
+# CORS_ORIGIN_ALLOW_ALL_ORIGINS = True
+# CORS_ORIGIN_WHITELIST = ["http://172.25.97.106:3000"]
 
-CORS_ALLOW_CREDENTIALS = True
-CORS_ALLOW_HEADERS = default_headers + (
-    "access-control-allow-origin",
-    "access-control-allow-headers",
-    "access-control-allow-methods",
-)
+# CORS_ALLOW_CREDENTIALS = True
+# CORS_ALLOW_HEADERS = list(default_headers) + [
+#    "access-control-allow-origin",
+#    "access-control-allow-headers",
+#    "access-control-allow-methods",
+# ]
 # Application definition
 
 INSTALLED_APPS = [
@@ -155,14 +155,6 @@ LOGGING = {
     "disable_existing_loggers": False,
     "formatters": {
         "verbose": {"format": "[{levelname}] [{asctime}] {message}", "style": "{"}
-    },
-    "handlers": {
-        "file": {
-            "level": "INFO",
-            "class": "logging.FileHandler",
-            "filename": "backend.log",
-            "formatter": "verbose",
-        }
     },
     "handlers": {
         "file": {
