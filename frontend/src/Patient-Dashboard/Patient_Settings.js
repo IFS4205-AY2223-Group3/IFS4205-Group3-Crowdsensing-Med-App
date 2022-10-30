@@ -220,6 +220,7 @@ function DashboardContent() {
                     display: "flex",
                     flexDirection: "column",
                     height: 360,
+                    overflow: "auto",
                   }}
                 >
                   <ChangeAuth></ChangeAuth>

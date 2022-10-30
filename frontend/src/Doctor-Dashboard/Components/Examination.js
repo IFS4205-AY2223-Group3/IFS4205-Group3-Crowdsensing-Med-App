@@ -56,7 +56,7 @@ export default function Examination() {
       <Title>Examination Mode</Title>
       <Title>You are examining {patientName}</Title>
       <br></br>
-      <a href="https://icd.who.int/browse10/2019/en">
+      <a href="https://www.cms.gov/medicare/icd-10/2022-icd-10-cm">
         <font size="5" color="blue">
           Visit ICD-10 Codes
         </font>{" "}

@@ -12,7 +12,6 @@ import OTP from "./Components/OTP";
 const mdTheme = createTheme();
 
 function DashboardContent() {
-
   return (
     <ThemeProvider theme={mdTheme}>
       <Box sx={{ display: "flex" }}>
@@ -45,7 +44,14 @@ function DashboardContent() {
         >
           <Toolbar />
           <Grid container spacing={3}>
-            <Paper sx={{ p: 2, display: "flex", flexDirection: "column" }}>
+            <Paper
+              sx={{
+                p: 2,
+                display: "flex",
+                flexDirection: "column",
+                overflow: "auto",
+              }}
+            >
               <OTP></OTP>
             </Paper>
           </Grid>

@@ -1,5 +1,5 @@
 import * as React from "react";
-import { styled, createTheme, ThemeProvider } from "@mui/material/styles";
+import { createTheme, ThemeProvider } from "@mui/material/styles";
 import CssBaseline from "@mui/material/CssBaseline";
 import Box from "@mui/material/Box";
 import MuiAppBar from "@mui/material/AppBar";
@@ -9,26 +9,6 @@ import Paper from "@mui/material/Paper";
 import Typography from "@mui/material/Typography";
 import CreateAuthenticator from "./Components/CreateAuthenticator";
 
-const drawerWidth = 240;
-
-const AppBar = styled(MuiAppBar, {
-  shouldForwardProp: (prop) => prop !== "open",
-})(({ theme, open }) => ({
-  zIndex: theme.zIndex.drawer + 1,
-  transition: theme.transitions.create(["width", "margin"], {
-    easing: theme.transitions.easing.sharp,
-    duration: theme.transitions.duration.leavingScreen,
-  }),
-  ...(open && {
-    marginLeft: drawerWidth,
-    width: `calc(100% - ${drawerWidth}px)`,
-    transition: theme.transitions.create(["width", "margin"], {
-      easing: theme.transitions.easing.sharp,
-      duration: theme.transitions.duration.enteringScreen,
-    }),
-  }),
-}));
-
 const mdTheme = createTheme();
 
 function DashboardContent() {
@@ -36,12 +16,8 @@ function DashboardContent() {
     <ThemeProvider theme={mdTheme}>
       <Box sx={{ display: "flex" }}>
         <CssBaseline />
-        <AppBar position="absolute" open={false}>
-          <Toolbar
-            sx={{
-              pr: "24px", // keep right padding when drawer closed
-            }}
-          >
+        <MuiAppBar position="absolute">
+          <Toolbar>
             <Typography
               component="h1"
               variant="h6"
@@ -52,7 +28,7 @@ function DashboardContent() {
               MediBook
             </Typography>
           </Toolbar>
-        </AppBar>
+        </MuiAppBar>
 
         <Box
           component="main"
@@ -68,7 +44,14 @@ function DashboardContent() {
         >
           <Toolbar />
           <Grid container spacing={3}>
-            <Paper sx={{ p: 2, display: "flex", flexDirection: "column" }}>
+            <Paper
+              sx={{
+                p: 2,
+                display: "flex",
+                flexDirection: "column",
+                overflow: "auto",
+              }}
+            >
               <CreateAuthenticator></CreateAuthenticator>
             </Paper>
           </Grid>
