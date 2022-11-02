@@ -307,3 +307,4 @@ function DashboardContent() {
 export default function DoctorExamination() {
   return <DashboardContent />;
 }
+

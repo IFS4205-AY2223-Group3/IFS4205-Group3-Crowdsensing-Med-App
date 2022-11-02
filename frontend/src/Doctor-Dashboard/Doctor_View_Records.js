@@ -173,6 +173,7 @@ function DashboardContent() {
     navigate("/doctorsetting");
   };
 
+
   if (success) {
     return (
       <ThemeProvider theme={mdTheme}>
@@ -296,3 +297,4 @@ function DashboardContent() {
 export default function DoctorViewRecords() {
   return <DashboardContent />;
 }
+

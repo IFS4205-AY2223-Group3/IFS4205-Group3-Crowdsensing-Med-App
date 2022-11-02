@@ -324,3 +324,4 @@ function DashboardContent() {
 export default function DoctorHome() {
   return <DashboardContent />;
 }
+

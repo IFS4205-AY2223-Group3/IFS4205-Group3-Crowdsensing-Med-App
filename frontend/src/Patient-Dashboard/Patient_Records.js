@@ -164,7 +164,7 @@ function DashboardContent() {
     navigate("/patientsetting");
   };
 
-  if (success) {
+if (success) {
     return (
       <ThemeProvider theme={mdTheme}>
         {isErrPopUp ? <PopUp toggle={togglePopUp} msg={errMsg} /> : null}
@@ -287,3 +287,4 @@ function DashboardContent() {
 export default function PatientRecords() {
   return <DashboardContent />;
 }
+

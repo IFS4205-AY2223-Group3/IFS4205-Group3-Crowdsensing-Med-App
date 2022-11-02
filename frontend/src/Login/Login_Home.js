@@ -40,13 +40,18 @@ function DashboardContent() {
                 : theme.palette.grey[900],
             flexGrow: 1,
             height: "100vh",
-            overflow: "auto",
           }}
         >
           <Toolbar />
           <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}></Container>
           <Grid container spacing={3}>
-            <Paper sx={{ p: 2, display: "flex", flexDirection: "column" }}>
+            <Paper
+              sx={{
+                p: 2,
+                display: "flex",
+                flexDirection: "column",
+              }}
+            >
               <Login></Login>
             </Paper>
           </Grid>
