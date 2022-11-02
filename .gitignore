@@ -5,4 +5,5 @@ venv/
 backend/migrations/*
 backend.log
 database/data/*.csv
+database/data/*.bat
 IOT/Constants.py
