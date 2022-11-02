@@ -28,12 +28,12 @@ export default function GenerateSession() {
           Authorization: tokenString,
         },
       })
-      .then(function(response) {
+      .then(function (response) {
         setExamId(response.data.examId);
         setSuccess(true);
         setBuffer(false);
       })
-      .catch(function(err) {
+      .catch(function (err) {
         setFailure(true);
         setBuffer(false);
         if (!err.response) {
@@ -69,10 +69,10 @@ export default function GenerateSession() {
           },
         }
       )
-      .then(function(response) {
+      .then(function (response) {
         navigate("/patient");
       })
-      .catch(function(allowErr) {
+      .catch(function (allowErr) {
         setAllowErrMsg("Server encountered an error, please try again.");
         setIsErrPopUp(true);
       });
@@ -111,7 +111,7 @@ export default function GenerateSession() {
         </p>
         <br></br>
 
-        <p style={{display:'flex', alignItems: 'center', justifyContent:'center',}}>
+        <p>
           <strong>Examination ID:</strong> &nbsp;{examId}
         </p>
         <br></br>

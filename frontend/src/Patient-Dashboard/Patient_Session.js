@@ -299,3 +299,4 @@ function DashboardContent() {
 export default function PatientSession() {
   return <DashboardContent />;
 }
+

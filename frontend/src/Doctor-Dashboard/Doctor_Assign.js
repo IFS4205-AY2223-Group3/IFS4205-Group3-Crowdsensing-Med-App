@@ -296,3 +296,4 @@ function DashboardContent() {
 export default function DoctorAssign() {
   return <DashboardContent />;
 }
+

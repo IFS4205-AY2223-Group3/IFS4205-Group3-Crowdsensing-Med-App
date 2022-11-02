@@ -165,6 +165,7 @@ function DashboardContent() {
     navigate("/patientsetting");
   };
 
+  
   if (success) {
     return (
       <ThemeProvider theme={mdTheme}>
@@ -293,3 +294,4 @@ function DashboardContent() {
 export default function PatientSettings() {
   return <DashboardContent />;
 }
+

@@ -316,3 +316,4 @@ function DashboardContent() {
 export default function PatientHome() {
   return <DashboardContent />;
 }
+
