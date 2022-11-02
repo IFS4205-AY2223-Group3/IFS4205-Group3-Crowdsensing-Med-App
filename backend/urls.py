@@ -17,4 +17,5 @@ urlpatterns = [
     path("doctorviewoldsessions", views.DoctorViewOldSessions.as_view()),
     path("deleteotp", views.TOTPDeleteView.as_view()),
     path("researcherviewrecords", views.ResearcherView.as_view()),
+    path("checkauth", views.CheckAuth.as_view()),
 ]
