@@ -1,5 +1,4 @@
-export const LOGIN_URL =
-  "https://ifs4205-group3-backend.comp.nus.edu.sg/login";
+export const LOGIN_URL = "https://ifs4205-group3-backend.comp.nus.edu.sg/login";
 export const LOGIN_AUTH_URL =
   "https://ifs4205-group3-backend.comp.nus.edu.sg/createotp";
 export const LOGIN_OTP_URL =
@@ -26,3 +25,5 @@ export const VIEW_COUNT_URL =
   "https://ifs4205-group3-backend.comp.nus.edu.sg/iot";
 export const VIEW_ANON_DATA_URL =
   "https://ifs4205-group3-backend.comp.nus.edu.sg/researcherviewrecords";
+export const CHECK_AUTH_URL =
+  "https://ifs4205-group3-backend.comp.nus.edu.sg/checkauth";

@@ -22,10 +22,14 @@ import LogoutIcon from "@mui/icons-material/Logout";
 import DashboardIcon from "@mui/icons-material/Dashboard";
 import PeopleIcon from "@mui/icons-material/People";
 import LayersIcon from "@mui/icons-material/Layers";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Navigate } from "react-router-dom";
 import { useAuth } from "../context/AuthProvider";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import PopUp from "../Components/PopUp";
+import loading from "../imports/loading.gif";
+import { CHECK_AUTH_URL } from "../api/constants";
+import axios from "axios";
+import Title from "../Components/Title";
 import GenerateSession from "./Components/GenerateSession";
 
 const drawerWidth = 240;
@@ -83,6 +87,48 @@ function DashboardContent() {
   const [isNoticePopUp, setIsNoticePopUp] = useState(true);
   const { logout } = useAuth();
   const navigate = useNavigate();
+  const token = sessionStorage.getItem("accessToken");
+  const tokenString = " Token " + token;
+  const [success, setSuccess] = useState(false);
+  const [failure, setFailure] = useState(false);
+  const [buffer, setBuffer] = useState(true);
+
+  useEffect(() => {
+    axios
+      .get(CHECK_AUTH_URL, {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: tokenString,
+        },
+      })
+      .then(function (response) {
+        if (response.data.userRole === "patient") {
+          setSuccess(true);
+          setBuffer(false);
+        } else {
+          setFailure(true);
+          setBuffer(false);
+        }
+      })
+      .catch(function (err) {
+        setFailure(true);
+        if (!err.response) {
+          setErrMsg("No Server Response");
+        } else if (err.response.status === 400) {
+          setErrMsg(err.response.data.message);
+        } else if (err.response.status === 401) {
+          setErrMsg(err.response.data.message);
+        } else if (err.response.status === 403) {
+          setErrMsg(err.response.data.message);
+        } else if (err.response.status === 405) {
+          setErrMsg(err.response.data.message);
+        } else if (err.response.status === 500) {
+          setErrMsg(err.response.data.message);
+        } else {
+          setErrMsg("Server encountered an error, please try again.");
+        }
+      });
+  }, [tokenString]);
 
   const [open, setOpen] = React.useState(false);
   const toggleDrawer = () => {
@@ -123,118 +169,131 @@ function DashboardContent() {
     navigate("/patientsetting");
   };
 
-  return (
-    <ThemeProvider theme={mdTheme}>
-      {isNoticePopUp ? (
-        <PopUp
-          toggle={toggleNoticePopUp}
-          msg="Please make sure you are with a Doctor physically.
+  if (success) {
+    return (
+      <ThemeProvider theme={mdTheme}>
+        {isNoticePopUp ? (
+          <PopUp
+            toggle={toggleNoticePopUp}
+            msg="Please make sure you are with a Doctor physically.
            An Examination ID will be generated."
-        />
-      ) : null}
-      {isErrPopUp ? <PopUp toggle={toggleErrPopUp} msg={errMsg} /> : null}
-      <Box sx={{ display: "flex" }}>
-        <CssBaseline />
-        <AppBar position="absolute" open={open}>
-          <Toolbar
-            sx={{
-              pr: "24px", // keep right padding when drawer closed
-            }}
-          >
-            <IconButton
-              edge="start"
-              color="inherit"
-              aria-label="open drawer"
-              onClick={toggleDrawer}
+          />
+        ) : null}
+        {isErrPopUp ? <PopUp toggle={toggleErrPopUp} msg={errMsg} /> : null}
+        <Box sx={{ display: "flex" }}>
+          <CssBaseline />
+          <AppBar position="absolute" open={open}>
+            <Toolbar
               sx={{
-                marginRight: "36px",
-                ...(open && { display: "none" }),
+                pr: "24px", // keep right padding when drawer closed
               }}
             >
-              <MenuIcon />
-            </IconButton>
-            <Typography
-              component="h1"
-              variant="h6"
-              color="inherit"
-              noWrap
-              sx={{ flexGrow: 1 }}
+              <IconButton
+                edge="start"
+                color="inherit"
+                aria-label="open drawer"
+                onClick={toggleDrawer}
+                sx={{
+                  marginRight: "36px",
+                  ...(open && { display: "none" }),
+                }}
+              >
+                <MenuIcon />
+              </IconButton>
+              <Typography
+                component="h1"
+                variant="h6"
+                color="inherit"
+                noWrap
+                sx={{ flexGrow: 1 }}
+              >
+                Welcome {name}
+              </Typography>
+              <IconButton color="inherit" onClick={handleLogout}>
+                <LogoutIcon />
+              </IconButton>
+            </Toolbar>
+          </AppBar>
+          <Drawer variant="permanent" open={open}>
+            <Toolbar
+              sx={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "flex-end",
+                px: [1],
+              }}
             >
-              Welcome {name}
-            </Typography>
-            <IconButton color="inherit" onClick={handleLogout}>
-              <LogoutIcon />
-            </IconButton>
-          </Toolbar>
-        </AppBar>
-        <Drawer variant="permanent" open={open}>
-          <Toolbar
+              <IconButton onClick={toggleDrawer}>
+                <ChevronLeftIcon />
+              </IconButton>
+            </Toolbar>
+            <Divider />
+            <List component="nav">
+              <ListItemButton onClick={handleDashboard}>
+                <ListItemIcon>
+                  <DashboardIcon />
+                </ListItemIcon>
+                <ListItemText primary="Dashboard" />
+              </ListItemButton>
+              <ListItemButton onClick={handleExamine}>
+                <ListItemIcon>
+                  <LayersIcon />
+                </ListItemIcon>
+                <ListItemText primary="Examine" />
+              </ListItemButton>
+              <ListItemButton onClick={handleHealthrecords}>
+                <ListItemIcon>
+                  <HealthAndSafetyIcon />
+                </ListItemIcon>
+                <ListItemText primary="Health Record" />
+              </ListItemButton>
+              <ListItemButton onClick={handleSetting}>
+                <ListItemIcon>
+                  <PeopleIcon />
+                </ListItemIcon>
+                <ListItemText primary="Settings" />
+              </ListItemButton>
+            </List>
+          </Drawer>
+          <Box
+            component="main"
             sx={{
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "flex-end",
-              px: [1],
+              backgroundColor: (theme) =>
+                theme.palette.mode === "light"
+                  ? theme.palette.grey[100]
+                  : theme.palette.grey[900],
+              flexGrow: 1,
+              height: "100vh",
+              overflow: "auto",
             }}
           >
-            <IconButton onClick={toggleDrawer}>
-              <ChevronLeftIcon />
-            </IconButton>
-          </Toolbar>
-          <Divider />
-          <List component="nav">
-            <ListItemButton onClick={handleDashboard}>
-              <ListItemIcon>
-                <DashboardIcon />
-              </ListItemIcon>
-              <ListItemText primary="Dashboard" />
-            </ListItemButton>
-            <ListItemButton onClick={handleExamine}>
-              <ListItemIcon>
-                <LayersIcon />
-              </ListItemIcon>
-              <ListItemText primary="Examine" />
-            </ListItemButton>
-            <ListItemButton onClick={handleHealthrecords}>
-              <ListItemIcon>
-                <HealthAndSafetyIcon />
-              </ListItemIcon>
-              <ListItemText primary="Health Record" />
-            </ListItemButton>
-            <ListItemButton onClick={handleSetting}>
-              <ListItemIcon>
-                <PeopleIcon />
-              </ListItemIcon>
-              <ListItemText primary="Settings" />
-            </ListItemButton>
-          </List>
-        </Drawer>
-        <Box
-          component="main"
-          sx={{
-            backgroundColor: (theme) =>
-              theme.palette.mode === "light"
-                ? theme.palette.grey[100]
-                : theme.palette.grey[900],
-            flexGrow: 1,
-            height: "100vh",
-            overflow: "auto",
-          }}
-        >
-          <Toolbar />
-          <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
-            <Grid container spacing={3}>
-              {/* Recent Sessions */}
-              <Grid item xs={12}>
-                <Paper sx={{ p: 2, display: "flex", flexDirection: "column" }}>
-                  <GenerateSession></GenerateSession>
-                </Paper>
+            <Toolbar />
+            <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
+              <Grid container spacing={3}>
+                {/* Recent Sessions */}
+                <Grid item xs={12}>
+                  <Paper
+                    sx={{ p: 2, display: "flex", flexDirection: "column" }}
+                  >
+                    <GenerateSession></GenerateSession>
+                  </Paper>
+                </Grid>
               </Grid>
-            </Grid>
-          </Container>
+            </Container>
+          </Box>
         </Box>
-      </Box>
-    </ThemeProvider>
-  );
+      </ThemeProvider>
+    );
+  } else if (failure) {
+    return <Navigate to="/login" replace />;
+  } else if (buffer) {
+    return (
+      <div>
+        <Title>Generating...</Title>
+        <img src={loading} alt="loading..." />
+      </div>
+    );
+  }
 }
 
 export default function PatientSession() {
