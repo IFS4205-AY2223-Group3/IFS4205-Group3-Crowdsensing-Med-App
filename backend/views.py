@@ -347,6 +347,17 @@ def get_role(user_role):
     return None
 
 
+class CheckAuth(APIView):
+    def get(self, request, *args, **kwargs):
+        data = {}
+        if request.auth.verified:
+            data["userRole"] = request.auth.role
+            return Response(data, status=status.HTTP_200_OK)
+        else:
+            data["message"] = "Token is unverified."
+            return Response(data, status=status.HTTP_400_BAD_REQUEST)
+
+
 #######################################################################################################################
 # DOCTOR API
 
