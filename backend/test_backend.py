@@ -5,7 +5,7 @@ from rest_framework.test import APIRequestFactory, APITestCase, APIClient
 from backend.models import *
 from backend.serializers import *
 import os
-import hashlib
+import hmac
 
 GENERIC_ERROR_MESSAGE = "There was an error, please try again."
 SUCCESS_MESSAGE = "success"
@@ -425,7 +425,7 @@ class IOTTest(APITestCase):
 
     def test_iot_post(self):
         r = os.urandom(32).hex()
-        secret = hashlib.sha256((self.token.key + r).encode()).hexdigest()
+        secret = hmac.digest(self.token.key.encode(), r.encode(), "sha256").hex()
         data = {"count": 5, "key": r, "secret": secret}
         response = self.client.post("/iot", data)
         expected_response = status.HTTP_200_OK
