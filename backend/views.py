@@ -22,7 +22,6 @@ from rest_framework.serializers import ValidationError
 from django_otp import devices_for_user
 from django_otp.plugins.otp_totp.models import TOTPDevice
 
-import hashlib
 import logging
 import hmac
 
@@ -751,8 +750,8 @@ class CrowdView(APIView):
             secret = request.data["secret"]
             r = request.data["key"]
 
-            m = hmac.digest(iot_token.key.encode(), r.encode(), 'sha256').hex()
-            if not hmac.compare_digest(m,secret):
+            m = hmac.digest(iot_token.key.encode(), r.encode(), "sha256").hex()
+            if not hmac.compare_digest(m, secret):
                 raise ValueError
 
             data = {"count": int(request.data["count"])}
