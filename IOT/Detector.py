@@ -8,7 +8,7 @@ import requests
 from imutils.video import WebcamVideoStream
 import Constants
 import os
-import hmac 
+import hmac
 
 np.random.seed(Constants.SEED_NUMBER)
 
@@ -91,7 +91,7 @@ class Detector:  # object detection class
             formatted_time = curr_time.strftime("%Y-%m-%d %H:%M:%S") + "+8"
             seed = os.urandom(32)  # calculate hash
             seed_hex = seed.hex()
-            hash = hmac.digest(bytes.fromhex(Constants.API_TOKEN), seed, 'sha256').hex()
+            hash = hmac.digest(bytes.fromhex(Constants.API_TOKEN), seed, "sha256").hex()
             data = {
                 "time_recorded": formatted_time,
                 "count": count,
