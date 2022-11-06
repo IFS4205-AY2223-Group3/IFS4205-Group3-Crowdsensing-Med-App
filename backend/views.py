@@ -86,7 +86,7 @@ class TOTPCreateView(APIView):
 
 
 class TOTPDeleteView(APIView):
-    permission_classes = [IsNotExpired]
+    permission_classes = [IsVerified, IsNotExpired]
 
     def get(self, request, *args, **kwargs):
         user = request.user
@@ -104,7 +104,11 @@ class TOTPDeleteView(APIView):
             raise NoDeviceException()
         try:
             old_request = RemoveOTPRequest.objects.get(user=user)
-            old_request.delete()
+            diff = datetime.now(old_request.time_created.tzinfo) - old_request.time_created
+            if diff.total_seconds() / 60 > 1440:
+                old_request.delete()
+            else:
+                raise ExceededRequestLimitException()
         except RemoveOTPRequest.DoesNotExist:
             pass
 
@@ -147,6 +151,8 @@ class TOTPDeleteView(APIView):
             user = request.user
 
             remove_request = RemoveOTPRequest.objects.get(user=user)
+            if remove_request.attempts >= 5:
+                raise InvalidRequestException()
             if otp == remove_request.key:
                 device = get_user_totp_device(self, user, True)
                 if device != None:
@@ -181,8 +187,8 @@ class TOTPDeleteView(APIView):
                     )
             else:
                 remove_request.attempts += 1
+                remove_request.save()
                 if remove_request.attempts >= 5:
-                    remove_request.delete()
                     log_info(
                         [
                             "OTP",
@@ -199,7 +205,6 @@ class TOTPDeleteView(APIView):
                         status=status.HTTP_406_NOT_ACCEPTABLE,
                     )
                 else:
-                    remove_request.save()
                     log_info(
                         [
                             "OTP",

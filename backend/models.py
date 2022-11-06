@@ -60,7 +60,7 @@ class User(AbstractBaseUser, PermissionsMixin):
 
 
 class UserToken(models.Model):
-    key = models.CharField(("Key"), max_length=64, primary_key=True)
+    key = models.CharField(("Key"), max_length=128, primary_key=True)
 
     user = models.OneToOneField(User, on_delete=models.CASCADE, verbose_name="User")
     role = models.CharField(max_length=30)
@@ -82,7 +82,7 @@ class UserToken(models.Model):
         return super(UserToken, self).save(*args, **kwargs)
 
     def generate_key(self):
-        return secrets.token_hex(32)
+        return secrets.token_hex(64)
 
     def __str__(self):
         return self.key
@@ -95,7 +95,7 @@ class UserToken(models.Model):
 class RemoveOTPRequest(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, primary_key=True)
     key = models.CharField(max_length=30)
-    time_created = models.DateField(auto_now_add=True)
+    time_created = models.DateTimeField(auto_now_add=True)
     attempts = models.IntegerField()
 
     @classmethod
