@@ -104,7 +104,9 @@ class TOTPDeleteView(APIView):
             raise NoDeviceException()
         try:
             old_request = RemoveOTPRequest.objects.get(user=user)
-            diff = datetime.now(old_request.time_created.tzinfo) - old_request.time_created
+            diff = (
+                datetime.now(old_request.time_created.tzinfo) - old_request.time_created
+            )
             if diff.total_seconds() / 60 > 1440:
                 old_request.delete()
             else:
@@ -188,6 +190,7 @@ class TOTPDeleteView(APIView):
             else:
                 remove_request.attempts += 1
                 remove_request.save()
+
                 if remove_request.attempts >= 5:
                     log_info(
                         [
