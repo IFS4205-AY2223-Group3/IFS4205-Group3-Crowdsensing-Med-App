@@ -24,6 +24,12 @@ class InvalidLoginException(APIException):
     default_code = "login_failed"
 
 
+class ExceededRequestLimitException(APIException):
+    status_code = "400"
+    default_detail = "You can only make 1 removal request per day."
+    default_code = "exceed_request"
+
+
 class InvalidRequestException(APIException):
     status_code = "400"
     default_detail = "The request is invalid."
