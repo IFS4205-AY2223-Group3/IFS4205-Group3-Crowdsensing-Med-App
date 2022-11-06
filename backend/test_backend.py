@@ -424,9 +424,9 @@ class IOTTest(APITestCase):
         self.assertEqual(response.data, expected_message)
 
     def test_iot_post(self):
-        r = os.urandom(32).hex()
-        secret = hmac.digest(self.token.key.encode(), r.encode(), "sha256").hex()
-        data = {"count": 5, "key": r, "secret": secret}
+        r = os.urandom(32)
+        secret = hmac.digest(bytes.fromhex(self.token.key), r, "sha256").hex()
+        data = {"count": 5, "key": r.hex(), "secret": secret}
         response = self.client.post("/iot", data)
         expected_response = status.HTTP_200_OK
 
