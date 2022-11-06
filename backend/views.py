@@ -758,7 +758,9 @@ class CrowdView(APIView):
             secret = request.data["secret"]
             r = request.data["key"]
 
-            m = hmac.digest(iot_token.key.encode(), r.encode(), "sha256").hex()
+            m = hmac.digest(
+                bytes.fromhex(iot_token.key), bytes.fromhex(r), "sha256"
+            ).hex()
             if not hmac.compare_digest(m, secret):
                 raise ValueError
 
